@@ -20,6 +20,8 @@ import org.kloudgis.data.pojo.PathFeature;
  *
  * @author sylvain
  */
+@Entity
+@Table(name = "path")
 public class PathDbEntity extends AbstractPlaceDbEntity{
 
     @SequenceGenerator(name = "path_seq_gen", sequenceName = "path_seq")

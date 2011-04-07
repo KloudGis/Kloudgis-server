@@ -6,12 +6,18 @@
 package org.kloudgis.data.store;
 
 import java.io.Serializable;
+import java.util.List;
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.PoiFeature;
 
@@ -19,12 +25,19 @@ import org.kloudgis.data.pojo.PoiFeature;
  *
  * @author sylvain
  */
+@Entity
+@Table(name = "poi")
 public class PoiDbEntity extends AbstractPlaceDbEntity {
 
     @SequenceGenerator(name = "poi_seq_gen", sequenceName = "poi_seq")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "poi_seq_gen")
     private Long id;
+
+    @NotFound(action=NotFoundAction.IGNORE)
+    @OneToMany (cascade=CascadeType.REMOVE)
+    @JoinColumn(name="id", referencedColumnName= "fk_id")
+    private List<PoiTagDbEntity> tags;
 
     @Override
     public Long getId() {

@@ -19,6 +19,8 @@ import org.kloudgis.data.pojo.ZoneFeature;
  *
  * @author sylvain
  */
+@Entity
+@Table(name = "zone")
 public class ZoneDbEntity extends AbstractPlaceDbEntity{
 
     @SequenceGenerator(name = "zone_seq_gen", sequenceName = "zone_seq")

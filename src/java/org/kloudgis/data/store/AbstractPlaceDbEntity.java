@@ -1,4 +1,4 @@
-/*
+ /*
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
@@ -70,15 +70,6 @@ public abstract class AbstractPlaceDbEntity {
         type=inPojo.type;
         setId(inPojo.guid);
         
-    }
-
-    public List<TagDbEntity> getTags(EntityManager em) {
-
-        Query query = em.createQuery("SELECT c FROM TagsDbEntity c WHERE  c.featuretype_id = :ft");
-        query = query.setParameter("ft", this.getId());
-        List<TagDbEntity> listColumns = query.getResultList();
-
-        return listColumns;
     }
 
     //Abstract methods
