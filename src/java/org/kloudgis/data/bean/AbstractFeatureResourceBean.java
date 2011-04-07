@@ -110,7 +110,7 @@ public abstract class AbstractFeatureResourceBean {
 
     //TODO : replace by dynamic PU
     protected HibernateEntityManager getEntityManager() {
-        return PersistenceManager.getInstance().getEntityManagerAdmin();
+        return PersistenceManager.getInstance().getEntityManagerDefault();
     }
 
 

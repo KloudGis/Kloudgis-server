@@ -21,7 +21,7 @@ import org.hibernate.ejb.HibernateEntityManager;
 public class PersistenceManager {
 
     public static final boolean DEBUG = true;
-    public static final String ADMIN_PU = "defaultPU";
+    public static final String DEFAULT_PU = "defaultPU";
     private static final PersistenceManager singleton = new PersistenceManager();
     private LinkedHashMap<String, EntityManagerFactory> hashFactory = new LinkedHashMap<String, EntityManagerFactory>();
   
@@ -34,8 +34,8 @@ public class PersistenceManager {
         return singleton;
     }
 
-    public HibernateEntityManager getEntityManagerAdmin() {
-        return getEntityManager(ADMIN_PU);
+    public HibernateEntityManager getEntityManagerDefault() {
+        return getEntityManager(DEFAULT_PU);
     }
 
   
