@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
+  
+  <persistence-unit name="sandboxPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.hibernate.ejb.HibernatePersistence</provider>
+    <non-jta-data-source/>
+    <class>org.kloudgis.store.PoiDbEntity</class>
+    <class>org.kloudgis.store.PathDbEntity</class>
+    <class>org.kloudgis.store.ZoneDbEntity</class>
+    <class>org.kloudgis.store.PoiTagDbEntity</class>
+    <class>org.kloudgis.store.PathTagDbEntity</class>
+    <class>org.kloudgis.store.ZoneTagDbEntity</class>
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+    <properties>
+      <property name="hibernate.connection.username" value="postgres"/>
+      <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>
+      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://localhost:5432/default_sandbox"/>
+      <property name="hibernate.c3p0.min_size" value="1"/>
+      <property name="hibernate.c3p0.max_size" value="20"/>
+      <property name="hibernate.c3p0.timeout" value="5000"/>
+      <property name="hibernate.c3p0.max_statements" value="20"/>
+      <property name="hibernate.dialect" value="org.hibernatespatial.postgis.PostgisDialect"/>
+      <property name="hibernate.show_sql" value="true"/>
+      <property name="hibernate.search.default.indexBase" value="/tmp/search_index"/>
+      <property name="hibernate.hbm2ddl.auto" value="update"/>
+    </properties>
+  </persistence-unit>
+</persistence>
