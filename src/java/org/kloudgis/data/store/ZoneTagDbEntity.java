@@ -19,7 +19,7 @@ import javax.persistence.Table;
  */
 @Entity
 @Table(name = "zone_tag")
-public class ZoneTagDbEntity {
+public class ZoneTagDbEntity extends AbstractTagDbEntity{
 
     @SequenceGenerator(name = "zone_tag_seq_gen", sequenceName = "zone_tag_seq")
     @Id
