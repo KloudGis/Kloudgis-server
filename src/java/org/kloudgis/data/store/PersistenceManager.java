@@ -21,7 +21,7 @@ import org.hibernate.ejb.HibernateEntityManager;
 public class PersistenceManager {
 
     public static final boolean DEBUG = true;
-    public static final String DEFAULT_PU = "defaultPU";
+    public static final String DEFAULT_PU = "sandboxPU";
     private static final PersistenceManager singleton = new PersistenceManager();
     private LinkedHashMap<String, EntityManagerFactory> hashFactory = new LinkedHashMap<String, EntityManagerFactory>();
   
