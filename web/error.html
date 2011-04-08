@@ -1,0 +1,112 @@
+<!--
+* EchoSphere - Spatial Platform for Application and Communication Extensions.
+ *
+ * http://www.echospheretechnologies.com
+ *
+ * Copyright (c) 2003 Echosphere Technologies, Inc.
+ * All Rights Reserved.
+ *
+ * This software is the confidential and proprietary information of
+ * Echosphere Technologies, Inc. ("Confidential Information"). You shall not
+ * disclose such Confidential Information and shall use it only in
+ * accordance with the terms of the license agreement you entered into
+ * with Echosphere Technologies, Inc.
+-->
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <META http-equiv="Content-Style-Type" content="text/css">
+        <link href="/kloudgis/style.css" rel="stylesheet" type="text/css">
+        <title>Erreur de Connexion à Kloudgis</title>
+    </head>
+    <body onLoad="document.log_form.j_username.focus()">
+        <div id="outer">
+        <table>
+            <tr>
+                <td align="center">
+                    <div class="leftside_error">
+                        <table>
+                            <tr>
+                                <td>
+                                    <div class="backgroundImg">
+                                        <img alt=""  src="/kloudgis/images/map.gif">
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </td>
+                <td align="center">
+                    <div class="rightside">
+                        <div class="logintable">
+                            <table>
+                                <tr>
+                                    <td>
+                                        <div class="logo">
+                                            <img alt=""  src="/kloudgis/images/xyz.jpg">
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <form class="login_form" name="log_form" method="POST" action="/kloudgis/j_security_check">
+                                            <label class="welcome_label">Connexion à Kloudgis</label>
+                                            <table>
+                                                <tr>
+                                                    <td class="name_cell">
+                                                        <label class="name_label">Courriel:</label>
+                                                    </td>
+                                                    <td>
+                                                        <input class="name_field" type="text" name="j_username">
+                                                    </td>
+                                                </tr>
+                                                <tr class="pwd_row">
+                                                    <td>
+                                                        <label class="pwd_label">Mot de passe:</label>
+                                                    </td>
+                                                    <td>
+                                                        <input class="pwd_field" type="password" name="j_password">
+                                                    </td>
+                                                    <td colspan="2" align="right">
+                                                        <input class="login_button" type="submit" value="Connexion">
+                                                    </td>
+                                                </tr>
+                                                <tr class="forgot">
+                                                    <td colspan="2" align="center">
+                                                        <a href="forgot_pwd.html">Mot de passe oublié?</a>
+                                                    </td>
+                                                </tr>
+
+                                            </table>
+                                        </form>
+                                    </td>
+                                </tr>
+                            </table>
+                            <label class="error_label">L'usager et le mot de passe ne concorde pas.</label>
+                        </div>
+                        <div class="signuptable">
+                            <table>
+                                <tr>
+                                    <td align="center">
+                                        <div class="signuplabel">
+                                            <label>Nouvel utilisateur?</label>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="signup" align="center">
+                                        <a href="/signup">
+                                            <span>Créer un compte</span>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        </table>
+            </div>
+    </body>
+</html>

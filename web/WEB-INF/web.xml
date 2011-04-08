@@ -15,6 +15,49 @@
         </session-timeout>
     </session-config>
     <welcome-file-list>
-        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
     </welcome-file-list>
+    <security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Users Access</web-resource-name>
+            <url-pattern>/test/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>user_role</role-name>
+        </auth-constraint>
+    </security-constraint>
+    <!--<security-constraint>
+        <web-resource-collection>
+            <web-resource-name>Admin Access</web-resource-name>
+            <url-pattern>/admin/*</url-pattern>
+            <url-pattern>/protected/*</url-pattern>
+            <http-method>GET</http-method>
+            <http-method>POST</http-method>
+            <http-method>PUT</http-method>
+            <http-method>DELETE</http-method>
+        </web-resource-collection>
+        <auth-constraint>
+            <role-name>admin_role</role-name>
+        </auth-constraint>
+    </security-constraint>-->
+
+    <security-role>
+        <description>User role</description>
+        <role-name>user_role</role-name>
+    </security-role>
+    <security-role>
+        <description>Admin role</description>
+        <role-name>admin_role</role-name>
+    </security-role>
+    <login-config>
+        <auth-method>FORM</auth-method>
+        <form-login-config>
+            <form-login-page>/login.html</form-login-page>
+            <form-error-page>/error.html</form-error-page>
+        </form-login-config>
+    </login-config>
 </web-app>
