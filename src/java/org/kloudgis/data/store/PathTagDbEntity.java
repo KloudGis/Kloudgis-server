@@ -29,4 +29,22 @@ public class PathTagDbEntity extends AbstractTagDbEntity{
     @Column
     private Long fk_id;
 
+    public Long getFk_id() {
+        return fk_id;
+    }
+
+    public void setFk_id(Long fk_id) {
+        this.fk_id = fk_id;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    
+
 }

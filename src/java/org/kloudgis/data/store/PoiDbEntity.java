@@ -6,6 +6,7 @@
 package org.kloudgis.data.store;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -36,7 +37,7 @@ public class PoiDbEntity extends AbstractPlaceDbEntity {
 
     @NotFound(action=NotFoundAction.IGNORE)
     @OneToMany (cascade=CascadeType.REMOVE)
-    @JoinColumn(name="id", referencedColumnName= "fk_id")
+    @JoinColumn(name="fk_id", referencedColumnName="id")
     private List<PoiTagDbEntity> tags;
 
     @Override
@@ -52,7 +53,12 @@ public class PoiDbEntity extends AbstractPlaceDbEntity {
     @Override
     public PoiFeature toPojo() {
         PoiFeature pojo = new PoiFeature();
-        super.setupFromPojo(pojo);
+        super.setupPojo(pojo);
+        List<Long> lstT = new ArrayList();
+        for (PoiTagDbEntity t : tags) {
+            lstT.add(t.getId());
+        }
+        pojo.tags=lstT;
         return pojo;
     }
 

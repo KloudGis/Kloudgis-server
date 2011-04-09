@@ -8,6 +8,7 @@ package org.kloudgis.data.store;
 
 import com.vividsolutions.jts.geom.Geometry;
 import javax.persistence.Column;
+import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.Type;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 
@@ -15,6 +16,7 @@ import org.kloudgis.data.pojo.AbstractPlaceFeature;
  *
  * @author sylvain
  */
+@MappedSuperclass
 public abstract class AbstractPlaceDbEntity {
 
 
@@ -70,6 +72,14 @@ public abstract class AbstractPlaceDbEntity {
         type=inPojo.type;
         setId(inPojo.guid);
         
+    }
+
+    public void setupPojo(AbstractPlaceFeature inPojo){
+        inPojo.name=getName();
+        inPojo.featureClass=getFeatureClass();
+        inPojo.type=getType();
+        inPojo.guid=getId();
+
     }
 
     //Abstract methods

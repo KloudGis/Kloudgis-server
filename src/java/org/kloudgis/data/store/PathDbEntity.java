@@ -42,7 +42,7 @@ public class PathDbEntity extends AbstractPlaceDbEntity{
     @Override
     public PathFeature toPojo() {
         PathFeature pojo = new PathFeature();
-        super.setupFromPojo(pojo);
+        super.setupPojo(pojo);
         return pojo;
     }
 

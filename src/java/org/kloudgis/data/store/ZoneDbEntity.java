@@ -28,7 +28,6 @@ public class ZoneDbEntity extends AbstractPlaceDbEntity{
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "zone_seq_gen")
     private Long id;
 
-
     @Override
     public Long getId() {
         return id;
@@ -36,13 +35,13 @@ public class ZoneDbEntity extends AbstractPlaceDbEntity{
 
     @Override
     public void setId(Long inId) {
-        id=inId;
+        id= inId;
     }
 
     @Override
     public ZoneFeature toPojo() {
         ZoneFeature pojo = new ZoneFeature();
-        super.setupFromPojo(pojo);
+        super.setupPojo(pojo);
         return pojo;
     }
 
