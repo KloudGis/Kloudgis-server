@@ -4,6 +4,7 @@
   <persistence-unit name="sandboxPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
     <non-jta-data-source/>
+    <class>org.kloudgis.data.store.FeatureTypeDbEntity</class>
     <class>org.kloudgis.data.store.PoiDbEntity</class>
     <class>org.kloudgis.data.store.PathDbEntity</class>
     <class>org.kloudgis.data.store.ZoneDbEntity</class>

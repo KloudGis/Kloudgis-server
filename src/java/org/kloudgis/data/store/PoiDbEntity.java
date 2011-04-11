@@ -14,11 +14,14 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.kloudgis.data.pojo.AbstractFeature;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.PoiFeature;
 
@@ -28,7 +31,8 @@ import org.kloudgis.data.pojo.PoiFeature;
  */
 @Entity
 @Table(name = "poi")
-public class PoiDbEntity extends AbstractPlaceDbEntity {
+
+public class PoiDbEntity extends AbstractPlaceDbEntity implements Serializable{
 
     @SequenceGenerator(name = "poi_seq_gen", sequenceName = "poi_seq")
     @Id
@@ -63,8 +67,8 @@ public class PoiDbEntity extends AbstractPlaceDbEntity {
     }
 
     @Override
-    public void fromPojo(AbstractPlaceFeature pojo) {
-        super.setupFromPojo(pojo);
+    public void fromPojo(AbstractFeature pojo) {
+        super.setupFromPojo((AbstractPlaceFeature)pojo);
         //TODO: parse geometry here
     }
 

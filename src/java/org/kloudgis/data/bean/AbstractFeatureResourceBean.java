@@ -6,11 +6,7 @@
 package org.kloudgis.data.bean;
 
 
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.Polygon;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import javax.persistence.EntityManager;
@@ -32,7 +28,10 @@ import javax.ws.rs.core.Response;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.ejb.HibernateEntityManager;
+import org.kloudgis.data.pojo.AbstractFeature;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
+import org.kloudgis.data.pojo.FetchResult;
+import org.kloudgis.data.store.AbstractFeatureDbEntity;
 import org.kloudgis.data.store.AbstractPlaceDbEntity;
 import org.kloudgis.data.store.PersistenceManager;
 /**
@@ -42,13 +41,56 @@ import org.kloudgis.data.store.PersistenceManager;
 public abstract class AbstractFeatureResourceBean {
 
     @GET
+    @Produces({"application/json"})
+    public FetchResult getFeatures(
+            @DefaultValue("0") @QueryParam("start") Integer start,
+            @DefaultValue("-1") @QueryParam("length") Integer length,
+            @QueryParam("sort") String sort,
+            @QueryParam("sortState") String sortState) {
+        HibernateEntityManager em = getEntityManager();
+        Criteria cr = em.getSession().createCriteria(getEntityDbClass()).setFirstResult(start);
+        if (length >= 0) {
+            cr.setMaxResults(length);
+        }
+        if (sort != null) {
+            if (sortState != null && sortState.equals("DESC")) {
+                cr.addOrder(Order.desc(sort));
+            } else {
+                cr.addOrder(Order.asc(sort));
+            }
+
+        }
+        List<AbstractFeatureDbEntity> lstR = cr.list();
+        List<AbstractFeature> lstEntity = toPojo(lstR);
+        Long count = new Integer(lstR.size()).longValue();
+        if (start.intValue() > 0 || length.intValue() != -1) {
+            Query qCount = em.createQuery(
+                    "SELECT COUNT(e) FROM " + getEntityDbClass().getSimpleName() + " e");
+            count = (Long) qCount.getSingleResult();
+        }
+        FetchResult qResult = new FetchResult(lstEntity, count);
+        em.close();
+        return qResult;
+    }
+
+    protected List<AbstractFeature> toPojo(Collection<AbstractFeatureDbEntity> lstDbFea) {
+        List<AbstractFeature> lstPojo = new ArrayList();
+        if (lstDbFea != null && lstDbFea.size() > 0) {
+            for (AbstractFeatureDbEntity fDb : lstDbFea) {
+               lstPojo.add(fDb.toPojo());
+            }
+        }
+        return lstPojo;
+    }
+
+    @GET
     @Path("{fId}")
     @Produces({"application/json"})
-    public AbstractPlaceFeature getFeature(@PathParam("fId") Long fId) {
+    public AbstractFeature getFeature(@PathParam("fId") Long fId) {
         EntityManager em = getEntityManager();
         AbstractPlaceDbEntity fDb = getFeatureDb(em, fId);
         if (fDb != null) {
-            AbstractPlaceFeature f = fDb.toPojo();
+            AbstractFeature f = fDb.toPojo();
             em.close();
             return f;
         }
@@ -75,10 +117,10 @@ public abstract class AbstractFeatureResourceBean {
         return Response.ok().build();
     }
 
-    public AbstractPlaceFeature doAddFeature(AbstractPlaceFeature feature, HttpServletRequest req, ServletContext sContext) throws WebApplicationException {
+    public AbstractFeature doAddFeature(AbstractFeature feature, HttpServletRequest req, ServletContext sContext) throws WebApplicationException {
         EntityManager em = getEntityManager();
         em.getTransaction().begin();
-        AbstractPlaceDbEntity fDb = feature.toDbEntity();
+        AbstractFeatureDbEntity fDb = feature.toDbEntity();
         em.persist(fDb);
         em.getTransaction().commit();
         feature = fDb.toPojo();
@@ -86,9 +128,9 @@ public abstract class AbstractFeatureResourceBean {
         return feature;
     }
 
-    public AbstractPlaceFeature doUpdateFeature(AbstractPlaceFeature feature, Long fid, HttpServletRequest req, ServletContext sContext) throws WebApplicationException {
+    public AbstractFeature doUpdateFeature(AbstractFeature feature, Long fid, HttpServletRequest req, ServletContext sContext) throws WebApplicationException {
         EntityManager em = getEntityManager();
-        AbstractPlaceDbEntity uDb = (AbstractPlaceDbEntity) em.find(getEntityDbClass(), fid);
+        AbstractFeatureDbEntity uDb = (AbstractFeatureDbEntity) em.find(getEntityDbClass(), fid);
         if (uDb != null) {
             em.getTransaction().begin();
             uDb.fromPojo(feature);

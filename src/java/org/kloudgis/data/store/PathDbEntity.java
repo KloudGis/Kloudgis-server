@@ -19,6 +19,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.annotations.NotFoundAction;
+import org.kloudgis.data.pojo.AbstractFeature;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.PathFeature;
 
@@ -63,8 +64,8 @@ public class PathDbEntity extends AbstractPlaceDbEntity{
     }
 
     @Override
-    public void fromPojo(AbstractPlaceFeature pojo) {
-        super.setupFromPojo(pojo);
+    public void fromPojo(AbstractFeature pojo) {
+        super.setupFromPojo((AbstractPlaceFeature)pojo);
         
         //parse geometry here
     }

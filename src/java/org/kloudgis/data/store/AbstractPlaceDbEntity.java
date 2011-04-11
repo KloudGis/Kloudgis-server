@@ -17,7 +17,7 @@ import org.kloudgis.data.pojo.AbstractPlaceFeature;
  * @author sylvain
  */
 @MappedSuperclass
-public abstract class AbstractPlaceDbEntity {
+public abstract class AbstractPlaceDbEntity extends AbstractFeatureDbEntity{
 
 
     @Column
@@ -82,14 +82,6 @@ public abstract class AbstractPlaceDbEntity {
 
     }
 
-    //Abstract methods
     
-    public abstract Long getId();
-
-    public abstract void setId(Long id);
-
-    public abstract AbstractPlaceFeature toPojo();
-    
-    public abstract void fromPojo(AbstractPlaceFeature pojo);
 
 }
