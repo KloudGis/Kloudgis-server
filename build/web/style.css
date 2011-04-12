@@ -1,0 +1,173 @@
+/* 
+    Document   : login
+    Created on : Jan 12, 2011, 8:39:39 AM
+    Author     : jeanfelixg
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+body{
+    width: 950px;
+    margin: 0 auto;
+    background-image: url(images/background.png);
+    background-repeat: repeat-x;
+    height:100%;
+}
+
+#outer{
+    position: absolute;
+    top: 15%;
+}
+
+.leftside {
+    position: relative;
+    -webkit-animation-name:acceleratedReveal;
+    -webkit-animation-duration:0.8s;
+    visibility:visible;
+}
+
+@-webkit-keyframes acceleratedReveal {
+    0%      { -webkit-transform:translate3d(0, -400px, 0); }
+67%     { -webkit-transform:translate3d(0,   0  , 0); }
+86%     { -webkit-transform:translate3d(0,  -4px, 0); }
+100%    { -webkit-transform:translate3d(0,   0  , 0); }
+}
+
+.leftside_error {
+    position: relative;
+}
+
+.rightside{
+    margin-left: 120px;
+    background: none;
+}
+
+.logintable{
+    display: inline;
+}
+
+.welcome_label{
+    color: rgb(58,58,58);
+    font-size: 30px;
+    display: block;
+    margin-top: 20px;
+    height:50px;
+    text-align: center;
+}
+
+
+.name_label,
+.pwd_label {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 18px;
+    font-weight: normal;
+    color: rgb(58,58,58);
+}
+
+.name_label{
+    font-weight:bold;
+    vertical-align: middle;
+    text-align: right;
+}
+
+.name_cell{
+    text-align:right;
+}
+
+.name_field{
+    width: 160px;
+}
+
+.pwd_label{  
+    font-weight:bold;
+    vertical-align: middle;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.pwd_field{
+    width: 160px;
+}
+
+.login_button:hover{
+    background:#585858;
+}
+
+.login_button{
+    cursor: hand;
+    margin-left: 10px;
+    padding: 2px 5px 2px 5px;
+    border: none;
+    font-size: 12px;
+    display: inline-block;
+    font-family: "HelveticaNeue-Bold", "HelveticaNeue", Helvetica, Arial, Sans-serif;
+    font-weight: bold;
+    color: white;
+    -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    text-decoration: none;
+    white-space: nowrap;
+    background: -moz-linear-gradient(center bottom, #585858 22%, gray 81%);
+    background: -webkit-gradient(linear, left bottom, left top, color-stop(0.22, #585858), color-stop(0.81, gray));
+    background: -moz-linear-gradient(center bottom, #585858 22%, gray 81%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr=gray, endColorStr=#585858);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=gray, endColorstr=#585858)";
+}
+
+.forgot a{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    font-weight: normal;
+}
+
+.error_label{
+    color: red;
+}
+
+.signuptable{
+    display: block;
+    margin-top: 50px;
+}
+
+.signuplabel{
+    color: rgb(58,58,58);
+    font-size: 20px;
+    display: block;
+    margin-top: 10px;
+    height:50px;
+    text-align: center;
+}
+
+.signup a:hover{
+    background:#FF9009;
+}
+
+.signup a{
+    margin-left: 10px;
+    font-size: 14px;
+    padding: 7px 0px 7px;
+    display: inline-block;
+    font-family: "HelveticaNeue-Bold", "HelveticaNeue", Helvetica, Arial, Sans-serif;
+    font-weight: bold;
+    color: white;
+    -webkit-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.4);
+    text-decoration: none;
+    white-space: nowrap;
+    background: -moz-linear-gradient(center bottom, #FF9009 22%, #FA4 81%);
+    background: -webkit-gradient(linear,left bottom, left top, color-stop(0.22, #FF9009), color-stop(0.81, #FA4));
+    background: -moz-linear-gradient(center bottom, #FF9009 22%, #FA4 81%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorStr=#FA4, endColorStr=#FF9009);
+    -ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#FA4, endColorstr=#FF9009)";
+}
+
+.signup span{
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+
+
+

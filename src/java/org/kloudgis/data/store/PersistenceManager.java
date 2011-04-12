@@ -4,13 +4,9 @@
  */
 package org.kloudgis.data.store;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import javax.persistence.EntityManagerFactory;
-import javax.persistence.NoResultException;
 import javax.persistence.Persistence;
-import javax.persistence.Query;
 import org.hibernate.ejb.HibernateEntityManager;
 
 
@@ -22,10 +18,10 @@ public class PersistenceManager {
 
     public static final boolean DEBUG = true;
     public static final String DEFAULT_PU = "sandboxPU";
+    public static String ADMIN_PU = "adminPU";
     private static final PersistenceManager singleton = new PersistenceManager();
     private LinkedHashMap<String, EntityManagerFactory> hashFactory = new LinkedHashMap<String, EntityManagerFactory>();
   
-    private ArrayList<IPersistenceUnitListener> arrlListener = new ArrayList();
 
     private PersistenceManager() {
     }
@@ -63,22 +59,7 @@ public class PersistenceManager {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(namePU);
         if (emf != null) {
             hashFactory.put(namePU, emf);
-            fireEntityManagerCreated(namePU);
         }
         return emf;
-    }
-
-    private void fireEntityManagerCreated(String pu) {
-        for(IPersistenceUnitListener ls : (List<IPersistenceUnitListener>)arrlListener.clone()){
-            ls.persistenceUnitCreated(pu);
-        }
-    }
-
-    public void addPersistenceUnitListener(IPersistenceUnitListener listener) {
-        arrlListener.add(listener);
-    }
-
-    public void removePersistenceUnitListener(IPersistenceUnitListener listener) {
-        arrlListener.remove(listener);
     }
 }
