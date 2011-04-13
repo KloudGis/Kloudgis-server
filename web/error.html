@@ -15,17 +15,19 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
     <head>
+        <script type="text/javascript" src="/kloudgis/login.js">
+        </script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <META http-equiv="Content-Style-Type" content="text/css">
         <link href="/kloudgis/style.css" rel="stylesheet" type="text/css">
-        <title>Erreur de Connexion à Kloudgis</title>
+        <title>Connexion à Kloudgis</title>
     </head>
     <body onLoad="document.log_form.j_username.focus()">
         <div id="outer">
         <table>
             <tr>
                 <td align="center">
-                    <div class="leftside_error">
+                    <div class="leftside">
                         <table>
                             <tr>
                                 <td>
@@ -96,7 +98,7 @@
                                 </tr>
                                 <tr>
                                     <td class="signup" align="center">
-                                        <a href="/signup">
+                                        <a href="javascript:gotoLogin()">
                                             <span>Créer un compte</span>
                                         </a>
                                     </td>
