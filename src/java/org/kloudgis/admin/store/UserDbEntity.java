@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.Table;
+import org.kloudgis.admin.pojo.User;
 
 /**
  *
@@ -24,6 +25,7 @@ import javax.persistence.Table;
 public class UserDbEntity implements Serializable {
 
     public static final String ROLE_ADM = "admin_role";
+    public static final String ROLE_USER = "user_role";
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -215,5 +217,18 @@ public class UserDbEntity implements Serializable {
                 removeRole(adm, em);
             }
         }
+    }
+
+     public User toPojo(EntityManager em) {
+        User entity = new User();
+        entity.guid = getId();
+        entity.fullName = getFullName();
+        entity.email = getEmail();
+        entity.compagny = getCompagny();
+        entity.location = location;
+        entity.password = getPassword();
+        entity.isActive = isActive();
+        entity.isSuperUser = isSuperUser(em);
+        return entity;
     }
 }

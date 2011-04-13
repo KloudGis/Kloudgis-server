@@ -70,6 +70,7 @@ public class SignupResourceBean {
             user.setFullName(user_try.name);
             user.setCompagny(user_try.compagny);
             user.setLocation(user_try.location);
+            user.setPassword(user_try.password);
             user.setActive(false);
             if (!isUnique(user_try.email)) {
                 Message message = new Message();
@@ -84,7 +85,7 @@ public class SignupResourceBean {
                 EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
                 em.getTransaction().begin();
                 UserRoleDbEntity role = new UserRoleDbEntity();
-                role.setRoleName("role_user");
+                role.setRoleName(UserDbEntity.ROLE_USER);
                 user.addRole(role);
                 em.persist(role);               
                 em.persist(user);
