@@ -21,6 +21,7 @@
         <web-resource-collection>
             <web-resource-name>Users Access</web-resource-name>
             <url-pattern>/protected/*</url-pattern>
+            <url-pattern>/resources/protected/*</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>
             <http-method>PUT</http-method>
@@ -33,8 +34,9 @@
     <security-constraint>
         <web-resource-collection>
             <web-resource-name>Admin Access</web-resource-name>
-            <url-pattern>/admin/*</url-pattern>
             <url-pattern>/protected/*</url-pattern>
+            <url-pattern>/resources/admin/*</url-pattern>
+            <url-pattern>/resources/protected/*</url-pattern>
             <http-method>GET</http-method>
             <http-method>POST</http-method>
             <http-method>PUT</http-method>
