@@ -70,7 +70,23 @@ public abstract class AbstractFeatureResourceBean {
         }
         FetchResult qResult = new FetchResult(lstEntity, count);
         em.close();
+        System.out.println("AbstractFeatureResourceBean: qResult= "+qResult.toString());
         return qResult;
+    }
+
+
+    @GET
+    @Path("count")
+    @Produces({"application/json"})
+    public Integer countSearch() {
+
+        HibernateEntityManager em = getEntityManager();
+        Integer count=new Integer(0);
+        Query qCount = em.createQuery(
+                    "SELECT COUNT(e) FROM " + getEntityDbClass().getSimpleName() + " e");
+            count = (Integer) qCount.getSingleResult();
+        em.close();
+        return count;
     }
 
     protected List<AbstractFeature> toPojo(Collection<AbstractFeatureDbEntity> lstDbFea) {
