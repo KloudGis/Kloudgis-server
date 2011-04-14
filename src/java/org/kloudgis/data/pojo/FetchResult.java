@@ -38,7 +38,7 @@ public class FetchResult {
      * @param lstFeatures the lFeatures to set
      */
     public final void setFeatures(List<AbstractFeature> lFeatures) {
-        this.lstFeatures = lstFeatures;
+        this.lstFeatures = lFeatures;
     }
 
     /**

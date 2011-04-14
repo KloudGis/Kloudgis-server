@@ -21,7 +21,7 @@ import org.kloudgis.data.store.ZoneDbEntity;
  *
  * @author sylvain
  */
-@Path("/protected/zone")
+@Path("/protected/feature/zone")
 @Produces({"application/json"})
 public class ZoneResourceBean extends AbstractFeatureResourceBean{
     

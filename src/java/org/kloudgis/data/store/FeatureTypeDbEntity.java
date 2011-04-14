@@ -36,9 +36,12 @@ public class FeatureTypeDbEntity implements Serializable {
     @Column
     private String label;
 
-   
+   @Column
+    private String class_name;
 
-    public String getDescription() {
+
+
+   public String getDescription() {
         return description;
     }
 
@@ -54,7 +57,13 @@ public class FeatureTypeDbEntity implements Serializable {
         return name;
     }
 
-    //setters
+    public String getClass_name() {
+        return class_name;
+    }
+
+    public void setClass_name(String class_name) {
+        this.class_name = class_name;
+    }
    
 
     public void setDescription(String description) {
@@ -96,7 +105,7 @@ public class FeatureTypeDbEntity implements Serializable {
         pojo.name = getName();
         pojo.description = getDescription();
         pojo.label = getLabel();
-
+        pojo.class_name = getClass_name();
         return pojo;
     }
 
@@ -104,6 +113,7 @@ public class FeatureTypeDbEntity implements Serializable {
         this.setName(ft.name);
         this.setDescription(ft.description);
         this.setLabel(ft.label);
+        this.setClass_name(ft.class_name);
 
     }
 }

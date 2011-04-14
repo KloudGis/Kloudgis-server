@@ -22,7 +22,7 @@ import org.kloudgis.data.store.PathDbEntity;
  *
  * @author sylvain
  */
-@Path("/protected/path")
+@Path("/protected/feature/path")
 @Produces({"application/json"})
 public class PathResourceBean extends AbstractFeatureResourceBean{
 

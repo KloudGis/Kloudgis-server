@@ -16,6 +16,7 @@ public class FeatureType {
     public String name;
     public String description;
     public String label;
+    public String class_name;
     //public List<Long> attrtypes;
 
     public FeatureTypeDbEntity toDbEntity() {
@@ -30,7 +31,7 @@ public class FeatureType {
         entity.setName(name);
         entity.setDescription(description);
         entity.setLabel(label); 
-
+        entity.setClass_name(class_name);
         return entity;
     }
 

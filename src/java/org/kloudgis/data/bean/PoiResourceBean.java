@@ -21,7 +21,7 @@ import org.kloudgis.data.store.PoiDbEntity;
  *
  * @author sylvain
  */
-@Path("/protected/poi")
+@Path("/protected/feature/poi")
 @Produces({"application/json"})
 public class PoiResourceBean extends AbstractFeatureResourceBean{
 
