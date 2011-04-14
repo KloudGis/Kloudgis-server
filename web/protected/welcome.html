@@ -24,7 +24,11 @@
             if(app === ""){
                 app = "kloudgis";
             }
-            window.location.href = "/" + app;
+            if(window.location.href.indexOf('localhost') == -1){
+               window.location.href = "/" + app;
+            }else{
+               window.location.href = "http://localhost:4020/" + app;
+            }            
         </script>
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <title>App Redirect</title>
