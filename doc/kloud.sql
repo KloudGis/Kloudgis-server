@@ -16,7 +16,7 @@ SET search_path = public, pg_catalog;
 --
 -- TOC entry 1496 (class 1259 OID 276266)
 -- Dependencies: 3
--- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: bgjlr
+-- Name: hibernate_sequence; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
 CREATE SEQUENCE hibernate_sequence
@@ -27,12 +27,12 @@ CREATE SEQUENCE hibernate_sequence
     CACHE 1;
 
 
-ALTER TABLE public.hibernate_sequence OWNER TO bgjlr;
+ALTER TABLE public.hibernate_sequence OWNER TO postgres;
 
 --
 -- TOC entry 1785 (class 0 OID 0)
 -- Dependencies: 1496
--- Name: hibernate_sequence; Type: SEQUENCE SET; Schema: public; Owner: bgjlr
+-- Name: hibernate_sequence; Type: SEQUENCE SET; Schema: public; Owner: postgres
 --
 
 SELECT pg_catalog.setval('hibernate_sequence', 42, true);
@@ -45,7 +45,7 @@ SET default_with_oids = false;
 --
 -- TOC entry 1495 (class 1259 OID 276236)
 -- Dependencies: 3
--- Name: user_roles; Type: TABLE; Schema: public; Owner: bgjlr; Tablespace: 
+-- Name: user_roles; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE user_roles (
@@ -56,12 +56,12 @@ CREATE TABLE user_roles (
 );
 
 
-ALTER TABLE public.user_roles OWNER TO bgjlr;
+ALTER TABLE public.user_roles OWNER TO postgres;
 
 --
 -- TOC entry 1494 (class 1259 OID 276229)
 -- Dependencies: 3
--- Name: users; Type: TABLE; Schema: public; Owner: bgjlr; Tablespace: 
+-- Name: users; Type: TABLE; Schema: public; Owner: postgres; Tablespace: 
 --
 
 CREATE TABLE users (
@@ -80,12 +80,12 @@ CREATE TABLE users (
 );
 
 
-ALTER TABLE public.users OWNER TO bgjlr;
+ALTER TABLE public.users OWNER TO postgres;
 
 --
 -- TOC entry 1779 (class 0 OID 276236)
 -- Dependencies: 1495
--- Data for Name: user_roles; Type: TABLE DATA; Schema: public; Owner: bgjlr
+-- Data for Name: user_roles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY user_roles (id, role_name, email, user_name) FROM stdin;
@@ -98,7 +98,7 @@ COPY user_roles (id, role_name, email, user_name) FROM stdin;
 --
 -- TOC entry 1778 (class 0 OID 276229)
 -- Dependencies: 1494
--- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: bgjlr
+-- Data for Name: users; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
 COPY users (id, email, expiredate, fullname, moreinfo, password, group_id, compagny, isactive, picture, location, user_name) FROM stdin;
@@ -109,7 +109,7 @@ COPY users (id, email, expiredate, fullname, moreinfo, password, group_id, compa
 --
 -- TOC entry 1777 (class 2606 OID 276240)
 -- Dependencies: 1495 1495
--- Name: user_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: bgjlr; Tablespace: 
+-- Name: user_roles_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY user_roles
@@ -119,7 +119,7 @@ ALTER TABLE ONLY user_roles
 --
 -- TOC entry 1775 (class 2606 OID 276233)
 -- Dependencies: 1494 1494
--- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: bgjlr; Tablespace: 
+-- Name: users_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres; Tablespace: 
 --
 
 ALTER TABLE ONLY users
