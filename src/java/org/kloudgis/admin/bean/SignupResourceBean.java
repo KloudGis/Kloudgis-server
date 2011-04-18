@@ -51,6 +51,13 @@ public class SignupResourceBean {
         return Response.ok("Accepted").build();
     }
 
+    @Path("ping")
+    @GET
+    @Produces({"application/json"})
+    public Response pingServer() {
+        return Response.ok("Ping").build();
+    }
+
     @Path("create")
     @POST
     @Produces({"application/json"})
