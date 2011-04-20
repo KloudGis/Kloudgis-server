@@ -29,9 +29,9 @@ public class UserDbEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
-    @Column(length = 50)
+    @Column(length = 100)
     private String email;
-    @Column(length = 150)
+    @Column(length = 100)
     private String fullName;
     @Column(length = 50)
     private String password;
