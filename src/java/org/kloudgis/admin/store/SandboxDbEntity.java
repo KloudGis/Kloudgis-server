@@ -16,6 +16,7 @@ package org.kloudgis.admin.store;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
+import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import javax.persistence.Column;
@@ -25,6 +26,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.kloudgis.admin.pojo.Sandbox;
 
@@ -34,16 +36,19 @@ import org.kloudgis.admin.pojo.Sandbox;
  */
 @Entity
 @Table(name = "sandboxes")
-public class SandboxDbEntity {
+public class SandboxDbEntity implements Serializable {
 
     //general info
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Index(name="name_index")
     @Column(length = 100)
     private String name;
+    @Index(name="owner_index")
     @Column(length = 100)
     private String owner;
+    @Index(name="date_creation_index")
     @Column
     private Timestamp date_creation;
     //map metadata

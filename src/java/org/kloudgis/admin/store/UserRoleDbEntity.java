@@ -21,13 +21,18 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import org.hibernate.annotations.Index;
 
 /**
  *
  * @author jeanfelixg
  */
 @Entity
-@Table(name = "user_roles")
+@org.hibernate.annotations.Table(
+    appliesTo="user_roles",
+    indexes = { @Index(name="main_idx", columnNames = { "email", "role_name" } ) }
+)
+@Table(name="user_roles")
 public class UserRoleDbEntity implements Serializable {
 
     @Id

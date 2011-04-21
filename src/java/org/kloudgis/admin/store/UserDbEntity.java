@@ -14,6 +14,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Query;
 import javax.persistence.Table;
+import org.hibernate.annotations.Index;
 import org.kloudgis.admin.pojo.User;
 
 /**
@@ -29,6 +30,7 @@ public class UserDbEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @Index(name="email_index")
     @Column(length = 100)
     private String email;
     @Column(length = 100)
@@ -37,6 +39,7 @@ public class UserDbEntity implements Serializable {
     private String password;
     @Column(length = 50)
     private String compagny;
+    @Index(name="loc_index")
     @Column(length = 50)
     private String location;
     @Column
