@@ -1,5 +1,3 @@
-package org.kloudgis.admin.pojo;
-
 /*
 * EchoSphere - Spatial Platform for Application and Communication Extensions.
  *
@@ -15,28 +13,19 @@ package org.kloudgis.admin.pojo;
  * with Echosphere Technologies, Inc.
  */
 
+package org.kloudgis.admin.pojo;
 
+import java.util.List;
 
 /**
  *
  * @author jeanfelixg
  */
-public class Sandbox {
+public class BaseLayer {
 
-    public Long     guid;
-    public String   name;
-    public String   owner;
-    //format yyyy-MM-dd
-    public String   dateCreation;
-    
-
-    //map home location center - coordinate longitude and latitude. Ex= -73.2,45.5
-    public String   homeLonLatCenter;
-    //zoom level for the home location.  
-    public Integer  homeZoomLevel;
-    //srs for display coordinates on the map. Ex: EPSG:4326
-    public String   displayProjection;
-    //google, yahoo, bing, openlayers...
-    public Long     baseLayerMode;
+    public Long guid;
+    public String name;
+    public String url;   
+    public List<Long> modes;
     
 }

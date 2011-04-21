@@ -5,12 +5,14 @@
     <class>org.kloudgis.admin.store.UserDbEntity</class>
     <class>org.kloudgis.admin.store.UserRoleDbEntity</class>
     <class>org.kloudgis.admin.store.SandboxDbEntity</class>
+    <class>org.kloudgis.admin.store.BaseLayerDbEntity</class>
+    <class>org.kloudgis.admin.store.BaseLayerModeDbEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="hibernate.connection.username" value="postgres"/>
       <property name="hibernate.connection.password" value="ech0sphere1"/>
-      <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>  
-      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://192.168.12.36:5432/kloud_admin"/>    
+      <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>
+      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://localhost:5432/kloud_admin"/>
       <property name="hibernate.dialect" value="org.hibernatespatial.postgis.PostgisDialect"/>
       <property name="hibernate.c3p0.min_size" value="3"/>
       <property name="hibernate.c3p0.max_size" value="15"/>
@@ -36,7 +38,7 @@
       <property name="hibernate.connection.username" value="postgres"/>
       <property name="hibernate.connection.password" value="ech0sphere1"/>
       <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>
-      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://192.168.12.36:5432/default_sandbox"/>
+      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://localhost:5432/default_sandbox"/>
       <property name="hibernate.c3p0.min_size" value="1"/>
       <property name="hibernate.c3p0.max_size" value="20"/>
       <property name="hibernate.c3p0.timeout" value="5000"/>

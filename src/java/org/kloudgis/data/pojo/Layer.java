@@ -26,16 +26,8 @@ public class Layer {
     public Boolean groupLayer;
     //if this layer should be render individually (or is part of a group)
     public Boolean shouldRender;
-    //if this is the base layer
-    public Boolean baseLayer;
-    public Integer renderOrder; //rendering order (1 is TOP, greatest is bottom)
-
-    //layer type.  null is default to wms.  Possible values: "wms", "google", "osm", "openlayers", "yahoo", "bing"
-    public String type;
-
-    //"road", "satellite", "terrain" or "hybrid"
-    //custom parameters.   Ex= layers=basic;param2=toto;type=road
-    public String extraParam;
+    //rendering order (1 is TOP, greatest is bottom)
+    public Integer renderOrder; 
 
     //layer parameters
     public String   owner;
@@ -57,10 +49,10 @@ public class Layer {
     //maxExtent has to be provided to have any effect.
     public Boolean  displayOutsideExtent;
     //Optional when not a base layer
-    public double max_extent_left;
-    public double max_extent_right;
-    public double max_extent_bottom;
-    public double max_extent_top;
+    public Double max_extent_left;
+    public Double max_extent_right;
+    public Double max_extent_bottom;
+    public Double max_extent_top;
 
 
     

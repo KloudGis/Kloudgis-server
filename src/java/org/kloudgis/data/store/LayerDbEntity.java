@@ -43,15 +43,7 @@ public class LayerDbEntity {
     @Column
     private Boolean         should_render;
     @Column
-    private Boolean         base_layer;
-    @Column
     private Integer         render_order;
-    @Column(length=30)
-    private String          type;
-
-    //any custom parameters
-    @Column
-    private String          extra_param;
 
     @Column(length = 100)
     private String          name;
@@ -85,10 +77,7 @@ public class LayerDbEntity {
         pojo.guid = id;
         pojo.groupLayer = group_layer;
         pojo.shouldRender = should_render;
-        pojo.baseLayer = base_layer;
         pojo.renderOrder = render_order;
-        pojo.type = type;
-        pojo.extraParam = extra_param;
 
         pojo.name = name;
         pojo.owner = owner;

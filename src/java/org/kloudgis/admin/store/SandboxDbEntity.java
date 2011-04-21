@@ -25,6 +25,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -61,6 +63,8 @@ public class SandboxDbEntity implements Serializable {
     //projection to display coordinates.  "ESPG:4326"
     @Column(length = 30)
     private String display_projection;
+    @ManyToOne
+    private BaseLayerModeDbEntity base_layer_mode;
 
     public Sandbox toPojo(EntityManager em) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
