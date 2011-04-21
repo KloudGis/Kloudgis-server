@@ -38,6 +38,7 @@ public class Layer {
     public String extraParam;
 
     //layer parameters
+    //user who has created the layer in the sandbox
     public String   owner;
     
     public String   label;
@@ -57,10 +58,10 @@ public class Layer {
     //maxExtent has to be provided to have any effect.
     public Boolean  displayOutsideExtent;
     //Optional when not a base layer
-    public double max_extent_left;
-    public double max_extent_right;
-    public double max_extent_bottom;
-    public double max_extent_top;
+    public Double max_extent_left;
+    public Double max_extent_right;
+    public Double max_extent_bottom;
+    public Double max_extent_top;
 
 
     
