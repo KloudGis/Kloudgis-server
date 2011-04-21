@@ -30,6 +30,7 @@ public class Layer {
     public Integer renderOrder; 
 
     //layer parameters
+    //user who has created the layer in the sandbox
     public String   owner;
     
     public String   label;

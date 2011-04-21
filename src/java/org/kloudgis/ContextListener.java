@@ -19,6 +19,7 @@ public final class ContextListener implements ServletContextListener {
     public void contextInitialized(ServletContextEvent sce) {
         PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
         PersistenceManager.getInstance().getEntityManager(PersistenceManager.DEFAULT_PU);
+        //init spatial indexes
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
