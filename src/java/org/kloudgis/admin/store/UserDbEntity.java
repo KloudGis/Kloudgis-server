@@ -13,6 +13,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Query;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 import org.kloudgis.admin.pojo.User;
@@ -27,8 +28,9 @@ public class UserDbEntity implements Serializable {
 
     public static final String ROLE_ADM = "admin_role";
     public static final String ROLE_USER = "user_role";
+    @SequenceGenerator(name = "user_seq_gen", sequenceName = "user_seq")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_seq_gen")
     private Long id;
     @Index(name="email_index")
     @Column(length = 100)

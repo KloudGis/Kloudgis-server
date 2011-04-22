@@ -43,5 +43,21 @@ public class BaseLayerModeDbEntity implements Serializable {
     private String label_en;
     @ManyToOne
     private BaseLayerDbEntity base_layer;
-    
+
+
+    public void setName(String str){
+        this.name = str;
+    }
+
+    public void setLabelFr(String str){
+        this.label_fr = str;
+    }
+
+    public void setLabelEn(String str){
+        this.label_en = str;
+    }
+
+    public void setBaseLayer(BaseLayerDbEntity base) {
+        base_layer = base;
+    }
 }

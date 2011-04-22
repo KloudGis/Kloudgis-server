@@ -22,7 +22,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -44,4 +43,20 @@ public class BaseLayerDbEntity implements Serializable {
     private String label_en;
     @OneToMany(mappedBy = "base_layer")
     private Set<BaseLayerModeDbEntity> base_layer_modes;
+
+    public void setLabelFr(String str){
+        this.label_fr = str;
+    }
+
+    public void setLabelEn(String str){
+        this.label_en = str;
+    }
+
+    public void setName(String str){
+        this.name = str;
+    }
+
+    public void addBaseLayerMode(BaseLayerModeDbEntity mode){
+        mode.setBaseLayer(this);
+    }
 }

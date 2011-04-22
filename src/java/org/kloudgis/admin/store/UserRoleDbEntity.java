@@ -20,6 +20,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 
@@ -35,8 +36,9 @@ import org.hibernate.annotations.Index;
 @Table(name="user_roles")
 public class UserRoleDbEntity implements Serializable {
 
+    @SequenceGenerator(name = "role_seq_gen", sequenceName = "role_seq")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "role_seq_gen")
     private Long id;
     @Column(length = 100)
     private String email;

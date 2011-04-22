@@ -25,8 +25,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
@@ -41,8 +41,9 @@ import org.kloudgis.admin.pojo.Sandbox;
 public class SandboxDbEntity implements Serializable {
 
     //general info
+    @SequenceGenerator(name = "sandbox_seq_gen", sequenceName = "sandbox_seq")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "sandbox_seq_gen")
     private Long id;
     @Index(name="name_index")
     @Column(length = 100)
@@ -65,6 +66,16 @@ public class SandboxDbEntity implements Serializable {
     private String display_projection;
     @ManyToOne
     private BaseLayerModeDbEntity base_layer_mode;
+
+
+
+    public void setName(String str){
+        this.name = str;
+    }
+
+    public void setBaseLayerMode(BaseLayerModeDbEntity mode){
+        this.base_layer_mode = mode;
+    }
 
     public Sandbox toPojo(EntityManager em) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
