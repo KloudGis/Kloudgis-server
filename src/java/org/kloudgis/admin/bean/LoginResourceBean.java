@@ -55,14 +55,16 @@ public class LoginResourceBean {
         EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
         UserDbEntity u = authenticate(em, crd.user, crd.pwd);
         if (u != null) {
-            String token = Calendar.getInstance().getTimeInMillis() + "My user is gettin' a new token" + u.getSalt();
+            //unique token for this users
+            String token = Calendar.getInstance().getTimeInMillis() + u.getSalt() + u.getEmail();
             String hashed_token = hashString(token, "SHA-512");
             em.getTransaction().begin();
             u.setAuthToken(hashed_token);
             em.getTransaction().commit();
             em.close();
             //create a session
-            req.getSession(true);
+            HttpSession session = req.getSession(true);
+            session.setAttribute("timeout", Calendar.getInstance().getTimeInMillis());
             return Response.ok(new LoginResponse(hashed_token)).build();
         }
         em.close();
@@ -100,7 +102,6 @@ public class LoginResourceBean {
     public Response pingServer() {
         return Response.ok("Ping").build();
     }
-
 
     @Path("logged_user")
     @POST
@@ -203,7 +204,7 @@ public class LoginResourceBean {
     }
 
     private String encryptPassword(String hashed_password, String salt) {
-        String string_to_hash = hashed_password + "Kloudgis" + salt;
+        String string_to_hash = hashed_password + "@Kloudgis.org#" + salt;
         return hashString(string_to_hash, "SHA-256");
     }
 
