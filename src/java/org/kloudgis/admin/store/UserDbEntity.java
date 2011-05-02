@@ -38,8 +38,6 @@ public class UserDbEntity implements Serializable {
     @Column(length = 100)
     private String fullName;
     @Column(length = 50)
-    private String password;
-    @Column(length = 50)
     private String compagny;
     @Index(name="loc_index")
     @Column(length = 50)
@@ -48,6 +46,35 @@ public class UserDbEntity implements Serializable {
     private Boolean isActive;
     @Column
     private byte[] picture;
+
+    //security
+    @Column(columnDefinition="TEXT")
+    private String password_hash;
+    @Column(length=10)
+    private String password_salt;
+    @Column(columnDefinition="TEXT")
+    private String auth_token;
+
+
+    public void setSalt(String s){
+        password_salt = s;
+    }
+
+    public String getSalt(){
+        return password_salt;
+    }
+
+    public void setPassword(String s){
+        password_hash = s;
+    }
+
+    public Object getPasswordHash() {
+        return password_hash;
+    }
+
+    public void setAuthToken(String hashed_token) {
+        this.auth_token = hashed_token;
+    }
 
     public UserDbEntity() {
     }
@@ -65,13 +92,6 @@ public class UserDbEntity implements Serializable {
      */
     public String getFullName() {
         return fullName;
-    }
-
-    /**
-     * @return the password
-     */
-    public String getPassword() {
-        return password;
     }
 
     /**
@@ -149,12 +169,6 @@ public class UserDbEntity implements Serializable {
         this.fullName = fullName;
     }
 
-    /**
-     * @param password the password to set
-     */
-    public void setPassword(String password) {
-        this.password = password;
-    }
 
     /**
      * @param email the email to set
@@ -231,7 +245,6 @@ public class UserDbEntity implements Serializable {
         entity.email = getEmail();
         entity.compagny = getCompagny();
         entity.location = location;
-        entity.password = getPassword();
         entity.isActive = isActive();
         entity.isSuperUser = isSuperUser(em);
         return entity;

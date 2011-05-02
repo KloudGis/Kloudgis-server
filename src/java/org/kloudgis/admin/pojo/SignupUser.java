@@ -21,9 +21,10 @@ package org.kloudgis.admin.pojo;
  */
 public class SignupUser {
 
-        public String email;
+        public String user;
+        public String pwd;
         public String name;
         public String compagny;
         public String location;
-        public String password;
+        
 }

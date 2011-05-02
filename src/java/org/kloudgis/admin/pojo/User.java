@@ -14,7 +14,6 @@ public class User {
 
     public Long guid;
     public String fullName;
-    public String password;
     public String email;
     public String location;
     public String compagny;
