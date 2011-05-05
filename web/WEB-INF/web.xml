@@ -9,6 +9,11 @@
         <servlet-name>WMSProxy</servlet-name>
         <servlet-class>org.kloudgis.proxy.wms.WmsProxy</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>UploadFile</servlet-name>
+        <servlet-class>org.kloudgis.servlet.UploadFile</servlet-class>
+    </servlet>
+    
     <servlet-mapping>
         <servlet-name>ServletAdaptor</servlet-name>
         <url-pattern>/*</url-pattern>
@@ -16,6 +21,10 @@
     <servlet-mapping>
         <servlet-name>WMSProxy</servlet-name>
         <url-pattern>/wms/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>UploadFile</servlet-name>
+        <url-pattern>/public/upload/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
