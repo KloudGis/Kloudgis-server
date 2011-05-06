@@ -5,9 +5,17 @@
         <servlet-class>com.sun.jersey.spi.container.servlet.ServletContainer</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
+    <servlet>
+        <servlet-name>WMSProxy</servlet-name>
+        <servlet-class>org.kloudgis.proxy.wms.WmsProxy</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>ServletAdaptor</servlet-name>
         <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>WMSProxy</servlet-name>
+        <url-pattern>/wms/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <!--idle time in minutes -->
