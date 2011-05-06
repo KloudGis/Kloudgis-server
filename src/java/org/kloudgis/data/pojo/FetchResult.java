@@ -12,13 +12,13 @@ import java.util.List;
  */
 public class FetchResult {
 
-    public List<AbstractFeature> features;
+    public List features;
     public Long count;
 
     public FetchResult() {
     }
 
-    public FetchResult(List<AbstractFeature> inFeatures, Long inCount) {
+    public FetchResult(List inFeatures, Long inCount) {
         features= inFeatures;
         count=inCount;
     }

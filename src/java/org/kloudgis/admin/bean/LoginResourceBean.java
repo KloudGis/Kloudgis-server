@@ -32,6 +32,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import org.kloudgis.AuthorizationManager;
 import org.kloudgis.admin.pojo.Credential;
 import org.kloudgis.admin.pojo.LoginResponse;
 import org.kloudgis.admin.pojo.Message;
@@ -186,8 +187,7 @@ public class LoginResourceBean {
                     }
                 }
             } else if (password_hash != null) {
-                UserDbEntity u = em.createQuery("from UserDbEntity where auth_token=:token", UserDbEntity.class).setParameter("token", password_hash).getSingleResult();
-                return u;
+                return new AuthorizationManager().getUserFromAuthToken(password_hash, em);
             }
         } catch (NoResultException e) {
         }

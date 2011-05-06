@@ -29,7 +29,6 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Order;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.data.pojo.AbstractFeature;
-import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.FetchResult;
 import org.kloudgis.data.store.AbstractFeatureDbEntity;
 import org.kloudgis.data.store.AbstractPlaceDbEntity;
