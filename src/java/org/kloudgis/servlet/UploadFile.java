@@ -79,8 +79,10 @@ public class UploadFile extends HttpServlet {
                      */
                     File file = new File(destinationDir, item.getName());
                     item.write(file);
+                    System.out.println("File written:" + item.getName());
                 }
                // out.close();
+                
             }
         } catch (FileUploadException ex) {
             log("Error encountered while parsing the request", ex);

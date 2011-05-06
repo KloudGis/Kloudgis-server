@@ -24,7 +24,7 @@
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>UploadFile</servlet-name>
-        <url-pattern>/public/upload/*</url-pattern>
+        <url-pattern>/upload/*</url-pattern>
     </servlet-mapping>
     <session-config>
         <!--idle time in minutes -->
