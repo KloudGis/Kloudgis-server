@@ -245,8 +245,8 @@ public class UserDbEntity implements Serializable {
         entity.email = getEmail();
         entity.compagny = getCompagny();
         entity.location = location;
-        entity.isActive = isActive();
-        entity.isSuperUser = isSuperUser(em);
+       // entity.isActive = isActive();
+       // entity.isSuperUser = isSuperUser(em);
         return entity;
     }
 }

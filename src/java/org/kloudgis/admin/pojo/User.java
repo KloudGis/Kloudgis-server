@@ -17,11 +17,9 @@ public class User {
     public String email;
     public String location;
     public String compagny;
-    public Boolean isSuperUser = Boolean.FALSE;
     public Timestamp userCreated;
     public String accountType;
     public Timestamp accountExpire;
-    public Boolean isActive;
 
     public User() {
     }
