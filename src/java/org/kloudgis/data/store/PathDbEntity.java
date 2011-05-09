@@ -56,10 +56,12 @@ public class PathDbEntity extends AbstractPlaceDbEntity{
         PathFeature pojo = new PathFeature();
         super.setupPojo(pojo);
         List<Long> lstT = new ArrayList();
-        for (PathTagDbEntity t : tags) {
-            lstT.add(t.getId());
+        if(tags!=null){
+            for (PathTagDbEntity t : tags) {
+                lstT.add(t.getId());
+            }
+            pojo.tags=lstT;
         }
-        pojo.tags=lstT;
         return pojo;
     }
 

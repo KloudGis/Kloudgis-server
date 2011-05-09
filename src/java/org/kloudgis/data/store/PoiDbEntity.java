@@ -59,10 +59,12 @@ public class PoiDbEntity extends AbstractPlaceDbEntity implements Serializable{
         PoiFeature pojo = new PoiFeature();
         super.setupPojo(pojo);
         List<Long> lstT = new ArrayList();
-        for (PoiTagDbEntity t : tags) {
-            lstT.add(t.getId());
+        if(tags!=null){
+            for (PoiTagDbEntity t : tags) {
+               lstT.add(t.getId());
+            }
+            pojo.tags=lstT;
         }
-        pojo.tags=lstT;
         return pojo;
     }
 

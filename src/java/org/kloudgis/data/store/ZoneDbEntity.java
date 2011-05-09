@@ -56,10 +56,12 @@ public class ZoneDbEntity extends AbstractPlaceDbEntity{
         ZoneFeature pojo = new ZoneFeature();
         super.setupPojo(pojo);
         List<Long> lstT = new ArrayList();
-        for (ZoneTagDbEntity t : tags) {
-            lstT.add(t.getId());
+        if(tags!=null){
+            for (ZoneTagDbEntity t : tags) {
+                lstT.add(t.getId());
+            }
+            pojo.tags=lstT;
         }
-        pojo.tags=lstT;
         return pojo;
     }
 
