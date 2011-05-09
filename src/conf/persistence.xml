@@ -7,6 +7,7 @@
     <class>org.kloudgis.admin.store.SandboxDbEntity</class>
     <class>org.kloudgis.admin.store.BaseLayerDbEntity</class>
     <class>org.kloudgis.admin.store.BaseLayerModeDbEntity</class>
+    <class>org.kloudgis.admin.store.FeedDbEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="hibernate.connection.username" value="postgres"/>
