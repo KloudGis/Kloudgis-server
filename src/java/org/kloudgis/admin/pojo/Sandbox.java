@@ -28,7 +28,6 @@ public class Sandbox {
     public String   owner;
     //format yyyy-MM-dd
     public String   dateCreation;
-    
 
     //map home location center - coordinate longitude and latitude. Ex= -73.2,45.5
     public String   homeLonLatCenter;

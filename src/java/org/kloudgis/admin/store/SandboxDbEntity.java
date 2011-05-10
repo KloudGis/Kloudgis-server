@@ -54,6 +54,9 @@ public class SandboxDbEntity implements Serializable {
     @Index(name="date_creation_index")
     @Column
     private Timestamp date_creation;
+    @Index(name="key_index")
+    @Column(length = 250)
+    private String unique_key;
     //map metadata
     //lon lat map center
     @Column

@@ -34,6 +34,7 @@
     <class>org.kloudgis.data.store.PathTagDbEntity</class>
     <class>org.kloudgis.data.store.ZoneTagDbEntity</class>
     <class>org.kloudgis.data.store.LayerDbEntity</class>
+    <class>org.kloudgis.data.store.MemberDbEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
       <property name="hibernate.connection.username" value="postgres"/>
