@@ -101,7 +101,8 @@ public class PersistenceManager {
 
     protected EntityManagerFactory createSandboxManagerFactory(String key, String url) {
         Map prop = new HashMap();
-        prop.put("hibernate.connection.url", url);
+        
+        prop.put("hibernate.connection.url", "jdbc:postgresql_postGIS://" + url);
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(DEFAULT_PU, prop);
         if (emf != null) {
             hashSandboxesFactory.put(key, new FactoryWrapper(emf));
