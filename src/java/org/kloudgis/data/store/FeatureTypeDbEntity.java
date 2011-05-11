@@ -101,7 +101,7 @@ public class FeatureTypeDbEntity implements Serializable {
 
     public FeatureType toPojo(EntityManager em) {
         FeatureType pojo = new FeatureType();
-        pojo.guid = getId().toString();
+        pojo.guid = getId();
         pojo.name = getName();
         pojo.description = getDescription();
         pojo.label = getLabel();

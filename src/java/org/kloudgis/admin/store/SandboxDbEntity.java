@@ -57,6 +57,8 @@ public class SandboxDbEntity implements Serializable {
     @Index(name="key_index")
     @Column(length = 250)
     private String unique_key;
+    @Column(length = 250)
+    private String connection_url;
     //map metadata
     //lon lat map center
     @Column
@@ -79,7 +81,19 @@ public class SandboxDbEntity implements Serializable {
     public void setBaseLayerMode(BaseLayerModeDbEntity mode){
         this.base_layer_mode = mode;
     }
+    
+    public void setUniqueKey(String key){
+        this.unique_key = key;
+    }
 
+    public String getUniqueKey(){
+        return unique_key;
+    }
+    
+    public String getConnectionUrl() {
+        return connection_url;
+    }
+    
     public Sandbox toPojo(EntityManager em) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Sandbox pojo = new Sandbox();
@@ -96,4 +110,5 @@ public class SandboxDbEntity implements Serializable {
         pojo.displayProjection = display_projection;
         return pojo;
     }
+  
 }

@@ -7,15 +7,13 @@ package org.kloudgis.data.bean;
 
 
 import org.kloudgis.data.store.FeatureTypeDbEntity;
-import org.kloudgis.data.store.PersistenceManager;
+import org.kloudgis.persistence.PersistenceManager;
 import org.kloudgis.data.pojo.FeatureType;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.Query;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -25,26 +23,21 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import org.hibernate.ejb.HibernateEntityManager;
 /**
  *
  * @author sylvain
  */
-@Path("/protected/featuretypes")
+@Path("/protected/featuretypes/sandbox")
 @Produces({"application/json"})
 public class FeatureTypeResourceBean {
 
-    //TODO : replace by dynamic PU
-    protected HibernateEntityManager getEntityManager() {
-        return PersistenceManager.getInstance().getEntityManagerDefault();
-    }
 
     @GET
+    @Path("{sandboxId}")
     @Produces({"application/json"})
-    public List<FeatureType> getFeatureTypes(@Context HttpServletRequest req) {
-        EntityManager em = getEntityManager();
+    public List<FeatureType> getFeatureTypes(@PathParam("sandboxId") Long sandboxId) {
+        EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         List<FeatureTypeDbEntity> lstDb = em.createNamedQuery("FeatureType.findAll").getResultList();
         List<FeatureType> lstFT = new ArrayList(lstDb.size());
         for (FeatureTypeDbEntity fDb : lstDb) {
@@ -55,10 +48,10 @@ public class FeatureTypeResourceBean {
     }
 
     @GET
-    @Path("{fId}")
+    @Path("{sandboxId}/{fId}")
     @Produces({"application/json"})
-    public FeatureType getFeature(@PathParam("fId") Integer fId) {
-        EntityManager em = getEntityManager();
+    public FeatureType getFeatureType(@PathParam("sandboxId") Long sandboxId, @PathParam("fId") Integer fId) {
+        EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         FeatureTypeDbEntity fDb = em.find(FeatureTypeDbEntity.class, fId);
         if (fDb != null) {
             FeatureType f = fDb.toPojo(em);
@@ -71,28 +64,28 @@ public class FeatureTypeResourceBean {
 
 
     @POST
+    @Path("{sandboxId}")
     @Produces({"application/json"})
-    public FeatureType addFeatureType(FeatureType ft, @Context HttpServletRequest req, @Context ServletContext sContext) throws WebApplicationException {
-        EntityManager em = getEntityManager();
+    public FeatureType addFeatureType(FeatureType ft, @PathParam("sandboxId") Long sandboxId) throws WebApplicationException {
+        EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         ensureUniqueName(ft, em);
         em.getTransaction().begin();
         FeatureTypeDbEntity uDb = ft.toDbEntity();
         em.persist(uDb);
         em.getTransaction().commit();
-        ft.guid = (uDb.getId()).toString();
+        ft.guid = uDb.getId();
         em.close();
         return ft;
     }
 
     @PUT
-    @Path("{fId}")
+    @Path("{sandboxId}/{fId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public FeatureType updateFeature(FeatureType ft, @Context HttpServletRequest req, @Context ServletContext sContext) throws WebApplicationException {
-        EntityManager em = getEntityManager();
+    public FeatureType updateFeature(FeatureType ft, @PathParam("fId") Long fId, @PathParam("sandboxId") Long sandboxId) throws WebApplicationException {
+        EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         try{
-            Long iguid=Long.valueOf(ft.guid);
-            FeatureTypeDbEntity gDb = em.find(FeatureTypeDbEntity.class, iguid);
+            FeatureTypeDbEntity gDb = em.find(FeatureTypeDbEntity.class, fId);
         if (gDb != null) {
             //ensureUniqueName(ft);
             em.getTransaction().begin();
@@ -107,13 +100,11 @@ public class FeatureTypeResourceBean {
         return ft;
     }
 
-    @Path("{fId}")
+    @Path("{sandboxId}/{fId}")
     @DELETE
-    public Response deleteFeature(@PathParam("fId") Integer gId, @Context HttpServletRequest req, @Context ServletContext sContext) throws WebApplicationException {
-        EntityManager em = getEntityManager();
-
+    public Response deleteFeature(@PathParam("fId") Long gId, @PathParam("sandboxId") Long sandboxId) throws WebApplicationException {
+        EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         FeatureTypeDbEntity gDb = em.find(FeatureTypeDbEntity.class, gId);
-
         if (gDb != null) {
             em.getTransaction().begin();
             em.remove(gDb);
@@ -122,11 +113,7 @@ public class FeatureTypeResourceBean {
             return Response.ok().build();
         }
         em.close();
-
-
-            throw new EntityNotFoundException("Not found:" + gId);
-
-
+        throw new EntityNotFoundException("Not found:" + gId);
     }
 
 

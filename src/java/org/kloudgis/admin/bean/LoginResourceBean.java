@@ -40,7 +40,7 @@ import org.kloudgis.admin.pojo.SignupUser;
 import org.kloudgis.admin.pojo.User;
 import org.kloudgis.admin.store.UserDbEntity;
 import org.kloudgis.admin.store.UserRoleDbEntity;
-import org.kloudgis.data.store.PersistenceManager;
+import org.kloudgis.persistence.PersistenceManager;
 
 /**
  *
@@ -53,7 +53,7 @@ public class LoginResourceBean {
     @Path("login")
     @Produces({"application/json"})
     public Response login(@Context HttpServletRequest req, Credential crd) {
-        EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity u = authenticate(em, crd.user, crd.pwd);
         if (u != null) {
             //unique token for this users
@@ -110,7 +110,7 @@ public class LoginResourceBean {
     public User loggedUser(@Context HttpServletRequest req, Credential crd) {
         HttpSession session = req.getSession(false);
         if (session != null) {
-            EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
+            EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
             UserDbEntity u = authenticate(em, crd.user, crd.pwd);
             if (u != null) {
                 User pojo = u.toPojo(em);
@@ -155,7 +155,7 @@ public class LoginResourceBean {
                 }
                 return Response.ok(message).build();
             } else {
-                EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
+                EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
                 em.getTransaction().begin();
                 UserRoleDbEntity role = new UserRoleDbEntity();
                 role.setRoleName(UserDbEntity.ROLE_USER);
@@ -195,7 +195,7 @@ public class LoginResourceBean {
     }
 
     private boolean isUnique(String email) {
-        EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         Query query = em.createQuery("from UserDbEntity where email=:em", UserDbEntity.class);
         query.setParameter("em", email);
         List<UserDbEntity> lstU = query.getResultList();

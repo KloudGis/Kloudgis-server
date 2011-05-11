@@ -17,19 +17,19 @@ import org.kloudgis.AuthorizationManager;
 import org.kloudgis.admin.pojo.Feed;
 import org.kloudgis.admin.store.FeedDbEntity;
 import org.kloudgis.admin.store.UserDbEntity;
-import org.kloudgis.data.store.PersistenceManager;
+import org.kloudgis.persistence.PersistenceManager;
 
 /**
  *
  * @author jeanfelixg
  */
-@Path("/protected/feed")
+@Path("/protected/feeds")
 public class FeedResourceBean {
 
     @GET
     @Produces({"application/json"})
     public Response getFeeds(@CookieParam(value="security-Kloudgis.org") String auth_token) {
-        HibernateEntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
+        HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity user = new AuthorizationManager().getUserFromAuthToken(auth_token, em);
         if (user != null) {        
             Criteria cr = em.getSession().createCriteria(FeedDbEntity.class);

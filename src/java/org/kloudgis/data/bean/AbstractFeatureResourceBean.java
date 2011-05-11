@@ -32,7 +32,7 @@ import org.kloudgis.data.pojo.AbstractFeature;
 import org.kloudgis.data.pojo.FetchResult;
 import org.kloudgis.data.store.AbstractFeatureDbEntity;
 import org.kloudgis.data.store.AbstractPlaceDbEntity;
-import org.kloudgis.data.store.PersistenceManager;
+import org.kloudgis.persistence.PersistenceManager;
 /**
  *
  * @author sylvain

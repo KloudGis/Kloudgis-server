@@ -7,7 +7,7 @@ package org.kloudgis;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-import org.kloudgis.data.store.PersistenceManager;
+import org.kloudgis.persistence.PersistenceManager;
 
 /**
  *
@@ -17,7 +17,7 @@ public final class ContextListener implements ServletContextListener {
 
 
     public void contextInitialized(ServletContextEvent sce) {
-        PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU).close();
+        PersistenceManager.getInstance().getAdminEntityManager().close();
 //        em.getTransaction().begin();
 //        BaseLayerDbEntity base = new BaseLayerDbEntity();
 //        base.setName("google");
@@ -32,7 +32,7 @@ public final class ContextListener implements ServletContextListener {
 //        em.persist(s);
 //        em.getTransaction().commit();
 //        em.close();
-        PersistenceManager.getInstance().getEntityManager(PersistenceManager.DEFAULT_PU).close();
+        PersistenceManager.getInstance().getEntityManagerDefault().close();
         //init spatial indexes
     }
 

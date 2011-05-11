@@ -6,13 +6,12 @@
 package org.kloudgis.data.pojo;
 
 import org.kloudgis.data.store.FeatureTypeDbEntity;
-import javax.persistence.EntityManager;
 
 /**
  * @author sylvain
  */
 public class FeatureType {
-    public String guid;
+    public Long guid;
     public String name;
     public String description;
     public String label;

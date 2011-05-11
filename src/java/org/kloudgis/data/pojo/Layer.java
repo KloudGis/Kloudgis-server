@@ -54,8 +54,6 @@ public class Layer {
     public Double max_extent_right;
     public Double max_extent_bottom;
     public Double max_extent_top;
-
-
-    
+   
 
 }
