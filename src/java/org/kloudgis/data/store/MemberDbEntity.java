@@ -7,12 +7,14 @@ package org.kloudgis.data.store;
 import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
+import org.kloudgis.data.pojo.Member;
 
 /**
  *
@@ -32,4 +34,11 @@ public class MemberDbEntity implements Serializable {
     @Index (name="access_index")
     @Column
     private String access_type;
+
+    public Member toPojo(EntityManager emSand) {
+        Member pojo = new Member();
+        pojo.guid = id;
+        pojo.access = access_type;
+        return pojo;
+    }
 }
