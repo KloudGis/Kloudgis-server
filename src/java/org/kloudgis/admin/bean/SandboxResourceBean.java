@@ -6,13 +6,12 @@ package org.kloudgis.admin.bean;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import org.hibernate.Criteria;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.AuthorizationManager;
 import org.kloudgis.admin.pojo.Sandbox;
@@ -33,9 +32,7 @@ public class SandboxResourceBean {
         HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity user = new AuthorizationManager().getUserFromAuthToken(auth_token, em);
         if (user != null) {        
-            Criteria cr = em.getSession().createCriteria(SandboxDbEntity.class);
-            //TODO: filter by user
-            List<SandboxDbEntity> lstR = cr.list();
+            Set<SandboxDbEntity> lstR =  user.getSandboxes();
             List<Sandbox> lstPojo = new ArrayList();
             for (SandboxDbEntity sand : lstR) {
                 lstPojo.add(sand.toPojo(em));

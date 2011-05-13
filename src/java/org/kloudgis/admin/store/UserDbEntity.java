@@ -6,12 +6,15 @@ package org.kloudgis.admin.store;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Query;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -32,39 +35,40 @@ public class UserDbEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "user_seq_gen")
     private Long id;
-    @Index(name="email_index")
+    @Index(name = "email_index")
     @Column(length = 100)
     private String email;
     @Column(length = 100)
     private String fullName;
     @Column(length = 50)
     private String compagny;
-    @Index(name="loc_index")
+    @Index(name = "loc_index")
     @Column(length = 50)
     private String location;
     @Column
     private Boolean isActive;
     @Column
     private byte[] picture;
-
     //security
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String password_hash;
-    @Column(length=10)
+    @Column(length = 10)
     private String password_salt;
-    @Column(columnDefinition="TEXT")
+    @Column(columnDefinition = "TEXT")
     private String auth_token;
+    @ManyToMany
+    @JoinTable(name = "user_sandbox")
+    private Set<SandboxDbEntity> sandboxes;
 
-
-    public void setSalt(String s){
+    public void setSalt(String s) {
         password_salt = s;
     }
 
-    public String getSalt(){
+    public String getSalt() {
         return password_salt;
     }
 
-    public void setPassword(String s){
+    public void setPassword(String s) {
         password_hash = s;
     }
 
@@ -169,7 +173,6 @@ public class UserDbEntity implements Serializable {
         this.fullName = fullName;
     }
 
-
     /**
      * @param email the email to set
      */
@@ -184,8 +187,7 @@ public class UserDbEntity implements Serializable {
         this.compagny = cie;
     }
 
-
-     /**
+    /**
      * @param loc the location to set
      */
     public void setLocation(String loc) {
@@ -238,15 +240,19 @@ public class UserDbEntity implements Serializable {
         }
     }
 
-     public User toPojo(EntityManager em) {
+    public User toPojo(EntityManager em) {
         User entity = new User();
         entity.guid = getId();
         entity.fullName = getFullName();
         entity.email = getEmail();
         entity.compagny = getCompagny();
         entity.location = location;
-       // entity.isActive = isActive();
-       // entity.isSuperUser = isSuperUser(em);
+        // entity.isActive = isActive();
+        // entity.isSuperUser = isSuperUser(em);
         return entity;
+    }
+
+    public Set<SandboxDbEntity> getSandboxes() {
+        return sandboxes;
     }
 }

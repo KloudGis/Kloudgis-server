@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -26,6 +27,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
@@ -71,8 +73,14 @@ public class SandboxDbEntity implements Serializable {
     private String display_projection;
     @ManyToOne
     private BaseLayerModeDbEntity base_layer_mode;
+    
+    @OneToMany(mappedBy="sandbox")
+    private Set<FeedDbEntity> feeds;
 
 
+    public Long getId(){
+        return id;
+    }
 
     public void setName(String str){
         this.name = str;
@@ -92,6 +100,11 @@ public class SandboxDbEntity implements Serializable {
     
     public String getConnectionUrl() {
         return connection_url;
+    }
+    
+    
+    public Set<FeedDbEntity> getFeed() {
+        return feeds;
     }
     
     public Sandbox toPojo(EntityManager em) {

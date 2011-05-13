@@ -14,5 +14,6 @@ public class Feed {
     public String title;
     public String descr;
     public String dateCreation;
+    public Long sandbox;
     
 }
