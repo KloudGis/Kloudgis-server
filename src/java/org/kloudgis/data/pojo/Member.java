@@ -11,5 +11,6 @@ package org.kloudgis.data.pojo;
 public class Member {
     public Long guid;
     public String access;
+    public Long user;
     
 }

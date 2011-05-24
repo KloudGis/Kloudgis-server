@@ -7,6 +7,7 @@ package org.kloudgis.admin.store;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -44,13 +45,11 @@ public class FeedDbEntity implements Serializable {
     private String descr;
     @Index(name = "date_creation_index")
     @Column
-    private Timestamp date_creation;
-    @ManyToOne(fetch= FetchType.LAZY)
+    private Timestamp date_creation = new Timestamp(Calendar.getInstance().getTimeInMillis());
+    @ManyToOne(fetch= FetchType.EAGER)
     @NotFound(action = NotFoundAction.IGNORE)
-    @JoinColumn(name = "sandbox_id", insertable = false, updatable = false)
+    @JoinColumn(name = "sandbox_id")
     private SandboxDbEntity sandbox;
-    @Formula("sandbox_id")
-    private Long sandbox_id;
 
     public Feed toPojo(EntityManager em) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
@@ -59,7 +58,19 @@ public class FeedDbEntity implements Serializable {
         pojo.title = title;
         pojo.descr = descr;
         pojo.dateCreation = date_creation == null ? null : format.format(date_creation);
-        pojo.sandbox = sandbox_id;
+        pojo.sandbox = sandbox.getId();
         return pojo;
+    }
+
+    public void fromPojo(Feed pojo) {
+        if(pojo.guid !=null){
+            this.id = pojo.guid;
+        }
+        this.title = pojo.title;
+        this.descr = pojo.descr;
+    }
+
+    public void setSandbox(SandboxDbEntity sand) {
+        this.sandbox = sand;
     }
 }

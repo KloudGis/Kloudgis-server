@@ -9,12 +9,14 @@ import javax.persistence.EntityManager;
 import javax.persistence.Query;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.AuthorizationManager;
+import org.kloudgis.admin.store.SandboxDbEntity;
 import org.kloudgis.admin.store.UserDbEntity;
 import org.kloudgis.data.pojo.Member;
 import org.kloudgis.data.store.MemberDbEntity;
@@ -45,6 +47,35 @@ public class MemberResourceBean {
             emSand.close();
             return Response.ok(pojo).build();
         } else {
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
+    }
+    
+    @POST  
+    @Path("{sandboxId}")
+    public Response addMember(@CookieParam(value="security-Kloudgis.org") String auth_token, @PathParam("sandboxId") Long sandboxId, Member usr){
+        HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        AuthorizationManager authMan = new AuthorizationManager();
+        UserDbEntity userSecure = authMan.getUserFromAuthToken(auth_token, em);
+        if (userSecure != null ) {
+            EntityManager emSand = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
+            em.getTransaction().begin();
+            SandboxDbEntity sandbox = em.find(SandboxDbEntity.class, sandboxId);          
+            UserDbEntity userDb = em.find(UserDbEntity.class, usr.user);
+            //add a link in the admin PU
+            userDb.addSandbox(sandbox);
+            em.getTransaction().commit();
+            em.close();
+            //add a member in the sandbox PU
+            emSand.getTransaction().begin();
+            MemberDbEntity db = new MemberDbEntity();
+            db.fromPojo(usr);
+            em.persist(db);
+            emSand.getTransaction().commit();
+            emSand.close();           
+            return Response.ok().build();
+        }else{
+            em.close();
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }

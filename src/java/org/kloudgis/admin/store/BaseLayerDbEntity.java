@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -41,7 +42,7 @@ public class BaseLayerDbEntity implements Serializable {
     private String label_fr;
     @Column (length=50)
     private String label_en;
-    @OneToMany(mappedBy = "base_layer")
+    @OneToMany(fetch= FetchType.EAGER, mappedBy = "base_layer")
     private Set<BaseLayerModeDbEntity> base_layer_modes;
 
     public void setLabelFr(String str){

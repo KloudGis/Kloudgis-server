@@ -20,9 +20,11 @@ import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -71,10 +73,10 @@ public class SandboxDbEntity implements Serializable {
     //projection to display coordinates.  "ESPG:4326"
     @Column(length = 30)
     private String display_projection;
-    @ManyToOne
+    @ManyToOne(fetch= FetchType.LAZY)
     private BaseLayerModeDbEntity base_layer_mode;
     
-    @OneToMany(mappedBy="sandbox")
+    @OneToMany(mappedBy="sandbox", cascade={CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<FeedDbEntity> feeds;
 
 
@@ -105,6 +107,11 @@ public class SandboxDbEntity implements Serializable {
     
     public Set<FeedDbEntity> getFeed() {
         return feeds;
+    }
+    
+    public void addFeed(FeedDbEntity feedDb) {
+        feedDb.setSandbox(this);
+        this.feeds.add(feedDb);
     }
     
     public Sandbox toPojo(EntityManager em) {

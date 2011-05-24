@@ -59,6 +59,8 @@ public class LayerDbEntity {
     private String          srs;
     @Column(length = 254)
     private String          url;
+    @Column(length = 254)
+    private String          url_geoserver;
     @Column
     private Integer         buffer;
     @Column(length = 50)
@@ -98,5 +100,9 @@ public class LayerDbEntity {
         }
 
         return pojo;
+    }
+
+    public String getGeoserverUrl() {
+        return url_geoserver;
     }
 }

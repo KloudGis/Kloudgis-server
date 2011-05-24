@@ -4,26 +4,36 @@
  */
 package org.kloudgis.proxy.wms;
 
+import com.sun.servicetag.UnauthorizedAccessException;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.kloudgis.AuthorizationManager;
+import org.kloudgis.admin.store.UserDbEntity;
+import org.kloudgis.data.store.LayerDbEntity;
+import org.kloudgis.data.store.MemberDbEntity;
+import org.kloudgis.persistence.PersistenceManager;
 
 /**
  * Proxy request to the geoserver mathching the project.
@@ -32,6 +42,11 @@ import org.apache.commons.httpclient.methods.PostMethod;
 public class WmsProxy extends HttpServlet {
 
     public static final String ENCRES = "responseEncoding";
+    //query params
+    public static final String KG_LAYER = "kg_layer";
+    public static final String KG_SANDBOX = "kg_sandbox";
+    //session attributes
+    public static final String KG_TIMEOUT = "kg_timeout";
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -39,15 +54,53 @@ public class WmsProxy extends HttpServlet {
 
         //EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
         try {
+            HttpSession session = request.getSession(true);
+            String layer = getHttpParam(KG_LAYER, request);
+            String server_key = "kg_server_" + layer;
+            String server = (String) session.getAttribute(server_key);            
             //authenticate with the auth token
-            String auth = getHttpParam("auth-token", request);
-            if (auth != null && auth.length() > 0) {
-                //attemp to validate it.
-                //thow an exception if not valid
+            String auth = getAuthToken(request);
+           // System.out.println("Auth token:" + auth);
+            if (server == null || auth != null && auth.length() > 0) {                
+                Long timeout = (Long) session.getAttribute(KG_TIMEOUT);
+                Long time = Calendar.getInstance().getTimeInMillis();
+                if (server != null && timeout != null && (timeout.longValue() < time) && ((timeout.longValue() + 60000L) > time)) {
+                    //ok
+                    //System.out.println("Auth token still valid, " + (time - timeout.longValue()) / 1000 + " sec.");
+                } else {
+                    System.out.println("Auth token:" + auth);
+                    System.out.println("Auth token Revalidate");
+                    //attemp to validate it.
+                    //thow an exception if not valid
+                    EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+                    UserDbEntity user = new AuthorizationManager().getUserFromAuthToken(auth, em);
+                    em.close();
+                    if (user != null) {
+                        String sandbox = getHttpParam(KG_SANDBOX, request);
+                        if (sandbox != null && sandbox.length() > 0) {
+                            EntityManager emSand = PersistenceManager.getInstance().getEntityManagerBySandboxId(Long.valueOf(sandbox));
+                            Query query = emSand.createQuery("from MemberDbEntity where user_id=:u").setParameter("u", user.getId());
+                            List<MemberDbEntity> lstM = query.getResultList();
+                            if (lstM != null && lstM.size() > 0) {
+                                session.setAttribute(KG_TIMEOUT, Calendar.getInstance().getTimeInMillis());
+                                LayerDbEntity layerEntity = emSand.find(LayerDbEntity.class, Long.valueOf(layer));
+                                server = layerEntity.getGeoserverUrl();
+                                session.setAttribute(server_key, server);
+                            }
+                            emSand.close();
+                        }
+                    }
+                }
+
+            } else {
+                throw new UnauthorizedAccessException();
             }
 
+            if(server == null){
+                throw new IllegalArgumentException("missing server");
+            }
+            
             //get it from the persistence unit
-            String server = "http://192.168.12.36:8080/geoserver203/wms";
             String guser = "admin";
             String gpwd = "geoserver";
 
@@ -177,6 +230,15 @@ public class WmsProxy extends HttpServlet {
             }
         }
         return ret;
+    }
+
+    private String getAuthToken(HttpServletRequest request) {
+        for (Cookie cookie : request.getCookies()) {
+            if (cookie.getName().equals("security-Kloudgis.org")) {
+                return cookie.getValue();
+            }
+        }
+        return null;
     }
 
     /** 

@@ -38,7 +38,14 @@ public class MemberDbEntity implements Serializable {
     public Member toPojo(EntityManager emSand) {
         Member pojo = new Member();
         pojo.guid = id;
+        pojo.user = user_id;
         pojo.access = access_type;
         return pojo;
+    }
+
+    public void fromPojo(Member pojo) {
+        this.id = pojo.guid;
+        this.user_id = pojo.user;
+        this.access_type = pojo.access;
     }
 }
