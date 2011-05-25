@@ -75,7 +75,10 @@ public class SandboxDbEntity implements Serializable {
     private String display_projection;
     @ManyToOne(fetch= FetchType.LAZY)
     private BaseLayerModeDbEntity base_layer_mode;
+    @Column(length = 250)
+    private String geoserver_url;
     
+    //feeds
     @OneToMany(mappedBy="sandbox", cascade={CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<FeedDbEntity> feeds;
 
@@ -104,6 +107,9 @@ public class SandboxDbEntity implements Serializable {
         return connection_url;
     }
     
+    public String getGeoserverUrl() {
+        return geoserver_url;
+    }    
     
     public Set<FeedDbEntity> getFeed() {
         return feeds;
@@ -130,5 +136,5 @@ public class SandboxDbEntity implements Serializable {
         pojo.displayProjection = display_projection;
         return pojo;
     }
-  
+ 
 }

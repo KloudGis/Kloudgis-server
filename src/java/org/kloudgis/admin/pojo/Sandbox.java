@@ -37,5 +37,7 @@ public class Sandbox {
     public String   displayProjection;
     //google, yahoo, bing, openlayers...
     public Long     baseLayerMode;
+    //geoserver url
+    public String   url_geoserver;
     
 }

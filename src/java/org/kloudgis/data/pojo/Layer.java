@@ -23,11 +23,13 @@ public class Layer {
 
     public Long guid;
     //if its a group layer of not
-    public Boolean groupLayer;
-    //if this layer should be render individually (or is part of a group)
-    public Boolean shouldRender;
-    //rendering order (1 is TOP, greatest is bottom)
+    public Boolean isGroupLayer;
+    //if its a layer grouped in a group layer
+    public Boolean isGroupedLayer;
+    //rendering order (1 is the first to be draw)
     public Integer renderOrder; 
+    //select on map ?
+    public Boolean isSelectable;
 
     //layer parameters
     //user who has created the layer in the sandbox
@@ -48,12 +50,6 @@ public class Layer {
     public Boolean  visibility;
     //whether of not the server should render features outside the max extent.
     //maxExtent has to be provided to have any effect.
-    public Boolean  displayOutsideExtent;
-    //Optional when not a base layer
-    public Double max_extent_left;
-    public Double max_extent_right;
-    public Double max_extent_bottom;
-    public Double max_extent_top;
-   
+    public Boolean  displayOutsideExtent;   
 
 }

@@ -41,7 +41,7 @@ public class LayerDbEntity {
     @Column
     private Boolean         group_layer;
     @Column
-    private Boolean         should_render;
+    private Boolean         grouped_layer;
     @Column
     private Integer         render_order;
 
@@ -59,8 +59,6 @@ public class LayerDbEntity {
     private String          srs;
     @Column(length = 254)
     private String          url;
-    @Column(length = 254)
-    private String          url_geoserver;
     @Column
     private Integer         buffer;
     @Column(length = 50)
@@ -70,16 +68,16 @@ public class LayerDbEntity {
     @Column
     private Boolean         display_outside_max_extent;
     @Column
-    @Type(type = "org.hibernatespatial.GeometryUserType")
-    private Geometry        max_extent;
+    private Boolean         selectable;
 
     public Layer toPojo(EntityManager em) {
 
         Layer pojo = new Layer();
         pojo.guid = id;
-        pojo.groupLayer = group_layer;
-        pojo.shouldRender = should_render;
+        pojo.isGroupLayer = group_layer;
+        pojo.isGroupedLayer = grouped_layer;
         pojo.renderOrder = render_order;
+        pojo.isSelectable = selectable;
 
         pojo.name = name;
         pojo.owner = owner;
@@ -91,18 +89,7 @@ public class LayerDbEntity {
         pojo.transitionEffect = transition_effect;
         pojo.visibility = visibility;
         pojo.displayOutsideExtent = display_outside_max_extent;
-        if(max_extent != null){
-            Envelope env = max_extent.getEnvelopeInternal();
-            pojo.max_extent_left = env.getMinX();
-            pojo.max_extent_right = env.getMaxX();
-            pojo.max_extent_bottom = env.getMinY();
-            pojo.max_extent_top = env.getMaxY();
-        }
-
         return pojo;
     }
 
-    public String getGeoserverUrl() {
-        return url_geoserver;
-    }
 }

@@ -30,6 +30,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.kloudgis.AuthorizationManager;
+import org.kloudgis.admin.store.SandboxDbEntity;
 import org.kloudgis.admin.store.UserDbEntity;
 import org.kloudgis.data.store.LayerDbEntity;
 import org.kloudgis.data.store.MemberDbEntity;
@@ -43,10 +44,11 @@ public class WmsProxy extends HttpServlet {
 
     public static final String ENCRES = "responseEncoding";
     //query params
-    public static final String KG_LAYER = "kg_layer";
     public static final String KG_SANDBOX = "kg_sandbox";
     //session attributes
     public static final String KG_TIMEOUT = "kg_timeout";
+    public static final String KG_GEOSERVER = "kg_geoserver";
+    
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -55,13 +57,11 @@ public class WmsProxy extends HttpServlet {
         //EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
         try {
             HttpSession session = request.getSession(true);
-            String layer = getHttpParam(KG_LAYER, request);
-            String server_key = "kg_server_" + layer;
-            String server = (String) session.getAttribute(server_key);            
+            String server = (String) session.getAttribute(KG_GEOSERVER);
             //authenticate with the auth token
             String auth = getAuthToken(request);
-           // System.out.println("Auth token:" + auth);
-            if (server == null || auth != null && auth.length() > 0) {                
+            // System.out.println("Auth token:" + auth);
+            if (server == null || auth != null && auth.length() > 0) {
                 Long timeout = (Long) session.getAttribute(KG_TIMEOUT);
                 Long time = Calendar.getInstance().getTimeInMillis();
                 if (server != null && timeout != null && (timeout.longValue() < time) && ((timeout.longValue() + 60000L) > time)) {
@@ -74,35 +74,46 @@ public class WmsProxy extends HttpServlet {
                     //thow an exception if not valid
                     EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
                     UserDbEntity user = new AuthorizationManager().getUserFromAuthToken(auth, em);
-                    em.close();
+
                     if (user != null) {
                         String sandbox = getHttpParam(KG_SANDBOX, request);
                         if (sandbox != null && sandbox.length() > 0) {
-                            EntityManager emSand = PersistenceManager.getInstance().getEntityManagerBySandboxId(Long.valueOf(sandbox));
+                            Long sandId = Long.valueOf(sandbox);
+                            EntityManager emSand = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandId);
                             Query query = emSand.createQuery("from MemberDbEntity where user_id=:u").setParameter("u", user.getId());
                             List<MemberDbEntity> lstM = query.getResultList();
+                            emSand.close();
                             if (lstM != null && lstM.size() > 0) {
                                 session.setAttribute(KG_TIMEOUT, Calendar.getInstance().getTimeInMillis());
-                                LayerDbEntity layerEntity = emSand.find(LayerDbEntity.class, Long.valueOf(layer));
-                                server = layerEntity.getGeoserverUrl();
-                                session.setAttribute(server_key, server);
+                                SandboxDbEntity sand = em.find(SandboxDbEntity.class, sandId);
+                                server = sand.getGeoserverUrl();
+                                session.setAttribute(KG_GEOSERVER, server);
                             }
-                            emSand.close();
                         }
                     }
+                    em.close();
                 }
 
             } else {
                 throw new UnauthorizedAccessException();
             }
 
-            if(server == null){
+            if (server == null) {
                 throw new IllegalArgumentException("missing server");
             }
-            
+
             //get it from the persistence unit
             String guser = "admin";
             String gpwd = "geoserver";
+
+            //remove geowebcache from the url for getfeatureinfo
+            if (getHttpParam("REQUEST", request).equalsIgnoreCase("GETFEATUREINFO")) {
+                int loc = server.indexOf("gwc/service/wms");
+                if (loc != -1) {
+                    server = server.substring(0, loc) + "wms";
+                    //System.out.println("GETFEATUREINFO server is: " + server);
+                }
+            }
 
             PostMethod postMethod = new PostMethod(server);
             //ProxyUtility.setProxyRequestHeaders(request, postMethod, stringProxyHost);
