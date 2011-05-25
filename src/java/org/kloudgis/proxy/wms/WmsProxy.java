@@ -56,6 +56,7 @@ public class WmsProxy extends HttpServlet {
 
         //EntityManager em = PersistenceManager.getInstance().getEntityManager(PersistenceManager.ADMIN_PU);
         try {
+           // System.out.print("Process wms request...");
             HttpSession session = request.getSession(true);
             String server = (String) session.getAttribute(KG_GEOSERVER);
             //authenticate with the auth token
@@ -69,7 +70,7 @@ public class WmsProxy extends HttpServlet {
                     //System.out.println("Auth token still valid, " + (time - timeout.longValue()) / 1000 + " sec.");
                 } else {
                     System.out.println("Auth token:" + auth);
-                    System.out.println("Auth token Revalidate");
+                    System.out.println(Calendar.getInstance().getTime() + "- Auth token Revalidate");
                     //attemp to validate it.
                     //thow an exception if not valid
                     EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
@@ -197,7 +198,7 @@ public class WmsProxy extends HttpServlet {
                 int intNextByte;
 
                 //System.out.print("\nCopying response: ");
-                StringBuffer sb = new StringBuffer();
+                StringBuilder sb = new StringBuilder();
                 int cnt = 0;
                 while ((intNextByte = bufferedInputStream.read()) != -1) {
                     cnt++;
