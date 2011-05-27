@@ -12,6 +12,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.kloudgis.data.pojo.Layer;
 import org.kloudgis.data.store.LayerDbEntity;
@@ -21,13 +22,12 @@ import org.kloudgis.persistence.PersistenceManager;
  *
  * @author jeanfelixg
  */
-@Path("/protected/layers/sandbox")
+@Path("/protected/layers")
 public class LayerResourceBean {
 
     @GET
-    @Path("{sandboxId}")
     @Produces({"application/json"})
-    public Response getLayers(@PathParam("sandboxId") Long sandboxId) {
+    public Response getLayers(@QueryParam("sandbox") Long sandboxId) {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         if (em != null) {
             List<LayerDbEntity> lstDb = em.createQuery("from LayerDbEntity", LayerDbEntity.class).getResultList();
@@ -44,9 +44,9 @@ public class LayerResourceBean {
     }
     
     @GET
-    @Path("{sandboxId}/{layerId}")
+    @Path("{layerId}")
     @Produces({"application/json"})
-    public Response getLayer(@PathParam("sandboxId") Long sandboxId, @PathParam("layerId") Long layerId) {
+    public Response getLayer(@QueryParam("sandbox") Long sandboxId, @PathParam("layerId") Long layerId) {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         if (em != null) {
             LayerDbEntity layDb = em.find(LayerDbEntity.class, layerId);

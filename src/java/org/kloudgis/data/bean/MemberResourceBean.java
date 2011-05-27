@@ -11,8 +11,8 @@ import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.AuthorizationManager;
@@ -26,13 +26,13 @@ import org.kloudgis.persistence.PersistenceManager;
  *
  * @author jeanfelixg
  */
-@Path("/protected/members/sandbox")
+@Path("/protected/members")
 @Produces({"application/json"})
 public class MemberResourceBean {
 
     @GET
-    @Path("{sandboxId}/membership")
-    public Response getMembership(@CookieParam(value = "security-Kloudgis.org") String auth_token, @PathParam("sandboxId") Long sandboxId) {
+    @Path("membership")
+    public Response getMembership(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sandbox") Long sandboxId) {
         HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity user = new AuthorizationManager().getUserFromAuthToken(auth_token, em);
         em.close();
@@ -52,8 +52,7 @@ public class MemberResourceBean {
     }
     
     @POST  
-    @Path("{sandboxId}")
-    public Response addMember(@CookieParam(value="security-Kloudgis.org") String auth_token, @PathParam("sandboxId") Long sandboxId, Member usr){
+    public Response addMember(@CookieParam(value="security-Kloudgis.org") String auth_token, @QueryParam("sandbox") Long sandboxId, Member usr){
         HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         AuthorizationManager authMan = new AuthorizationManager();
         UserDbEntity userSecure = authMan.getUserFromAuthToken(auth_token, em);

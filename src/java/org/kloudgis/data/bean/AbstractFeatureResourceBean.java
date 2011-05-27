@@ -45,8 +45,8 @@ public abstract class AbstractFeatureResourceBean {
             @DefaultValue("0") @QueryParam("start") Integer start,
             @DefaultValue("-1") @QueryParam("length") Integer length,
             @QueryParam("sort") String sort,
-            @QueryParam("sortState") String sortState) {
-        HibernateEntityManager em = getEntityManager();
+            @QueryParam("sortState") String sortState, @QueryParam("sandbox") Long sandboxId) {
+        HibernateEntityManager em = getEntityManager(sandboxId);
         Criteria cr = em.getSession().createCriteria(getEntityDbClass()).setFirstResult(start);
         if (length >= 0) {
             cr.setMaxResults(length);
@@ -77,9 +77,9 @@ public abstract class AbstractFeatureResourceBean {
     @GET
     @Path("count")
     @Produces({"application/json"})
-    public Integer countSearch() {
+    public Integer countSearch(@QueryParam("sandbox") Long sandboxId) {
 
-        HibernateEntityManager em = getEntityManager();
+        HibernateEntityManager em = getEntityManager(sandboxId);
         Integer count=new Integer(0);
         Query qCount = em.createQuery(
                     "SELECT COUNT(e) FROM " + getEntityDbClass().getSimpleName() + " e");
@@ -101,8 +101,8 @@ public abstract class AbstractFeatureResourceBean {
     @GET
     @Path("{fId}")
     @Produces({"application/json"})
-    public AbstractFeature getFeature(@PathParam("fId") Long fId) {
-        EntityManager em = getEntityManager();
+    public AbstractFeature getFeature(@PathParam("fId") Long fId,@QueryParam("sandbox") Long sandboxId) {
+        EntityManager em = getEntityManager(sandboxId);
         AbstractPlaceDbEntity fDb = getFeatureDb(em, fId);
         if (fDb != null) {
             AbstractFeature f = fDb.toPojo();
@@ -117,8 +117,8 @@ public abstract class AbstractFeatureResourceBean {
     @Path("{fId}")
     @Consumes({"application/json"})
     @Produces({"application/json"})
-    public Response deleteFeature(@PathParam("fId") Long fid, @Context HttpServletRequest req, @Context ServletContext sContext) throws WebApplicationException {
-        EntityManager em = getEntityManager();
+    public Response deleteFeature(@PathParam("fId") Long fid, @QueryParam("sandbox") Long sandboxId) throws WebApplicationException {
+        EntityManager em = getEntityManager(sandboxId);
         AbstractPlaceDbEntity uDb = (AbstractPlaceDbEntity) em.find(getEntityDbClass(), fid);
         if (uDb != null) {
             em.getTransaction().begin();
@@ -132,8 +132,8 @@ public abstract class AbstractFeatureResourceBean {
         return Response.ok().build();
     }
 
-    public AbstractFeature doAddFeature(AbstractFeature feature, HttpServletRequest req, ServletContext sContext) throws WebApplicationException {
-        EntityManager em = getEntityManager();
+    public AbstractFeature doAddFeature(AbstractFeature feature, Long sandboxId) throws WebApplicationException {
+        EntityManager em = getEntityManager(sandboxId);
         em.getTransaction().begin();
         AbstractFeatureDbEntity fDb = feature.toDbEntity();
         em.persist(fDb);
@@ -143,8 +143,8 @@ public abstract class AbstractFeatureResourceBean {
         return feature;
     }
 
-    public AbstractFeature doUpdateFeature(AbstractFeature feature, Long fid, HttpServletRequest req, ServletContext sContext) throws WebApplicationException {
-        EntityManager em = getEntityManager();
+    public AbstractFeature doUpdateFeature(AbstractFeature feature, Long fid, Long sandboxId) throws WebApplicationException {
+        EntityManager em = getEntityManager(sandboxId);
         AbstractFeatureDbEntity uDb = (AbstractFeatureDbEntity) em.find(getEntityDbClass(), fid);
         if (uDb != null) {
             em.getTransaction().begin();
@@ -166,7 +166,7 @@ public abstract class AbstractFeatureResourceBean {
     }
 
     //TODO : replace by dynamic PU
-    protected HibernateEntityManager getEntityManager() {
+    protected HibernateEntityManager getEntityManager(Long sandboxId) {
         return PersistenceManager.getInstance().getEntityManagerDefault();
     }
 

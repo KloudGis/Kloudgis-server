@@ -22,21 +22,21 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 /**
  *
  * @author sylvain
  */
-@Path("/protected/featuretypes/sandbox")
+@Path("/protected/featuretypes")
 @Produces({"application/json"})
 public class FeatureTypeResourceBean {
 
 
     @GET
-    @Path("{sandboxId}")
     @Produces({"application/json"})
-    public List<FeatureType> getFeatureTypes(@PathParam("sandboxId") Long sandboxId) {
+    public List<FeatureType> getFeatureTypes(@QueryParam("sandbox") Long sandboxId) {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         List<FeatureTypeDbEntity> lstDb = em.createNamedQuery("FeatureType.findAll").getResultList();
         List<FeatureType> lstFT = new ArrayList(lstDb.size());
@@ -48,9 +48,9 @@ public class FeatureTypeResourceBean {
     }
 
     @GET
-    @Path("{sandboxId}/{fId}")
+    @Path("{fId}")
     @Produces({"application/json"})
-    public FeatureType getFeatureType(@PathParam("sandboxId") Long sandboxId, @PathParam("fId") Integer fId) {
+    public FeatureType getFeatureType(@QueryParam("sandbox") Long sandboxId, @PathParam("fId") Integer fId) {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         FeatureTypeDbEntity fDb = em.find(FeatureTypeDbEntity.class, fId);
         if (fDb != null) {
@@ -64,9 +64,8 @@ public class FeatureTypeResourceBean {
 
 
     @POST
-    @Path("{sandboxId}")
     @Produces({"application/json"})
-    public FeatureType addFeatureType(FeatureType ft, @PathParam("sandboxId") Long sandboxId) throws WebApplicationException {
+    public FeatureType addFeatureType(FeatureType ft, @QueryParam("sandbox") Long sandboxId) throws WebApplicationException {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         ensureUniqueName(ft, em);
         em.getTransaction().begin();
@@ -79,10 +78,9 @@ public class FeatureTypeResourceBean {
     }
 
     @PUT
-    @Path("{sandboxId}/{fId}")
+    @Path("{fId}")
     @Consumes({"application/json"})
-    @Produces({"application/json"})
-    public FeatureType updateFeature(FeatureType ft, @PathParam("fId") Long fId, @PathParam("sandboxId") Long sandboxId) throws WebApplicationException {
+    public FeatureType updateFeature(FeatureType ft, @PathParam("fId") Long fId, @QueryParam("sandbox") Long sandboxId) throws WebApplicationException {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         try{
             FeatureTypeDbEntity gDb = em.find(FeatureTypeDbEntity.class, fId);
@@ -100,9 +98,9 @@ public class FeatureTypeResourceBean {
         return ft;
     }
 
-    @Path("{sandboxId}/{fId}")
+    @Path("{fId}")
     @DELETE
-    public Response deleteFeature(@PathParam("fId") Long gId, @PathParam("sandboxId") Long sandboxId) throws WebApplicationException {
+    public Response deleteFeature(@PathParam("fId") Long gId, @QueryParam("sandbox") Long sandboxId) throws WebApplicationException {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
         FeatureTypeDbEntity gDb = em.find(FeatureTypeDbEntity.class, gId);
         if (gDb != null) {

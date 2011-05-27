@@ -34,6 +34,7 @@ public final class ContextListener implements ServletContextListener {
 //        em.close();
         PersistenceManager.getInstance().getEntityManagerDefault().close();
         //init spatial indexes
+        
     }
 
     public void contextDestroyed(ServletContextEvent sce) {

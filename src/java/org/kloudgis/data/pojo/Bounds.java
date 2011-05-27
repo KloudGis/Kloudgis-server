@@ -21,8 +21,8 @@ package org.kloudgis.data.pojo;
  */
 public class Bounds {
 
-      Double left;
-      Double bottom;
-      Double right;
-      Double top;
+      public Double left;
+      public Double bottom;
+      public Double right;
+      public Double top;
 }

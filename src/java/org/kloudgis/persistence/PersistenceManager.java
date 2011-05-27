@@ -101,11 +101,12 @@ public class PersistenceManager {
 
     protected EntityManagerFactory createSandboxManagerFactory(String key, String url) {
         Map prop = new HashMap();
-        
+
         prop.put("hibernate.connection.url", "jdbc:postgresql_postGIS://" + url);
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(DEFAULT_PU, prop);
         if (emf != null) {
             hashSandboxesFactory.put(key, new FactoryWrapper(emf));
+            createIndexes(emf);
         }
         return emf;
     }
@@ -124,10 +125,23 @@ public class PersistenceManager {
                         return em;
                     }
                 }
-            }else{
+            } else {
                 throw new NotFoundException("Missing project key or url");
             }
         }
         return null;
+    }
+
+    private void createIndexes(EntityManagerFactory emf) {
+        EntityManager em = emf.createEntityManager();
+        if (em != null) {
+            try {
+                em.getTransaction().begin();
+                em.createNativeQuery("CREATE INDEX note_gist_ix ON note USING gist(geom)").executeUpdate();
+                em.getTransaction().commit();
+            } catch (Exception e) {
+            }           
+            em.close();
+        }
     }
 }
