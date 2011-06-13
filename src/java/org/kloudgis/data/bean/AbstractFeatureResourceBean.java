@@ -165,9 +165,8 @@ public abstract class AbstractFeatureResourceBean {
         return fDb;
     }
 
-    //TODO : replace by dynamic PU
     protected HibernateEntityManager getEntityManager(Long sandboxId) {
-        return PersistenceManager.getInstance().getEntityManagerDefault();
+        return (HibernateEntityManager) PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
     }
 
 

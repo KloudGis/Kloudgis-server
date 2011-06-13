@@ -17,6 +17,7 @@ public final class ContextListener implements ServletContextListener {
 
 
     public void contextInitialized(ServletContextEvent sce) {
+        System.out.println("*** Create admin emf");
         PersistenceManager.getInstance().getAdminEntityManager().close();
 //        em.getTransaction().begin();
 //        BaseLayerDbEntity base = new BaseLayerDbEntity();
@@ -32,12 +33,12 @@ public final class ContextListener implements ServletContextListener {
 //        em.persist(s);
 //        em.getTransaction().commit();
 //        em.close();
-        PersistenceManager.getInstance().getEntityManagerDefault().close();
         //init spatial indexes
         
     }
 
     public void contextDestroyed(ServletContextEvent sce) {
+        System.out.println("*** Destroy emfs");
         PersistenceManager.getInstance().closeEntityManagerFactories();
     }
 }

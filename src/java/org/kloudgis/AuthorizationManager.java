@@ -5,7 +5,6 @@
 package org.kloudgis;
 
 import javax.persistence.EntityManager;
-import javax.persistence.NoResultException;
 import org.kloudgis.admin.store.UserDbEntity;
 
 /**
@@ -18,7 +17,7 @@ public final class AuthorizationManager {
         try {
             UserDbEntity u = em.createQuery("from UserDbEntity where auth_token=:token", UserDbEntity.class).setParameter("token", password_hash).getSingleResult();
             return u;
-        } catch (NoResultException e) {
+        } catch (Exception e) {
             return null;
         }
     }

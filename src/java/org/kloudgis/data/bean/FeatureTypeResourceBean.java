@@ -2,9 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-
 package org.kloudgis.data.bean;
-
 
 import org.kloudgis.data.store.FeatureTypeDbEntity;
 import org.kloudgis.persistence.PersistenceManager;
@@ -25,6 +23,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+
 /**
  *
  * @author sylvain
@@ -32,7 +31,6 @@ import javax.ws.rs.core.Response;
 @Path("/protected/featuretypes")
 @Produces({"application/json"})
 public class FeatureTypeResourceBean {
-
 
     @GET
     @Produces({"application/json"})
@@ -62,7 +60,6 @@ public class FeatureTypeResourceBean {
         throw new EntityNotFoundException("Not found:" + fId);
     }
 
-
     @POST
     @Produces({"application/json"})
     public FeatureType addFeatureType(FeatureType ft, @QueryParam("sandbox") Long sandboxId) throws WebApplicationException {
@@ -82,17 +79,19 @@ public class FeatureTypeResourceBean {
     @Consumes({"application/json"})
     public FeatureType updateFeature(FeatureType ft, @PathParam("fId") Long fId, @QueryParam("sandbox") Long sandboxId) throws WebApplicationException {
         EntityManager em = PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
-        try{
+        try {
             FeatureTypeDbEntity gDb = em.find(FeatureTypeDbEntity.class, fId);
-        if (gDb != null) {
-            //ensureUniqueName(ft);
-            em.getTransaction().begin();
-            gDb.updateFrom(ft);
-            em.getTransaction().commit();
-        }
-        em.close();
-        }catch(java.lang.NumberFormatException e){
-            throw new NumberFormatException(ft.guid + ": Guid is not a number "+ e);
+            if (gDb != null) {
+                //ensureUniqueName(ft);
+                em.getTransaction().begin();
+                gDb.updateFrom(ft);
+                em.getTransaction().commit();
+            }
+
+        } catch (java.lang.NumberFormatException e) {
+            throw new NumberFormatException(ft.guid + ": Guid is not a number " + e);
+        } finally {
+            em.close();
         }
 
         return ft;
@@ -113,7 +112,6 @@ public class FeatureTypeResourceBean {
         em.close();
         throw new EntityNotFoundException("Not found:" + gId);
     }
-
 
     //FIXE ME : SA TO BE REFACTOR MORE GENERIC
     private void ensureUniqueName(FeatureType ft, EntityManager em) {
