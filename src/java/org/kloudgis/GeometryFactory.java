@@ -24,6 +24,7 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Factory to perform the basic geometry transformation
@@ -219,6 +220,6 @@ public class GeometryFactory {
         makePrecise(c1);
         makePrecise(c2);
         return new com.vividsolutions.jts.geom.Envelope(c1, c2);
-    }
+    }  
 
 }

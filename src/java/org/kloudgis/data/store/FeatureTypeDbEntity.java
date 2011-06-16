@@ -4,8 +4,11 @@
  */
 package org.kloudgis.data.store;
 
+import com.vividsolutions.jts.geom.Point;
+import java.util.List;
 import org.kloudgis.data.pojo.FeatureType;
 import java.io.Serializable;
+import java.util.ArrayList;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -15,6 +18,7 @@ import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import org.kloudgis.data.pojo.QuickFeature;
 /**
  *
  * @author sylvain
@@ -36,9 +40,11 @@ public class FeatureTypeDbEntity implements Serializable {
     @Column
     private String label;
 
-   @Column
-    private String class_name;
+    @Column
+    private String client_class_name;
 
+    @Column
+    private String feature_class_name;
 
 
    public String getDescription() {
@@ -57,14 +63,17 @@ public class FeatureTypeDbEntity implements Serializable {
         return name;
     }
 
-    public String getClass_name() {
-        return class_name;
+    public String getClientClassName() {
+        return client_class_name;
     }
-
-    public void setClass_name(String class_name) {
-        this.class_name = class_name;
-    }
-   
+    
+    public Class getFeatureClass() {
+        try {
+            return Class.forName(feature_class_name);
+        } catch (Exception ex) {
+            return null;
+        }
+    }   
 
     public void setDescription(String description) {
         this.description = description;
@@ -105,7 +114,7 @@ public class FeatureTypeDbEntity implements Serializable {
         pojo.name = getName();
         pojo.description = getDescription();
         pojo.label = getLabel();
-        pojo.class_name = getClass_name();
+        pojo.class_name = getClientClassName();
         return pojo;
     }
 
@@ -113,7 +122,11 @@ public class FeatureTypeDbEntity implements Serializable {
         this.setName(ft.name);
         this.setDescription(ft.description);
         this.setLabel(ft.label);
-        this.setClass_name(ft.class_name);
-
     }
+
+    public List<QuickFeature> findQuickFeaturesAt(Point point, LayerDbEntity lay, Double onePixelWorld, Integer limit, EntityManager em) {
+        List<QuickFeature> lstQ = new ArrayList<QuickFeature>();
+        return lstQ;
+    }
+    
 }

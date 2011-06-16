@@ -16,6 +16,7 @@ package org.kloudgis.data.store;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import java.io.Serializable;
 import java.security.Timestamp;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,14 +26,16 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import org.hibernate.annotations.Type;
+import org.kloudgis.data.featuretype.AbstractFeatureType;
 import org.kloudgis.data.pojo.Layer;
+import org.kloudgis.data.store.utils.Model;
 /**
  *
  * @author jeanfelixg
  */
 @Entity
 @Table(name = "layers")
-public class LayerDbEntity {
+public class LayerDbEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -44,6 +47,8 @@ public class LayerDbEntity {
     private Boolean         grouped_layer;
     @Column
     private Integer         render_order;
+    @Column
+    private Long          featuretype_id;
 
     @Column(length = 100)
     private String          name;
@@ -52,9 +57,7 @@ public class LayerDbEntity {
     @Column(length = 100)
     private String          label;
     @Column
-    private Timestamp       date_creation;
-    @Column(length = 100)
-    private String          featuretype;
+    private Timestamp       date_creation;   
     @Column(length = 30)
     private String          srs;
     @Column(length = 254)
@@ -69,6 +72,8 @@ public class LayerDbEntity {
     private Boolean         display_outside_max_extent;
     @Column
     private Boolean         selectable;
+    @Column
+    private Integer         pixel_tolerance;  
 
     public Layer toPojo(EntityManager em) {
 
@@ -78,11 +83,12 @@ public class LayerDbEntity {
         pojo.isGroupedLayer = grouped_layer;
         pojo.renderOrder = render_order;
         pojo.isSelectable = selectable;
+        pojo.featuretype = featuretype_id;
+        pojo.pixelTolerance = pixel_tolerance;
 
         pojo.name = name;
         pojo.owner = owner;
-        pojo.label = label;
-        pojo.featuretype = featuretype;
+        pojo.label = label;        
         pojo.srs = srs;
         pojo.url = url;
         pojo.buffer = buffer;
@@ -90,6 +96,18 @@ public class LayerDbEntity {
         pojo.visibility = visibility;
         pojo.displayOutsideExtent = display_outside_max_extent;
         return pojo;
+    }
+
+    public AbstractFeatureType getFeatureType(EntityManager em) {
+        return Model.getFeatureType(featuretype_id, em);
+    }
+
+    public Long getId() {
+        return id;
+    }
+    
+    public int getPixelTolerance() {
+        return pixel_tolerance;
     }
 
 }

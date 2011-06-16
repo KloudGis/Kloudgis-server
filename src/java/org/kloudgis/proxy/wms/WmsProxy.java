@@ -91,6 +91,9 @@ public class WmsProxy extends HttpServlet {
                                 session.setAttribute(KG_GEOSERVER, server);
                             }
                         }
+                    }else{
+                        em.close();
+                        throw new UnauthorizedAccessException();
                     }
                     em.close();
                 }

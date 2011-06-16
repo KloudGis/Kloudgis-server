@@ -21,15 +21,17 @@ package org.kloudgis.data.pojo;
  */
 public class Layer {
 
-    public Long guid;
+    public Long     guid;
     //if its a group layer of not
-    public Boolean isGroupLayer;
+    public Boolean  isGroupLayer;
     //if its a layer grouped in a group layer
-    public Boolean isGroupedLayer;
+    public Boolean  isGroupedLayer;
     //rendering order (1 is the first to be draw)
-    public Integer renderOrder; 
+    public Integer  renderOrder; 
     //select on map ?
-    public Boolean isSelectable;
+    public Boolean  isSelectable;
+    public Integer  pixelTolerance;
+    public Long   featuretype;
 
     //layer parameters
     //user who has created the layer in the sandbox
@@ -37,8 +39,7 @@ public class Layer {
     
     public String   label;
     //the unique name including the workspace Ex: cite:mylayer
-    public String   name;
-    public String   featuretype;
+    public String   name;  
     //the coordinate system Ex: EPSG:4326
     public String   srs;
     //relative or complete url to geoserver

@@ -16,7 +16,6 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.hibernate.Criteria;
-import org.hibernate.criterion.Projections;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.GeometryFactory;
 import org.kloudgis.data.pojo.FetchResult;

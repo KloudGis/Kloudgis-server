@@ -9,6 +9,7 @@ package org.kloudgis.data.store;
 import com.vividsolutions.jts.geom.Geometry;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
+import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 
@@ -21,17 +22,20 @@ public abstract class AbstractPlaceDbEntity extends AbstractFeatureDbEntity{
 
 
     @Column
-    private String name;
+    private String   name;
 
     @Column
-    private String featureClass;
+    private String   featureClass;
 
     @Column
-    private String type;
+    private String   type;
 
     @Column
     @Type(type = "org.hibernatespatial.GeometryUserType")
     private Geometry geom;
+    @Index(name="layer_id_index")
+    @Column
+    private Long     layer_id;
 
     public Geometry getGeom() {
         return geom;
@@ -79,9 +83,5 @@ public abstract class AbstractPlaceDbEntity extends AbstractFeatureDbEntity{
         inPojo.featureClass=getFeatureClass();
         inPojo.type=getType();
         inPojo.guid=getId();
-
-    }
-
-    
-
+    }   
 }

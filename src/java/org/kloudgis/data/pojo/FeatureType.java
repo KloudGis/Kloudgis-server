@@ -5,6 +5,7 @@
 
 package org.kloudgis.data.pojo;
 
+import org.kloudgis.data.store.PlaceFeaturetypeDbEntity;
 import org.kloudgis.data.store.FeatureTypeDbEntity;
 
 /**
@@ -19,7 +20,7 @@ public class FeatureType {
     //public List<Long> attrtypes;
 
     public FeatureTypeDbEntity toDbEntity() {
-        FeatureTypeDbEntity entity = new FeatureTypeDbEntity();
+        FeatureTypeDbEntity entity = new PlaceFeaturetypeDbEntity();
         try{
             Long iguid=Long.valueOf(guid);
             entity.setId(iguid); 
@@ -30,7 +31,6 @@ public class FeatureType {
         entity.setName(name);
         entity.setDescription(description);
         entity.setLabel(label); 
-        entity.setClass_name(class_name);
         return entity;
     }
 
