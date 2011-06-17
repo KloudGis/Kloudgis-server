@@ -17,6 +17,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.kloudgis.data.pojo.QuickFeature;
 /**
@@ -29,13 +30,12 @@ import org.kloudgis.data.pojo.QuickFeature;
     @NamedQuery(name = "FeatureType.findAll", query = "SELECT c FROM FeatureTypeDbEntity c order by c.label")})
 public class FeatureTypeDbEntity implements Serializable {
 
+    @SequenceGenerator(name = "ft_seq_gen", sequenceName = "ft_seq")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ft_seq_gen")
     private Long id;
     @Column
     private String name;
-    @Column
-    private String description;
     
     @Column
     private String label;
@@ -46,10 +46,6 @@ public class FeatureTypeDbEntity implements Serializable {
     @Column
     private String feature_class_name;
 
-
-   public String getDescription() {
-        return description;
-    }
 
     public Long getId() {
         return id;
@@ -73,11 +69,16 @@ public class FeatureTypeDbEntity implements Serializable {
         } catch (Exception ex) {
             return null;
         }
-    }   
-
-    public void setDescription(String description) {
-        this.description = description;
+    } 
+    
+    public void setClientClassName(String name){
+        this.client_class_name = name;
     }
+    
+    public void setFeatureClassName(String name){
+        this.feature_class_name = name;
+    }
+
 
     public void setId(Long id) {
         this.id = id;
@@ -112,7 +113,6 @@ public class FeatureTypeDbEntity implements Serializable {
         FeatureType pojo = new FeatureType();
         pojo.guid = getId();
         pojo.name = getName();
-        pojo.description = getDescription();
         pojo.label = getLabel();
         pojo.class_name = getClientClassName();
         return pojo;
@@ -120,7 +120,6 @@ public class FeatureTypeDbEntity implements Serializable {
 
     public void updateFrom(FeatureType ft) {
         this.setName(ft.name);
-        this.setDescription(ft.description);
         this.setLabel(ft.label);
     }
 

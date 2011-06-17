@@ -31,7 +31,7 @@ public class Layer {
     //select on map ?
     public Boolean  isSelectable;
     public Integer  pixelTolerance;
-    public Long   featuretype;
+    public Long     featuretype;
 
     //layer parameters
     //user who has created the layer in the sandbox

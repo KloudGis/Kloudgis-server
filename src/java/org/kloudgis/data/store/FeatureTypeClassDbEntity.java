@@ -10,6 +10,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 /**
@@ -20,8 +21,9 @@ import javax.persistence.Table;
 @Table(name = "featuretype_class")
 public class FeatureTypeClassDbEntity implements Serializable {
     
+    @SequenceGenerator(name = "ftc_seq_gen", sequenceName = "ftc_seq")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "ftc_seq_gen")
     private Long id;
     @Column
     private Long ft_id;
@@ -36,6 +38,14 @@ public class FeatureTypeClassDbEntity implements Serializable {
             ex.printStackTrace();
             return null;
         }
+    }
+    
+    public void setFtId(Long id){
+        ft_id = id;
+    }
+    
+    public void setFtClass(String className){
+        ft_class = className;
     }
 
 }

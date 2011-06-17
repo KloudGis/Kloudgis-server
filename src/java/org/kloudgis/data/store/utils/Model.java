@@ -4,8 +4,6 @@
  */
 package org.kloudgis.data.store.utils;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;

@@ -16,9 +16,9 @@ import org.kloudgis.data.store.LayerDbEntity;
  *
  * @author jeanfelixg
  */
-public class DefaultFeatureType extends AbstractFeatureType{
+public class NoteFeatureType extends AbstractFeatureType{
     
-    public DefaultFeatureType(FeatureTypeDbEntity ft){
+    public NoteFeatureType(FeatureTypeDbEntity ft){
         super(ft);
     }
     

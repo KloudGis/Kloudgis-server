@@ -18,7 +18,6 @@ import javax.ws.rs.core.Response;
 import org.kloudgis.GeometryFactory;
 import org.kloudgis.data.featuretype.AbstractFeatureType;
 import org.kloudgis.data.pojo.QuickFeature;
-import org.kloudgis.data.store.FeatureTypeDbEntity;
 import org.kloudgis.data.store.LayerDbEntity;
 import org.kloudgis.persistence.PersistenceManager;
 
@@ -26,9 +25,9 @@ import org.kloudgis.persistence.PersistenceManager;
  *
  * @author jeanfelixg
  */
-@Path("/protected/features")
+@Path("/protected/qfeatures")
 @Produces({"application/json"})
-public class FeatureResourceBean {
+public class QuickFeatureResourceBean {
 
     @GET
     @Path("lon_lat")
@@ -43,9 +42,11 @@ public class FeatureResourceBean {
                 if (limit > 0) {
                     LayerDbEntity lay = em.find(LayerDbEntity.class, Long.valueOf(id));
                     AbstractFeatureType ft = lay.getFeatureType(em);
-                    List<QuickFeature> arrL = ft.findQuickFeaturesAt(point, lay, onePixelWorld, limit, em);
-                    arrQ.addAll(arrL);
-                    limit -= arrL.size();
+                    if (ft != null) {
+                        List<QuickFeature> arrL = ft.findQuickFeaturesAt(point, lay, onePixelWorld, limit, em);
+                        arrQ.addAll(arrL);
+                        limit -= arrL.size();
+                    }
                 }
             }
             em.close();

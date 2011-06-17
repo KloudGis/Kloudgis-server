@@ -29,6 +29,11 @@ public abstract class AbstractFeatureType {
         return featuretype;
     }
     
+    @Override
+    public String toString(){
+        return "Featuretype: " + (getEntity() == null ? "" : getEntity().getName());
+    }
+    
     public abstract List<QuickFeature> findQuickFeaturesAt(Point point, LayerDbEntity lay, Double onePixelWorld, Integer limit, EntityManager em);
 
     protected List<org.kloudgis.data.pojo.Coordinate> toPojo(Coordinate[] coordinates) {

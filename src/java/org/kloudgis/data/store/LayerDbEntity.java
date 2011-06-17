@@ -14,8 +14,6 @@
  */
 package org.kloudgis.data.store;
 
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 import java.io.Serializable;
 import java.security.Timestamp;
 import javax.persistence.Column;
@@ -24,8 +22,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
-import org.hibernate.annotations.Type;
 import org.kloudgis.data.featuretype.AbstractFeatureType;
 import org.kloudgis.data.pojo.Layer;
 import org.kloudgis.data.store.utils.Model;
@@ -37,8 +35,9 @@ import org.kloudgis.data.store.utils.Model;
 @Table(name = "layers")
 public class LayerDbEntity implements Serializable {
 
+    @SequenceGenerator(name = "layer_seq_gen", sequenceName = "layer_seq")
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "layer_seq_gen")
     private Long            id;
 
     @Column
@@ -107,7 +106,7 @@ public class LayerDbEntity implements Serializable {
     }
     
     public int getPixelTolerance() {
-        return pixel_tolerance;
+        return pixel_tolerance == null ? 0 : pixel_tolerance.intValue();
     }
 
 }

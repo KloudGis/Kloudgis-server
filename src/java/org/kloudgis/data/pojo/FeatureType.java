@@ -14,7 +14,6 @@ import org.kloudgis.data.store.FeatureTypeDbEntity;
 public class FeatureType {
     public Long guid;
     public String name;
-    public String description;
     public String label;
     public String class_name;
     //public List<Long> attrtypes;
@@ -29,7 +28,6 @@ public class FeatureType {
         }
 
         entity.setName(name);
-        entity.setDescription(description);
         entity.setLabel(label); 
         return entity;
     }
