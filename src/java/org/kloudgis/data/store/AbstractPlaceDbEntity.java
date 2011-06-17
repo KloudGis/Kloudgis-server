@@ -7,11 +7,14 @@ package org.kloudgis.data.store;
 
 
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
+import org.kloudgis.data.pojo.Coordinate;
+import org.kloudgis.data.pojo.PojoUtils;
 
 /**
  *
@@ -83,5 +86,11 @@ public abstract class AbstractPlaceDbEntity extends AbstractFeatureDbEntity{
         inPojo.featureClass=getFeatureClass();
         inPojo.type=getType();
         inPojo.guid=getId();
+        if(geom != null){
+            Point center = geom.getCentroid();
+            inPojo.center = new Coordinate(center.getX(), center.getY());
+            inPojo.geo_type = geom.getGeometryType();
+            inPojo.coordinates = PojoUtils.toPojo(geom.getCoordinates());
+        }
     }   
 }

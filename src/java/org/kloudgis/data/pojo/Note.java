@@ -14,6 +14,7 @@ public class Note extends AbstractFeature{
 
     public String title;   
     public String description;
+    public Coordinate coordinate;
     
     @Override
     public NoteDbEntity toDbEntity() {

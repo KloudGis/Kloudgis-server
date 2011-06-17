@@ -13,6 +13,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.hibernatespatial.criterion.SpatialRestrictions;
+import org.kloudgis.data.pojo.PojoUtils;
 import org.kloudgis.data.pojo.QuickFeature;
 import org.kloudgis.data.store.AbstractPlaceDbEntity;
 import org.kloudgis.data.store.FeatureTypeDbEntity;
@@ -59,7 +60,7 @@ public class PlaceFeatureType extends AbstractFeatureType{
         quick.guid = quick.ft_id + "_" + quick.fid;
         quick.descr = fea.getName();
         quick.geo_type = fea.getGeom().getGeometryType();
-        quick.coordinates = super.toPojo(fea.getGeom().getCoordinates());
+        quick.coordinates = PojoUtils.toPojo(fea.getGeom().getCoordinates());
         return quick;
     }
 }

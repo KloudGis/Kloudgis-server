@@ -6,6 +6,7 @@ package org.kloudgis.data.store;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import java.io.Serializable;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +16,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 import org.kloudgis.data.pojo.AbstractFeature;
+import org.kloudgis.data.pojo.Coordinate;
 import org.kloudgis.data.pojo.Note;
 
 /**
@@ -23,7 +25,7 @@ import org.kloudgis.data.pojo.Note;
  */
 @Entity
 @Table(name = "note")
-public class NoteDbEntity extends AbstractFeatureDbEntity{
+public class NoteDbEntity extends AbstractFeatureDbEntity implements Serializable{
     @SequenceGenerator(name = "note_seq_gen", sequenceName = "note_seq")
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "note_seq_gen")
@@ -51,7 +53,7 @@ public class NoteDbEntity extends AbstractFeatureDbEntity{
     public AbstractFeature toPojo() {
         Note pojo = new Note();
         pojo.guid = id;
-        pojo.wktGeom = geom == null ? null : geom.toText();
+        pojo.coordinate = geom == null? null : new Coordinate(geom.getCentroid().getX(), geom.getCentroid().getY());
         pojo.title = title;
         pojo.description = description;
         return pojo;

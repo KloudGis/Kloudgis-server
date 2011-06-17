@@ -14,7 +14,6 @@ import org.kloudgis.data.store.AbstractFeatureDbEntity;
 public abstract class AbstractFeature {
 
     public Long guid;
-    public String wktGeom;
 
     public abstract AbstractFeatureDbEntity toDbEntity();
     

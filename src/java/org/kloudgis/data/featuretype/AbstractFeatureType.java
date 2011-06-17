@@ -35,13 +35,5 @@ public abstract class AbstractFeatureType {
     }
     
     public abstract List<QuickFeature> findQuickFeaturesAt(Point point, LayerDbEntity lay, Double onePixelWorld, Integer limit, EntityManager em);
-
-    protected List<org.kloudgis.data.pojo.Coordinate> toPojo(Coordinate[] coordinates) {
-        ArrayList<org.kloudgis.data.pojo.Coordinate> list = new ArrayList(coordinates.length);
-        for(Coordinate c : coordinates){
-            list.add(new org.kloudgis.data.pojo.Coordinate(c.x, c.y));
-        }
-        return list;
-    }
-     
+   
 }
