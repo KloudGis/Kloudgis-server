@@ -6,6 +6,7 @@ package org.kloudgis.data.bean;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 import java.util.ArrayList;
 import java.util.List;
 import javax.ws.rs.CookieParam;
@@ -16,12 +17,13 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import org.hibernate.Criteria;
+import org.hibernate.annotations.OrderBy;
+import org.hibernate.criterion.Order;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.GeometryFactory;
 import org.kloudgis.data.pojo.FetchResult;
 import org.kloudgis.data.pojo.NoteMarker;
 import org.kloudgis.data.store.NoteDbEntity;
-import org.kloudgis.data.store.utils.DistanceOrder;
 import org.kloudgis.persistence.PersistenceManager;
 
 /**
@@ -34,7 +36,7 @@ public class NoteResourceBean extends AbstractFeatureResourceBean{
 
     @GET
     @Path("clusters")
-    public Response getNoteClusters(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("center_lat") Double lat, @QueryParam("center_lon") Double lon, @QueryParam("distance") Double distance, @QueryParam("sandbox") Long sandboxId,
+    public Response getNoteClusters(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sw_lat") Double swlat, @QueryParam("sw_lon") Double swlon, @QueryParam("ne_lat") Double nelat, @QueryParam("ne_lon") Double nelon, @QueryParam("distance") Double distance, @QueryParam("sandbox") Long sandboxId,
             @DefaultValue("0") @QueryParam("start") Integer start, @DefaultValue("-1") @QueryParam("length") Integer length, @DefaultValue("false") @QueryParam("count") Boolean count) {
         if (auth_token != null) {
             HibernateEntityManager em = (HibernateEntityManager) PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
@@ -44,9 +46,12 @@ public class NoteResourceBean extends AbstractFeatureResourceBean{
                 boolean clustered = false;
                 Criteria criteria = em.getSession().createCriteria(NoteDbEntity.class);
                 Long theCount = null;
-                Point pt = GeometryFactory.createPoint(new Coordinate(lon, lat));
-                pt.setSRID(4326);
-                criteria.addOrder(new DistanceOrder("geom", pt));
+                Coordinate sw = new Coordinate(swlon, swlat);
+                Coordinate ne = new Coordinate(nelon, nelat);
+                Coordinate[] coords = {sw, new Coordinate(sw.x, ne.y), ne, new Coordinate(ne.x, sw.y), sw};
+                Polygon pBounds = GeometryFactory.createPolygon(GeometryFactory.createLinearRing(coords), null);
+                pBounds.setSRID(4326);
+                criteria.addOrder(Order.asc("id"));
                 NoteDbEntity feature;
                 List< NoteDbEntity> features = criteria.list();
                 for (int i = 0; i < features.size(); i++) {
@@ -76,7 +81,6 @@ public class NoteResourceBean extends AbstractFeatureResourceBean{
             }
         }
         return null;
-
     }
 
     private boolean shouldCluster(NoteMarker cluster, NoteDbEntity feature, Double distance) {

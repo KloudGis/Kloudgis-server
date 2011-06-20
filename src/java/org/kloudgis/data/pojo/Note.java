@@ -4,6 +4,7 @@
  */
 package org.kloudgis.data.pojo;
 
+import java.sql.Date;
 import org.kloudgis.data.store.NoteDbEntity;
 
 /**
@@ -12,9 +13,11 @@ import org.kloudgis.data.store.NoteDbEntity;
  */
 public class Note extends AbstractFeature{
 
-    public String title;   
-    public String description;
+    public String   title;   
+    public String   description;
+    public String   author;
     public Coordinate coordinate;
+    public Date     date;
     
     @Override
     public NoteDbEntity toDbEntity() {

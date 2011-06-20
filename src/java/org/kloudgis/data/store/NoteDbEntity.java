@@ -7,6 +7,7 @@ package org.kloudgis.data.store;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import java.io.Serializable;
+import java.sql.Date;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -33,8 +34,11 @@ public class NoteDbEntity extends AbstractFeatureDbEntity implements Serializabl
     @Column
     private String title;
     @Column
-    private String description;
-
+    private String description;    
+    @Column
+    private String author;
+    @Column
+    private Date   date_create;
     @Column
     @Type(type = "org.hibernatespatial.GeometryUserType")
     private Geometry geom;
@@ -56,6 +60,8 @@ public class NoteDbEntity extends AbstractFeatureDbEntity implements Serializabl
         pojo.coordinate = geom == null? null : new Coordinate(geom.getCentroid().getX(), geom.getCentroid().getY());
         pojo.title = title;
         pojo.description = description;
+        pojo.author = author;
+        pojo.date = date_create;
         return pojo;
         
     }

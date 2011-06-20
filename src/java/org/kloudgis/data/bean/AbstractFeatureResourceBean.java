@@ -103,7 +103,7 @@ public abstract class AbstractFeatureResourceBean {
     @Produces({"application/json"})
     public AbstractFeature getFeature(@PathParam("fId") Long fId,@QueryParam("sandbox") Long sandboxId) {
         EntityManager em = getEntityManager(sandboxId);
-        AbstractPlaceDbEntity fDb = getFeatureDb(em, fId);
+        AbstractFeatureDbEntity fDb = getFeatureDb(em, fId);
         if (fDb != null) {
             AbstractFeature f = fDb.toPojo();
             em.close();
@@ -160,8 +160,8 @@ public abstract class AbstractFeatureResourceBean {
     }
 
 
-    protected AbstractPlaceDbEntity getFeatureDb(EntityManager em, Long fId) {
-        AbstractPlaceDbEntity fDb = (AbstractPlaceDbEntity) em.find(getEntityDbClass(), fId);
+    protected AbstractFeatureDbEntity getFeatureDb(EntityManager em, Long fId) {
+        AbstractFeatureDbEntity fDb = (AbstractFeatureDbEntity) em.find(getEntityDbClass(), fId);
         return fDb;
     }
 
