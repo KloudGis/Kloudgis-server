@@ -20,6 +20,7 @@ import org.hibernate.Criteria;
 import org.hibernate.annotations.OrderBy;
 import org.hibernate.criterion.Order;
 import org.hibernate.ejb.HibernateEntityManager;
+import org.hibernatespatial.criterion.SpatialRestrictions;
 import org.kloudgis.GeometryFactory;
 import org.kloudgis.data.pojo.FetchResult;
 import org.kloudgis.data.pojo.NoteMarker;
@@ -36,8 +37,7 @@ public class NoteResourceBean extends AbstractFeatureResourceBean{
 
     @GET
     @Path("clusters")
-    public Response getNoteClusters(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sw_lat") Double swlat, @QueryParam("sw_lon") Double swlon, @QueryParam("ne_lat") Double nelat, @QueryParam("ne_lon") Double nelon, @QueryParam("distance") Double distance, @QueryParam("sandbox") Long sandboxId,
-            @DefaultValue("0") @QueryParam("start") Integer start, @DefaultValue("-1") @QueryParam("length") Integer length, @DefaultValue("false") @QueryParam("count") Boolean count) {
+    public Response getNoteClusters(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sw_lat") Double swlat, @QueryParam("sw_lon") Double swlon, @QueryParam("ne_lat") Double nelat, @QueryParam("ne_lon") Double nelon, @QueryParam("distance") Double distance, @QueryParam("sandbox") Long sandboxId){
         if (auth_token != null) {
             HibernateEntityManager em = (HibernateEntityManager) PersistenceManager.getInstance().getEntityManagerBySandboxId(sandboxId);
             if (em != null) {
@@ -45,12 +45,12 @@ public class NoteResourceBean extends AbstractFeatureResourceBean{
                 NoteMarker cluster;
                 boolean clustered = false;
                 Criteria criteria = em.getSession().createCriteria(NoteDbEntity.class);
-                Long theCount = null;
                 Coordinate sw = new Coordinate(swlon, swlat);
                 Coordinate ne = new Coordinate(nelon, nelat);
                 Coordinate[] coords = {sw, new Coordinate(sw.x, ne.y), ne, new Coordinate(ne.x, sw.y), sw};
                 Polygon pBounds = GeometryFactory.createPolygon(GeometryFactory.createLinearRing(coords), null);
                 pBounds.setSRID(4326);
+                criteria.add(SpatialRestrictions.within("geom", pBounds));
                 criteria.addOrder(Order.asc("id"));
                 NoteDbEntity feature;
                 List< NoteDbEntity> features = criteria.list();
@@ -72,12 +72,8 @@ public class NoteResourceBean extends AbstractFeatureResourceBean{
                         }
                     }
                 }
-                if(count){
-                    theCount = (long) clusters.size();                    
-                }  
-                clusters = clusters.subList(start, Math.min(start + length, clusters.size()));
                 em.close();
-                return Response.ok(new FetchResult(clusters, theCount)).build();
+                return Response.ok(clusters).build();
             }
         }
         return null;
