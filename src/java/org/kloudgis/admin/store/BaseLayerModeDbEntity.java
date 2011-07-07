@@ -60,4 +60,12 @@ public class BaseLayerModeDbEntity implements Serializable {
     public void setBaseLayer(BaseLayerDbEntity base) {
         base_layer = base;
     }
+
+    public void setID( Long l ) {
+        id = l;
+    }
+
+    public Long getID() {
+        return id;
+    }
 }

@@ -35,7 +35,7 @@ public class Layer {
 
     //layer parameters
     //user who has created the layer in the sandbox
-    public String   owner;
+    public Long   owner;
     
     public String   label;
     //the unique name including the workspace Ex: cite:mylayer

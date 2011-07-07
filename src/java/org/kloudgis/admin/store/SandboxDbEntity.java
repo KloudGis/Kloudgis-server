@@ -77,11 +77,10 @@ public class SandboxDbEntity implements Serializable {
     private BaseLayerModeDbEntity base_layer_mode;
     @Column(length = 250)
     private String geoserver_url;
-    
+
     //feeds
     @OneToMany(mappedBy="sandbox", cascade={CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<FeedDbEntity> feeds;
-
 
     public Long getId(){
         return id;
@@ -94,32 +93,43 @@ public class SandboxDbEntity implements Serializable {
     public void setBaseLayerMode(BaseLayerModeDbEntity mode){
         this.base_layer_mode = mode;
     }
-    
+
     public void setUniqueKey(String key){
         this.unique_key = key;
+    }
+
+    public void setURL( String strURL ) {
+        connection_url = strURL;
+    }
+
+    public void setGeoserverURL( String strURL ) {
+        if( strURL != null && !strURL.endsWith( "/" ) ) {
+            strURL += "/";
+        }
+        geoserver_url = strURL;
     }
 
     public String getUniqueKey(){
         return unique_key;
     }
-    
+
     public String getConnectionUrl() {
         return connection_url;
     }
-    
+
     public String getGeoserverUrl() {
         return geoserver_url;
-    }    
-    
+    }
+
     public Set<FeedDbEntity> getFeed() {
         return feeds;
     }
-    
+
     public void addFeed(FeedDbEntity feedDb) {
         feedDb.setSandbox(this);
         this.feeds.add(feedDb);
     }
-    
+
     public Sandbox toPojo(EntityManager em) {
         SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
         Sandbox pojo = new Sandbox();
@@ -134,7 +144,8 @@ public class SandboxDbEntity implements Serializable {
             pojo.homeZoomLevel = center_zoom_level;
         }
         pojo.displayProjection = display_projection;
+        pojo.connection_url = connection_url;
+        pojo.baseLayerMode = base_layer_mode == null ? null : base_layer_mode.getID();
         return pojo;
     }
- 
 }

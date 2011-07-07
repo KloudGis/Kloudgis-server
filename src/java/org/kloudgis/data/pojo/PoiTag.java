@@ -20,19 +20,19 @@ public class PoiTag extends AbstractTag{
         try{
             Long iguid=Long.valueOf(guid);
             entity.setId(iguid);
-            
+
         }catch(java.lang.NumberFormatException e){
             throw new NumberFormatException(guid + ": Guid is not a number ");
         }
-        
-        try{
-            Long ifk=Long.valueOf(featureGuid);
-            entity.setFk_id(ifk);
-            
-        }catch(java.lang.NumberFormatException e){
-            throw new NumberFormatException(featureGuid + ": Foreign key is not a number ");
-        }
-        
+
+//        try{
+//            Long ifk=Long.valueOf(featureGuid);
+//            entity.setFK(ifk);
+//
+//        }catch(java.lang.NumberFormatException e){
+//            throw new NumberFormatException(featureGuid + ": Foreign key is not a number ");
+//        }
+
         entity.setKey(key);
         entity.setValue(value);
         return entity;

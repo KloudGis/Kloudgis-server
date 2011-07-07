@@ -20,8 +20,6 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 import org.hibernate.annotations.Index;
 import org.kloudgis.admin.pojo.User;
-import org.kloudgis.data.pojo.Member;
-import org.kloudgis.data.store.MemberDbEntity;
 
 /**
  *

@@ -31,7 +31,7 @@ public class Sandbox {
 
     //map home location center - coordinate longitude and latitude. Ex= -73.2,45.5
     public String   homeLonLatCenter;
-    //zoom level for the home location.  
+    //zoom level for the home location.
     public Integer  homeZoomLevel;
     //srs for display coordinates on the map. Ex: EPSG:4326
     public String   displayProjection;
@@ -39,5 +39,6 @@ public class Sandbox {
     public Long     baseLayerMode;
     //geoserver url
     public String   url_geoserver;
-    
+    //db url
+    public String connection_url;
 }

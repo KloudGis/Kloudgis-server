@@ -1,15 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package org.kloudgis.data.store;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -26,15 +22,15 @@ public class PoiTagDbEntity extends AbstractTagDbEntity{
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "poi_tag_seq_gen")
     private Long id;
 
-    @Column
-    private Long fk_id;
+    @ManyToOne
+    private PoiDbEntity fk;
 
-    public Long getFk_id() {
-        return fk_id;
+    public void setFK( PoiDbEntity ent ) {
+        fk = ent;
     }
 
-    public void setFk_id(Long fk_id) {
-        this.fk_id = fk_id;
+    public PoiDbEntity getFK() {
+        return fk;
     }
 
     public Long getId() {
@@ -44,7 +40,4 @@ public class PoiTagDbEntity extends AbstractTagDbEntity{
     public void setId(Long id) {
         this.id = id;
     }
-
-    
-
 }

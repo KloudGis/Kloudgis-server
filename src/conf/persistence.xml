@@ -2,16 +2,19 @@
 <persistence version="1.0" xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_1_0.xsd">
   <persistence-unit name="adminPU" transaction-type="RESOURCE_LOCAL">
     <provider>org.hibernate.ejb.HibernatePersistence</provider>
-    <class>org.kloudgis.admin.store.UserDbEntity</class>
     <class>org.kloudgis.admin.store.UserRoleDbEntity</class>
     <class>org.kloudgis.admin.store.SandboxDbEntity</class>
     <class>org.kloudgis.admin.store.BaseLayerDbEntity</class>
     <class>org.kloudgis.admin.store.BaseLayerModeDbEntity</class>
     <class>org.kloudgis.admin.store.FeedDbEntity</class>
+    <class>org.kloudgis.admin.store.DatasourceDbEntity</class>
+    <class>org.kloudgis.admin.store.SourceColumnsDbEntity</class>
+    <class>org.kloudgis.admin.synch.store.SparkFileVersion</class>
+    <class>org.kloudgis.admin.store.UserDbEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
-      <property name="hibernate.connection.username" value="postgres"/>
-      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.connection.username" value="kloudgis"/>
+      <property name="hibernate.connection.password" value="kwadmin"/>
       <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>
       <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://localhost:5432/kloud_admin"/>
       <property name="hibernate.dialect" value="org.hibernatespatial.postgis.PostgisDialect"/>
@@ -39,8 +42,8 @@
     <class>org.kloudgis.data.store.FeatureTypeClassDbEntity</class>
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
     <properties>
-      <property name="hibernate.connection.username" value="postgres"/>
-      <property name="hibernate.connection.password" value=""/>
+      <property name="hibernate.connection.username" value="kloudgis"/>
+      <property name="hibernate.connection.password" value="kwadmin"/>
       <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>
       <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://localhost:5432/default_sandbox"/>
       <property name="hibernate.c3p0.min_size" value="0"/>

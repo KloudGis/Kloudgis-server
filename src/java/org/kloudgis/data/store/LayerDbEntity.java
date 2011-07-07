@@ -51,12 +51,12 @@ public class LayerDbEntity implements Serializable {
 
     @Column(length = 100)
     private String          name;
-    @Column(length = 100)
-    private String          owner;
+    @Column
+    private Long          owner;
     @Column(length = 100)
     private String          label;
     @Column
-    private Timestamp       date_creation;   
+    private Timestamp       date_creation;
     @Column(length = 30)
     private String          srs;
     @Column(length = 254)
@@ -72,7 +72,7 @@ public class LayerDbEntity implements Serializable {
     @Column
     private Boolean         selectable;
     @Column
-    private Integer         pixel_tolerance;  
+    private Integer         pixel_tolerance;
 
     public Layer toPojo(EntityManager em) {
 
@@ -84,10 +84,10 @@ public class LayerDbEntity implements Serializable {
         pojo.isSelectable = selectable;
         pojo.featuretype = featuretype_id;
         pojo.pixelTolerance = pixel_tolerance;
-
+        
         pojo.name = name;
         pojo.owner = owner;
-        pojo.label = label;        
+        pojo.label = label;
         pojo.srs = srs;
         pojo.url = url;
         pojo.buffer = buffer;
@@ -104,9 +104,36 @@ public class LayerDbEntity implements Serializable {
     public Long getId() {
         return id;
     }
-    
+
     public int getPixelTolerance() {
         return pixel_tolerance == null ? 0 : pixel_tolerance.intValue();
     }
 
+    public void setCRS( String strCRS ) {
+        srs = strCRS;
+    }
+
+    public void setFeatureTypeID( long lFtId ) {
+        featuretype_id = lFtId;
+    }
+
+    public void setName( String strName ) {
+        name = strName;
+    }
+
+    public void setVisible( boolean bVisibility ) {
+        visibility = bVisibility;
+    }
+
+    public void setSelectable( boolean bSelectability ) {
+        selectable = bSelectability;
+    }
+
+    public void setLabel( String strLabel ) {
+        label = strLabel;
+    }
+
+    public void setOwner( Long lOwner ) {
+        owner = lOwner;
+    }
 }

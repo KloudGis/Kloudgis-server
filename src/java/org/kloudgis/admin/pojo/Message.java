@@ -1,26 +1,18 @@
 /*
-* EchoSphere - Spatial Platform for Application and Communication Extensions.
- *
- * http://www.echospheretechnologies.com
- *
- * Copyright (c) 2003 Echosphere Technologies, Inc.
- * All Rights Reserved.
- *
- * This software is the confidential and proprietary information of
- * Echosphere Technologies, Inc. ("Confidential Information"). You shall not
- * disclose such Confidential Information and shall use it only in
- * accordance with the terms of the license agreement you entered into
- * with Echosphere Technologies, Inc.
+ * @author corneliu
  */
-
 package org.kloudgis.admin.pojo;
 
-/**
- *
- * @author jeanfelixg
- */
 public class Message {
 
-        public String message;
-        public String message_loc;
+    public String message;
+    public String message_loc;
+    public byte bType;
+
+    public Message() {}
+
+    public Message( String strMessage, byte bType ) {
+        message = strMessage;
+        this.bType = bType;
+    }
 }

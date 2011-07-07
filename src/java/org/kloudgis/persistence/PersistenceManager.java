@@ -13,18 +13,10 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.admin.store.SandboxDbEntity;
-import org.kloudgis.data.featuretype.NoteFeatureType;
-import org.kloudgis.data.featuretype.PlaceFeatureType;
-import org.kloudgis.data.store.FeatureTypeClassDbEntity;
-import org.kloudgis.data.store.FeatureTypeDbEntity;
-import org.kloudgis.data.store.NoteDbEntity;
-import org.kloudgis.data.store.PathDbEntity;
-import org.kloudgis.data.store.PoiDbEntity;
-import org.kloudgis.data.store.ZoneDbEntity;
 
 /**
  * SA: **** Temporary : To be replaced by dynamic PU
- * 
+ *
  */
 public class PersistenceManager {
 
@@ -91,6 +83,8 @@ public class PersistenceManager {
         System.out.println("create emf for " + url);
         Map prop = new HashMap();
         prop.put("hibernate.connection.url", "jdbc:postgresql_postGIS://" + url);
+        prop.put("hibernate.connection.username", DatabaseFactory.USER);
+        prop.put("hibernate.connection.password", DatabaseFactory.PASSWORD);
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(DEFAULT_PU, prop);
         if (emf != null) {
             //do not duplicate
@@ -99,8 +93,6 @@ public class PersistenceManager {
                return hashSandboxesFactory.get(key).getEmf();
             }else{
                 hashSandboxesFactory.put(key, new FactoryWrapper(emf));
-                createIndexes(emf);
-                loadDefaultValues(emf);
             }
         }
         return emf;
@@ -126,93 +118,4 @@ public class PersistenceManager {
         }
         return null;
     }
-    
-    //put the next to methods into the create project bean to do it only once.
-
-    private void createIndexes(EntityManagerFactory emf) {
-        EntityManager em = emf.createEntityManager();
-        if (em != null) {
-            try {
-                em.getTransaction().begin();
-                em.createNativeQuery("CREATE INDEX note_gist_ix ON note USING gist(geom)").executeUpdate();
-                em.getTransaction().commit();
-            } catch (Exception e) {
-            } 
-            try {
-                em.getTransaction().begin();
-                em.createNativeQuery("CREATE INDEX poi_gist_ix ON poi USING gist(geom)").executeUpdate();
-                em.getTransaction().commit();
-            } catch (Exception e) {
-            }
-            try {
-                em.getTransaction().begin();
-                em.createNativeQuery("CREATE INDEX path_gist_ix ON path USING gist(geom)").executeUpdate();
-                em.getTransaction().commit();
-            } catch (Exception e) {
-            }
-            try {
-                em.getTransaction().begin();
-                em.createNativeQuery("CREATE INDEX zone_gist_ix ON zone USING gist(geom)").executeUpdate();
-                em.getTransaction().commit();
-            } catch (Exception e) {
-            }
-            em.close();
-        }
-    }
-    
-     private void loadDefaultValues(EntityManagerFactory emf){
-          EntityManager em = emf.createEntityManager();
-        if (em != null) {
-            Object count = em.createQuery("select count(*) from " + FeatureTypeDbEntity.class.getSimpleName()).getSingleResult();
-            if(count == null || ((Number)count).intValue() == 0){
-                em.getTransaction().begin();
-                //POI
-                FeatureTypeDbEntity ft = new FeatureTypeDbEntity();
-                ft.setName("poi");
-                ft.setLabel("Place of interest");
-                ft.setFeatureClassName(PoiDbEntity.class.getName());
-                ft.setClientClassName("CoreKG.Poi");
-                em.persist(ft);
-                FeatureTypeClassDbEntity ftClass = new FeatureTypeClassDbEntity();
-                ftClass.setFtClass(PlaceFeatureType.class.getName());
-                ftClass.setFtId(ft.getId());
-                em.persist(ftClass);
-                //PATH
-                ft = new FeatureTypeDbEntity();
-                ft.setName("path");
-                ft.setLabel("Path");
-                ft.setFeatureClassName(PathDbEntity.class.getName());
-                ft.setClientClassName("CoreKG.Path");
-                em.persist(ft);
-                ftClass = new FeatureTypeClassDbEntity();
-                ftClass.setFtClass(PlaceFeatureType.class.getName());
-                ftClass.setFtId(ft.getId());
-                em.persist(ftClass);
-                //ZONE
-                ft = new FeatureTypeDbEntity();
-                ft.setName("zone");
-                ft.setLabel("Zone");
-                ft.setFeatureClassName(ZoneDbEntity.class.getName());
-                ft.setClientClassName("CoreKG.Zone");
-                em.persist(ft);
-                ftClass = new FeatureTypeClassDbEntity();
-                ftClass.setFtClass(PlaceFeatureType.class.getName());
-                ftClass.setFtId(ft.getId());
-                em.persist(ftClass);
-                //NOTE
-                ft = new FeatureTypeDbEntity();
-                ft.setName("note");
-                ft.setLabel("Note");
-                ft.setFeatureClassName(NoteDbEntity.class.getName());
-                ft.setClientClassName("CoreKG.Note");
-                em.persist(ft);
-                ftClass = new FeatureTypeClassDbEntity();
-                ftClass.setFtClass(NoteFeatureType.class.getName());
-                ftClass.setFtId(ft.getId());
-                em.persist(ftClass);
-                em.getTransaction().commit();
-            }
-            em.close();
-        }
-     }
 }

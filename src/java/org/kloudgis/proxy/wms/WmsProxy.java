@@ -32,7 +32,6 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.kloudgis.AuthorizationManager;
 import org.kloudgis.admin.store.SandboxDbEntity;
 import org.kloudgis.admin.store.UserDbEntity;
-import org.kloudgis.data.store.LayerDbEntity;
 import org.kloudgis.data.store.MemberDbEntity;
 import org.kloudgis.persistence.PersistenceManager;
 

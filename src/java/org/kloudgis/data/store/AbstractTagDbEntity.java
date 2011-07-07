@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package org.kloudgis.data.store;
 
@@ -14,7 +10,6 @@ import javax.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 public abstract class AbstractTagDbEntity {
-    
 
     @Column
     private String key;
@@ -37,7 +32,4 @@ public abstract class AbstractTagDbEntity {
     public void setValue(String value) {
         this.value = value;
     }
-
-    
-
 }

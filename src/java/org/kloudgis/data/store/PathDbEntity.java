@@ -1,19 +1,16 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
 package org.kloudgis.data.store;
 
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
@@ -22,6 +19,8 @@ import org.hibernate.annotations.NotFoundAction;
 import org.kloudgis.data.pojo.AbstractFeature;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.PathFeature;
+import org.kloudgis.gdal.Attribute;
+import org.kloudgis.gdal.Feature;
 
 /**
  *
@@ -29,7 +28,7 @@ import org.kloudgis.data.pojo.PathFeature;
  */
 @Entity
 @Table(name = "path")
-public class PathDbEntity extends AbstractPlaceDbEntity{
+public class PathDbEntity extends AbstractPlaceDbEntity {
 
     @SequenceGenerator(name = "path_seq_gen", sequenceName = "path_seq")
     @Id
@@ -37,9 +36,8 @@ public class PathDbEntity extends AbstractPlaceDbEntity{
     private Long id;
 
     @NotFound(action=NotFoundAction.IGNORE)
-    @OneToMany (cascade=CascadeType.REMOVE)
-    @JoinColumn(name="fk_id", referencedColumnName="id")
-    private List<PathTagDbEntity> tags;
+    @OneToMany (cascade=CascadeType.REMOVE, mappedBy = "fk")
+    private List<PathTagDbEntity> tags = new ArrayList<PathTagDbEntity>();
 
     @Override
     public Long getId() {
@@ -68,8 +66,21 @@ public class PathDbEntity extends AbstractPlaceDbEntity{
     @Override
     public void fromPojo(AbstractFeature pojo) {
         super.setupFromPojo((AbstractPlaceFeature)pojo);
-        
+
         //parse geometry here
     }
 
+    @Override
+    protected void persistTags( Feature ftr, EntityManager em ) {
+        Collection<Attribute> colAttrs = ftr.getAttributes();
+        for( Attribute attr : colAttrs ) {
+            PathTagDbEntity tag = new PathTagDbEntity();
+            tag.setFK( this );
+            tag.setKey( attr.getName() );
+            Object obj = attr.getValue();
+            tag.setValue( obj == null ? null : obj.toString() );
+            tags.add( tag );
+            em.persist( tag );
+        }
+    }
 }
