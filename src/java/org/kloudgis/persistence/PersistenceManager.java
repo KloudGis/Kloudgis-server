@@ -11,8 +11,13 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import org.hibernate.Criteria;
+import org.hibernate.criterion.Projections;
 import org.hibernate.ejb.HibernateEntityManager;
+import org.kloudgis.LoginFactory;
+import org.kloudgis.admin.pojo.SignupUser;
 import org.kloudgis.admin.store.SandboxDbEntity;
+import org.kloudgis.admin.store.UserDbEntity;
 
 /**
  * SA: **** Temporary : To be replaced by dynamic PU
@@ -48,7 +53,17 @@ public class PersistenceManager {
             if (adminFactory != null) {
                 return adminFactory;
             } else {
-                return adminFactory = createEntityManagerFactory(ADMIN_PU);
+                adminFactory = createEntityManagerFactory( ADMIN_PU );
+                HibernateEntityManager emAdmin = ( HibernateEntityManager )adminFactory.createEntityManager();
+                Criteria crit = emAdmin.getSession().createCriteria( UserDbEntity.class );
+                Long lCount = ( ( Number ) crit.setProjection( Projections.rowCount() ).uniqueResult() ).longValue();
+                if( lCount.longValue() == 0 ) {
+                    SignupUser usr = new SignupUser();
+                    usr.user = "admin@kloudgis.com";
+                    usr.pwd = LoginFactory.hashString( "kwadmin", "SHA-256" );
+                    LoginFactory.register( usr, "en", UserDbEntity.ROLE_ADM );
+                }
+                return adminFactory;
             }
         }
         return null;

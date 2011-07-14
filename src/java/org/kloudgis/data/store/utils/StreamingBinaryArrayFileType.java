@@ -53,7 +53,7 @@ public class StreamingBinaryArrayFileType extends ImmutableType {
             if (!tempDirectory.exists()) {
                 tempDirectory.mkdir();
             }
-            File appTempDirectory = new File(tempDirectory, "greenCache");
+            File appTempDirectory = new File(tempDirectory, "green_cache");
             if (!appTempDirectory.exists()) {
                 appTempDirectory.mkdir();
                 appTempDirectory.deleteOnExit();

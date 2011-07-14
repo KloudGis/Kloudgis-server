@@ -17,6 +17,7 @@ public class Datasource {
     public Long lID;
     public Long lFileSize;
     public Long lLastModified;
+    public Long lOwnerID;
     public Double dEnvelopeMinX;
     public Double dEnvelopeMinY;
     public Double dEnvelopeMaxX;

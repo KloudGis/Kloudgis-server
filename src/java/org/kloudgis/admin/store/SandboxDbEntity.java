@@ -73,7 +73,7 @@ public class SandboxDbEntity implements Serializable {
     //projection to display coordinates.  "ESPG:4326"
     @Column(length = 30)
     private String display_projection;
-    @ManyToOne(fetch= FetchType.LAZY)
+    @ManyToOne(fetch= FetchType.LAZY, optional=true)
     private BaseLayerModeDbEntity base_layer_mode;
     @Column(length = 250)
     private String geoserver_url;
@@ -107,6 +107,10 @@ public class SandboxDbEntity implements Serializable {
             strURL += "/";
         }
         geoserver_url = strURL;
+    }
+
+    public void setOwner( String strOwner ) {
+        owner = strOwner;
     }
 
     public String getUniqueKey(){
@@ -145,7 +149,7 @@ public class SandboxDbEntity implements Serializable {
         }
         pojo.displayProjection = display_projection;
         pojo.connection_url = connection_url;
-        pojo.baseLayerMode = base_layer_mode == null ? null : base_layer_mode.getID();
+        pojo.baseLayerMode = base_layer_mode == null ? null :base_layer_mode.getID();
         return pojo;
     }
 }

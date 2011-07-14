@@ -26,7 +26,6 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Response;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Order;
@@ -41,7 +40,6 @@ import org.kloudgis.MessageCode;
 import org.kloudgis.admin.pojo.Feed;
 import org.kloudgis.admin.pojo.Sandbox;
 import org.kloudgis.admin.pojo.User;
-import org.kloudgis.admin.store.BaseLayerModeDbEntity;
 import org.kloudgis.admin.store.DatasourceDbEntity;
 import org.kloudgis.admin.store.FeedDbEntity;
 import org.kloudgis.admin.store.SandboxDbEntity;
@@ -107,8 +105,8 @@ public class SandboxResourceBean {
     public Response addFeed(@CookieParam(value="security-Kloudgis.org") String auth_token, @PathParam("sandboxId") Long sandboxId, Feed feed){
         HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         AuthorizationManager authMan = new AuthorizationManager();
-        //UserDbEntity userSecure = authMan.getUserFromAuthToken(auth_token, em);
-       // if (userSecure != null ) {
+        UserDbEntity userSecure = authMan.getUserFromAuthToken(auth_token, em);
+        if (userSecure != null ) {
             em.getTransaction().begin();
             SandboxDbEntity sandbox = em.find(SandboxDbEntity.class, sandboxId);
             FeedDbEntity feedDb = new FeedDbEntity();
@@ -117,10 +115,10 @@ public class SandboxResourceBean {
             em.getTransaction().commit();
             em.close();
             return Response.ok().build();
-       // }else{
-       //     em.close();
-       //     return Response.status(Response.Status.UNAUTHORIZED).build();
-      //  }
+        }else{
+            em.close();
+            return Response.status(Response.Status.UNAUTHORIZED).build();
+        }
     }
 
     @GET
@@ -156,16 +154,18 @@ public class SandboxResourceBean {
     }
 // start of corneliu's stuff
     @POST
-    public Response addSandbox( @CookieParam(value="security-Kloudgis.org" ) String strAuthToken, Sandbox sbx ) throws SQLException, ClassNotFoundException,
+    public Response addSandbox( @CookieParam( value = "security-Kloudgis.org" ) String strAuthToken, Sandbox sbx ) throws SQLException, ClassNotFoundException,
             ZipException, IOException, ParseException, GeoserverException, MalformedURLException, ParserConfigurationException, SAXException {
-        if( sbx == null || sbx.connection_url == null || sbx.name == null || sbx.baseLayerMode == null || sbx.url_geoserver == null ) {
+        if( sbx == null || sbx.connection_url == null || sbx.name == null || sbx.url_geoserver == null ) {
             return Response.status( Response.Status.BAD_REQUEST ).build();
         }
+        System.out.println("Add SANDBOX!");
         HibernateEntityManager hem = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken( strAuthToken, hem );
         if( usr == null ) {
             return Response.status( Response.Status.UNAUTHORIZED ).build();
         }
+        System.out.println("User OK:" + usr.getEmail());
         int iSlashIndex = sbx.connection_url.lastIndexOf( "/" );
         String strURL = null;
         String strName = null;
@@ -173,24 +173,32 @@ public class SandboxResourceBean {
             strURL = sbx.connection_url.substring( 0, iSlashIndex );
             strName = sbx.connection_url.substring( iSlashIndex + 1 );
         }
-        Response rsp = DatabaseFactory.createDB( strURL, strName );
+        System.out.println("Will create the database at:" + strURL + " with name " + strName);
+        Response rsp = DatabaseFactory.createDB( strURL, strName );      
         if( rsp.getStatus() == Response.Status.OK.getStatusCode() ) {
+            System.out.println("Create database OK");
             SandboxDbEntity sen = new SandboxDbEntity();
             long lSandboxID = addSandbox( sbx, sen, hem );
+            System.out.println("Sandbox db entity created with ID=" + lSandboxID);
             EntityManager emgSandbox = PersistenceManager.getInstance().getEntityManagerBySandboxId( lSandboxID );
             DatabaseFactory.createIndexes( emgSandbox.getEntityManagerFactory() );
             DatabaseFactory.loadDefaultValues( emgSandbox.getEntityManagerFactory() );
-            rsp = addMember( emgSandbox, usr );
+            System.out.println("Indexes and featuretypes loaded");
+            rsp = addMember( emgSandbox, usr );           
             if( rsp.getStatus() == Response.Status.OK.getStatusCode() ) {
-                long lPoiSourceID = addSource( hem, lSandboxID, "poi" );
+                System.out.println("Owner member set.");
+                System.out.println("About to load default POI");
+                long lPoiSourceID = addSource( usr, hem, lSandboxID, "poi" );
                 if( lPoiSourceID >= 0 ) {
-                    long lPathSourceID = addSource( hem, lSandboxID, "path" );
+                    System.out.println("About to load default PATH");
+                    long lPathSourceID = addSource( usr, hem, lSandboxID, "path" );
                     if( lPathSourceID >= 0 ) {
-                        long lZoneSourceID = addSource( hem, lSandboxID, "zone" );
+                        System.out.println("About to load default ZONE");
+                        long lZoneSourceID = addSource( usr, hem, lSandboxID, "zone" );
                         if( lZoneSourceID >= 0 ) {
                             String strGeoserverURL = sen.getGeoserverUrl();
-                            Credentials crd = new UsernamePasswordCredentials( "admin", "geoserver" );//we need to fix this
-                            MapServerFactory.addWorkspace( strGeoserverURL, strName, crd );
+                            System.out.println("About to add geoserver WORKSPACE with name:" + strName);
+                            MapServerFactory.addWorkspace( strGeoserverURL, strName, MapServerFactory.credentials );
                             int iColonIndex = strURL.lastIndexOf( ":" );
                             String strHost = null;
                             String strPort = null;
@@ -198,11 +206,15 @@ public class SandboxResourceBean {
                                 strHost = strURL.substring( 0, iColonIndex );
                                 strPort = strURL.substring( iColonIndex + 1 );
                             }
-                            MapServerFactory.addStore( strGeoserverURL, strHost, strPort, strName, crd );
-                            MapServerFactory.addLayer( hem, strGeoserverURL, strName, strName, "poi", lPoiSourceID, crd );
-                            MapServerFactory.addLayer( hem, strGeoserverURL, strName, strName, "path", lPathSourceID, crd );
-                            MapServerFactory.addLayer( hem, strGeoserverURL, strName, strName, "zone", lZoneSourceID, crd );
-                            assignStyles( strGeoserverURL, strName, crd );
+                            System.out.println("About to add geoserver Store");
+                            MapServerFactory.addStore( strGeoserverURL, strHost, strPort, strName, MapServerFactory.credentials );
+                            System.out.println("About to add geoserver LAYERS");
+                            MapServerFactory.addLayer( hem, strGeoserverURL, strName, strName, "poi", lPoiSourceID, MapServerFactory.credentials );
+                            MapServerFactory.addLayer( hem, strGeoserverURL, strName, strName, "path", lPathSourceID, MapServerFactory.credentials );
+                            MapServerFactory.addLayer( hem, strGeoserverURL, strName, strName, "zone", lZoneSourceID, MapServerFactory.credentials );
+                            System.out.println("About to add geoserver Styles");
+                            assignStyles( strGeoserverURL, strName, MapServerFactory.credentials );
+                            System.out.println("About to add LOCAL LAYERS");
                             addLayer( emgSandbox, "poi", "EPSG:4326", usr.getId() );
                             addLayer( emgSandbox, "path", "EPSG:4326", usr.getId() );
                             addLayer( emgSandbox, "zone", "EPSG:4326", usr.getId() );
@@ -220,6 +232,7 @@ public class SandboxResourceBean {
                 }
             }
         }
+        System.out.println("Add sandbox completed.  Return " + rsp);
         return rsp;
     }
 
@@ -228,9 +241,9 @@ public class SandboxResourceBean {
         sen.setURL( sbx.connection_url );
         sen.setUniqueKey( sbx.name );
         sen.setGeoserverURL( sbx.url_geoserver );
-        BaseLayerModeDbEntity blm = new BaseLayerModeDbEntity();
-        blm.setID( sbx.baseLayerMode );
-        sen.setBaseLayerMode( blm );
+//        BaseLayerModeDbEntity blm = ...
+//        blm.setID( sbx.baseLayerMode );
+//        sen.setBaseLayerMode( blm );
         hem.getTransaction().begin();
         hem.persist( sen );
         hem.getTransaction().commit();
@@ -253,7 +266,7 @@ public class SandboxResourceBean {
         }
     }
 
-    private long addSource( HibernateEntityManager hem, long lSandboxID, String strType ) throws ZipException, IOException, ParseException {
+    private long addSource( UserDbEntity usr, HibernateEntityManager hem, long lSandboxID, String strType ) throws ZipException, IOException, ParseException {
         Query qry = hem.createQuery( "from DatasourceDbEntity where strFileName='" + strType + ".shp'" );
         List<Object> lstRS = qry.getResultList();
         int iSize = lstRS.size();
@@ -261,9 +274,9 @@ public class SandboxResourceBean {
         if( iSize > 0 ) {
             lID = ( ( DatasourceDbEntity )lstRS.get( 0 ) ).getID();
         } else {
-            lID = DatasourceFactory.addDatasource( MapServerFactory.getWebInfPath() + "classes/" + strType + ".shp" ).lID;
+            lID = DatasourceFactory.addDatasource( usr, MapServerFactory.getWebInfPath() + "classes/" + strType + ".shp" ).lID;
         }
-        if( DatasourceFactory.loadData( lSandboxID, lID, new HashMap<String, String>() ).getStatus() != Response.Status.OK.getStatusCode() ) {
+        if( DatasourceFactory.loadData( usr, lSandboxID, lID, new HashMap<String, String>() ).getStatus() != Response.Status.OK.getStatusCode() ) {
             return -1;
         }
         return lID;
@@ -287,7 +300,7 @@ public class SandboxResourceBean {
         MapServerFactory.assignStyle( strGeoserverURL, strWorkspaceName, "zone", "zone", crd );
     }
 
-    private void addLayer( EntityManager emgSandbox, String strName, String strCRS, Long id ) {
+    private void addLayer( EntityManager emgSandbox, String strName, String strCRS, Long strOwner ) {
         long lFtId = 0;
         Query qry = emgSandbox.createQuery( "from FeatureTypeDbEntity where name='" + strName + "'" );
         if( qry != null ) {
@@ -304,7 +317,7 @@ public class SandboxResourceBean {
         ent.setFeatureTypeID( lFtId );
         ent.setLabel( strName );
         ent.setName( strName );
-        ent.setOwner( id );
+        ent.setOwner( strOwner );
         ent.setSelectable( true );
         ent.setVisible( true );
         emgSandbox.getTransaction().begin();

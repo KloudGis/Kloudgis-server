@@ -20,6 +20,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.httpclient.Credentials;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.GetMethod;
@@ -37,6 +38,9 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 public abstract class MapServerFactory {
+    
+    public static Credentials credentials = new UsernamePasswordCredentials( "admin", "geoserver" );
+    
 
     public static void addWorkspace( String strGeoserverURL, String strName, Credentials crd )
             throws MalformedURLException, IOException, GeoserverException {

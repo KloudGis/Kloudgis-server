@@ -55,6 +55,8 @@ public class DatasourceDbEntity implements Serializable {
     @Column
     private Double dEnvelopeMaxY;
     @Column
+    private Long lOwnerID;
+    @Column
     @Type( type = "org.kloudgis.data.store.utils.StreamingBinaryArrayFileType" )
     private File file;
     @OneToMany( mappedBy = "dts" )
@@ -76,6 +78,7 @@ public class DatasourceDbEntity implements Serializable {
         pojo.dEnvelopeMinY = dEnvelopeMinY;
         pojo.dEnvelopeMaxX = dEnvelopeMaxX;
         pojo.dEnvelopeMaxY = dEnvelopeMaxY;
+        pojo.lOwnerID = lOwnerID;
         pojo.filePath = file.getAbsolutePath();
         Set<Long> setColumns = new LinkedHashSet<Long>();
         if( setCols != null ) {
@@ -145,6 +148,10 @@ public class DatasourceDbEntity implements Serializable {
 
     public void setColumns( Set<SourceColumnsDbEntity> setCols ) {
         this.setCols = setCols;
+    }
+
+    public void setOwnerID( Long lOwnerID ) {
+        this.lOwnerID = lOwnerID;
     }
 
     public Set<SourceColumnsDbEntity> getColumns() {

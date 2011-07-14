@@ -32,6 +32,7 @@ import org.kloudgis.admin.pojo.Datasource;
 import org.kloudgis.admin.store.DatasourceDbEntity;
 import org.kloudgis.admin.store.SourceColumnsDbEntity;
 import org.kloudgis.admin.pojo.Message;
+import org.kloudgis.admin.store.UserDbEntity;
 import org.kloudgis.data.store.AbstractPlaceDbEntity;
 import org.kloudgis.data.store.PathDbEntity;
 import org.kloudgis.data.store.PoiDbEntity;
@@ -49,7 +50,9 @@ import org.kloudgis.persistence.PersistenceManager;
 
 public class DatasourceFactory {
 
-    public static Response loadData( Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs ) throws ZipException, IOException, ParseException {
+    public static Response loadData( UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs )
+            throws ZipException, IOException, ParseException {
+        System.out.println("+++Loading data to sandboxid=" + lSandBoxID + " from sourcesid=" + lSourceID);
         if( lSandBoxID == null ) {
             return Response.status( Response.Status.BAD_REQUEST ).entity(
                         new Message( "Sandbox ID cannot be null", MessageCode.SEVERE ) ).build();
@@ -58,33 +61,60 @@ public class DatasourceFactory {
             return Response.status( Response.Status.BAD_REQUEST ).entity(
                         new Message( "Source ID cannot be null", MessageCode.SEVERE ) ).build();
         }
+        if( usr == null && usr.getId() != null ) {
+            return Response.status( Response.Status.UNAUTHORIZED ).entity(
+                        new Message( "Unknown user.", MessageCode.SEVERE ) ).build();
+        }
         Datasource dts = getDatasource( lSourceID );
+        System.err.println("datasource found:" + dts.lID);
         int iCommitted = 0;
-        if( dts != null ) {
-            EntityManager emg = PersistenceManager.getInstance().getEntityManagerBySandboxId( lSandBoxID );
+        if( dts != null && dts.lOwnerID != null ) {
             StringBuilder stbGeomNotParsed = new StringBuilder();
-            if( emg != null ) {
-                Parser prs = new Parser( unzip( dts.filePath, dts.strFileName ) );
-                Feature ftr = null;
-                while( ( ftr = prs.getNextFeature() ) != null ) {
-                    ArrayList<AbstractPlaceDbEntity> arlEntities = getDbEntities( ftr.getGeometryAsWKT() );
-                    if( arlEntities != null ) {
-                        for( AbstractPlaceDbEntity ent : arlEntities ) {
-                            emg.getTransaction().begin();
-                            ent.setupFromFeature( ftr, emg, mapAttrs );
-                            emg.persist( ent );
-                            emg.getTransaction().commit();
-                            iCommitted++;
+            if( dts.lOwnerID.equals( usr.getId() ) ) {
+                EntityManager emg = PersistenceManager.getInstance().getEntityManagerBySandboxId( lSandBoxID );
+                if( emg != null ) {
+                    System.err.println("=> About to parse file: " + dts.filePath);
+                    Parser prs = new Parser( unzip( dts.filePath, dts.strFileName ) );
+                    Feature ftr = null;
+                    while( ( ftr = prs.getNextFeature() ) != null ) {                    
+                        ArrayList<AbstractPlaceDbEntity> arlEntities = getDbEntities( ftr.getGeometryAsWKT() );
+                        if( arlEntities != null ) {
+                            for( AbstractPlaceDbEntity ent : arlEntities ) {
+                                emg.getTransaction().begin();
+                                ent.setupFromFeature( ftr, emg, mapAttrs );
+                                emg.persist( ent );
+                                emg.getTransaction().commit();
+                                iCommitted++;
+                            }
+                        } else {
+                            stbGeomNotParsed.append( ftr.getGeometryAsWKT() ).append( "\n" );
                         }
-                    } else {
-                        stbGeomNotParsed.append( ftr.getGeometryAsWKT() ).append( "\n" );
                     }
+                    prs.close();
+                   /* int i = 0;
+                    emg.getTransaction().begin();
+                    while( i++ < 10000) {
+                        
+                        PoiDbEntity poi = new PoiDbEntity();
+                        poi.setName(i+ "");
+                        poi.setType("yoyo");
+                        Point pt = GeometryFactory.generateLonLat();
+                        poi.setGeom(pt);
+                        emg.persist(poi);
+                        if(i % 20 == 0){
+                            emg.flush();
+                            emg.clear();
+                        }
+                    }
+                    emg.getTransaction().commit();
+                    emg.close();*/
+                    
+                } else {
+                    return Response.status( Response.Status.NOT_FOUND ).entity(
+                            new Message( "Entity manager not found for sandbox id: " + lSandBoxID, MessageCode.SEVERE ) ).build();
                 }
-                emg.close();
-                prs.close();
             } else {
-                return Response.status( Response.Status.NOT_FOUND ).entity(
-                        new Message( "Entity manager not found for sandbox id: " + lSandBoxID, MessageCode.SEVERE ) ).build();
+                return Response.status( Response.Status.UNAUTHORIZED ).build();
             }
             if( stbGeomNotParsed.length() > 0 ) {
                 return Response.status( Response.Status.UNSUPPORTED_MEDIA_TYPE ).entity(
@@ -109,13 +139,13 @@ public class DatasourceFactory {
         return dts;
     }
 
-    public static Datasource addDatasource( String strPath ) throws WebApplicationException, IOException {
+    public static Datasource addDatasource( UserDbEntity usr, String strPath ) throws WebApplicationException, IOException {
         Datasource ftr = null;
         if( strPath != null ) {
             File file = new File( strPath );
             if( file.exists() ) {
                 EntityManager emg = PersistenceManager.getInstance().getAdminEntityManager();
-                DatasourceDbEntity dse = persistDatasourceEntity( file, emg );
+                DatasourceDbEntity dse = persistDatasourceEntity( usr, file, emg );
                 if( dse != null ) {
                     ftr = dse.toPojo();
                 } else {
@@ -131,7 +161,7 @@ public class DatasourceFactory {
         return ftr;
     }
 
-    private static DatasourceDbEntity persistDatasourceEntity( File file, EntityManager em ) throws IOException {
+    private static DatasourceDbEntity persistDatasourceEntity( UserDbEntity usr, File file, EntityManager em ) throws IOException {
         Parser prs = new Parser( file.getAbsolutePath() );
         String strErrors = prs.getErrorMessages();
         if( strErrors == null ) {
@@ -149,6 +179,7 @@ public class DatasourceFactory {
             dse.setGeomType( prs.getGeomType() );
             dse.setLastModified( prs.getLastModified() );
             dse.setLayerCount( prs.getLayerCount() );
+            dse.setOwnerID( usr.getId() );
             Envelope env = prs.getExtent();
             if( env != null ) {
                 dse.setMinX( env.getLowX() );
@@ -333,7 +364,7 @@ public class DatasourceFactory {
         return arlEnt;
     }
 
-    public static String unzip( String strPath, String strFileName ) throws ZipException, IOException {
+   public static String unzip( String strPath, String strFileName ) throws ZipException, IOException {
         String strFolderPath = strPath + "_folder/";
         new File( strFolderPath ).mkdirs();
         ZipFile zpf = new ZipFile( strPath );
@@ -352,4 +383,5 @@ public class DatasourceFactory {
         }
         return strFolderPath + strFileName;
     }
+
 }

@@ -24,7 +24,6 @@ import com.vividsolutions.jts.io.WKBReader;
 import com.vividsolutions.jts.io.WKTReader;
 import com.vividsolutions.jts.io.WKTWriter;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Factory to perform the basic geometry transformation
@@ -32,7 +31,7 @@ import java.util.List;
  */
 public class GeometryFactory {
 
-    private static com.vividsolutions.jts.geom.GeometryFactory factory = new com.vividsolutions.jts.geom.GeometryFactory();
+    private static com.vividsolutions.jts.geom.GeometryFactory factory = new com.vividsolutions.jts.geom.GeometryFactory(new PrecisionModel(), 4326);
 
     public static void setPrecision(int iDecimal) {
         PrecisionModel model = new PrecisionModel(Math.pow(10, iDecimal));
@@ -57,6 +56,26 @@ public class GeometryFactory {
                 model.makePrecise(arrC[i]);
             }
         }
+    }
+    
+    public static Point generateLonLat(){
+        return createPoint(new Coordinate(generateLon(), generateLat()));
+    }
+    
+    public static double generateLon(){
+         double dVal = Math.random() * 360;
+         if(dVal > 180){
+             dVal = (dVal - 180) * -1.0;
+         }
+         return dVal;
+    }
+    
+    public static double generateLat(){
+        double dVal = Math.random() * 180;
+         if(dVal > 90){
+             dVal = (dVal - 90) * -1.0;
+         }
+         return dVal;
     }
 
      public static double roundDouble(double d, int decimal) {

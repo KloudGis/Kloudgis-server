@@ -23,8 +23,8 @@ import org.kloudgis.data.store.ZoneDbEntity;
 
 public class DatabaseFactory {
 
-    public static final String USER = "bgjlr";//regular user
-    public static final String PASSWORD = "qwerty";//regular password
+    public static final String USER = "kloudgis";//regular user
+    public static final String PASSWORD = "kwadmin";//regular password
 
     public static void createIndexes(EntityManagerFactory emf) {
         EntityManager em = emf.createEntityManager();
@@ -115,7 +115,7 @@ public class DatabaseFactory {
 
     public static Response createDB( String strURL, String strName ) throws ClassNotFoundException, SQLException {
         Class.forName( "org.postgresql.Driver" );
-        Connection con = DriverManager.getConnection( "jdbc:postgresql://" + strURL + "/postgis", USER, PASSWORD );
+        Connection con = DriverManager.getConnection( "jdbc:postgresql://" + strURL + "/postgres", USER, PASSWORD );
         if( con != null ) {
             PreparedStatement pst = con.prepareStatement( "CREATE DATABASE " + strName + " template=postgis;" );
             pst.execute();

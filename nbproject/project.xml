@@ -163,12 +163,25 @@
                     <file>${file.reference.commons-io-2.0.1.jar}</file>
                     <path-in-war>WEB-INF/lib</path-in-war>
                 </library>
+                <library dirs="200">
+                    <file>${file.reference.gdal_osx.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
+                <library dirs="200">
+                    <file>${file.reference.gdal_kloudgis.jar}</file>
+                    <path-in-war>WEB-INF/lib</path-in-war>
+                </library>
             </web-module-libraries>
             <web-module-additional-libraries/>
             <source-roots>
+                <root id="src.default_data.dir"/>
+                <root id="src.default_styles.dir"/>
                 <root id="src.dir"/>
             </source-roots>
-            <test-roots/>
+            <test-roots>
+                <root id="test.test.dir"/>
+                <root id="test.test_res.dir"/>
+            </test-roots>
         </data>
     </configuration>
 </project>
