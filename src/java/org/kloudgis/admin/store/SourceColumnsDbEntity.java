@@ -26,12 +26,6 @@ public class SourceColumnsDbEntity implements Serializable {
     private String strName;
     @Column
     private String strType;
-    @Column
-    private int iPrecision;
-    @Column
-    private int iLength;
-    @Column
-    private int iJustify;
     @ManyToOne
     private DatasourceDbEntity dts;
 
@@ -40,9 +34,6 @@ public class SourceColumnsDbEntity implements Serializable {
         pojo.lID = lID;
         pojo.strName = strName;
         pojo.strType = strType;
-        pojo.iPrecision = iPrecision;
-        pojo.iLength = iLength;
-        pojo.iJustify = iJustify;
         pojo.lDatasetID = dts == null ? ( long )-1 : dts.getID();
         return pojo;
     }
@@ -53,18 +44,6 @@ public class SourceColumnsDbEntity implements Serializable {
 
     public void setType( String strType ) {
         this.strType = strType;
-    }
-
-    public void setPrecision( int iPrecision ) {
-        this.iPrecision = iPrecision;
-    }
-
-    public void setLength( int iLength ) {
-        this.iLength = iLength;
-    }
-
-    public void setJustify( int iJustify ) {
-        this.iJustify = iJustify;
     }
 
     public void setDatasource( DatasourceDbEntity dts ) {

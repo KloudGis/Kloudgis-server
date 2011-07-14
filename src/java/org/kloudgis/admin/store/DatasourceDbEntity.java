@@ -31,21 +31,15 @@ public class DatasourceDbEntity implements Serializable {
     @Index( name = "ds_name_ix" )
     private String strFileName;
     @Column
-    private String strGeomName;
+    private String strLayerName;
     @Column
-    private Integer iGeomType;
+    private String strGeomType;
     @Column
     private Integer iCRS;
     @Column
     private Integer iFeatureCount;
     @Column
-    private Integer iLayerCount;
-    @Column
     private Integer iColumnCount;
-    @Column
-    private Long lFileSize;
-    @Column
-    private Long lLastModified;
     @Column
     private Double dEnvelopeMinX;
     @Column
@@ -66,20 +60,16 @@ public class DatasourceDbEntity implements Serializable {
         Datasource pojo = new Datasource();
         pojo.lID = lID;
         pojo.strFileName = strFileName;
-        pojo.strGeomName = strGeomName;
-        pojo.iGeomType = iGeomType;
+        pojo.strLayerName = strLayerName;
+        pojo.strGeomType = strGeomType;
         pojo.iCRS = iCRS;
         pojo.iFeatureCount = iFeatureCount;
-        pojo.iLayerCount = iLayerCount;
         pojo.iColumnCount = iColumnCount;
-        pojo.lFileSize = lFileSize;
-        pojo.lLastModified = lLastModified;
         pojo.dEnvelopeMinX = dEnvelopeMinX;
         pojo.dEnvelopeMinY = dEnvelopeMinY;
         pojo.dEnvelopeMaxX = dEnvelopeMaxX;
         pojo.dEnvelopeMaxY = dEnvelopeMaxY;
         pojo.lOwnerID = lOwnerID;
-        pojo.filePath = file.getAbsolutePath();
         Set<Long> setColumns = new LinkedHashSet<Long>();
         if( setCols != null ) {
             for( SourceColumnsDbEntity cle : setCols ) {
@@ -93,13 +83,13 @@ public class DatasourceDbEntity implements Serializable {
     public void setFileName( String strFileName ) {
         this.strFileName = strFileName;
     }
-
-    public void setGeomName( String strGeomName ) {
-        this.strGeomName = strGeomName;
+    
+    public void setLayerName(String layer) {
+        this.strLayerName = layer;
     }
 
-    public void setGeomType( int iGeomType ) {
-        this.iGeomType = iGeomType;
+    public void setGeomType( String strGeomType ) {
+        this.strGeomType = strGeomType;
     }
 
     public void setCRS( int iCRS ) {
@@ -110,20 +100,8 @@ public class DatasourceDbEntity implements Serializable {
         this.iFeatureCount = iFeatureCount;
     }
 
-    public void setLayerCount( int iLayerCount ) {
-        this.iLayerCount = iLayerCount;
-    }
-
     public void setColumnCount( int iColumnCount ) {
         this.iColumnCount = iColumnCount;
-    }
-
-    public void setFileSize( long lFileSize ) {
-        this.lFileSize = lFileSize;
-    }
-
-    public void setLastModified( long lLastModified ) {
-        this.lLastModified = lLastModified;
     }
 
     public void setMinX( double dEnvelopeMinX ) {
@@ -153,6 +131,18 @@ public class DatasourceDbEntity implements Serializable {
     public void setOwnerID( Long lOwnerID ) {
         this.lOwnerID = lOwnerID;
     }
+    
+    public Long getOwnerID(){
+        return lOwnerID;
+    }
+    
+    public String getFileName(){
+        return strFileName;
+    }
+    
+    public File getFile(){
+        return file;
+    }
 
     public Set<SourceColumnsDbEntity> getColumns() {
         return setCols;
@@ -165,4 +155,10 @@ public class DatasourceDbEntity implements Serializable {
     public void setID( Long lID ) {
         this.lID = lID;
     }
+
+    public String getLayer() {
+        return strLayerName;
+    }
+
+  
 }

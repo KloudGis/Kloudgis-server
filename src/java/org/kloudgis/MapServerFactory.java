@@ -22,6 +22,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.DeleteMethod;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -71,6 +72,44 @@ public abstract class MapServerFactory {
         if( iResponse != Response.Status.CREATED.getStatusCode() ) {
             throw new GeoserverException( iResponse, strBody );
         }
+    }
+    
+    public static ArrayList<String> getStores(String strGeoserverURL, String strWorkspace, Credentials crd){
+        ArrayList<String> arrlS = new ArrayList();
+        return arrlS;
+    }
+    
+    
+    public static void deleteWorkspace(String strGeoserverURL, String strName, Credentials crd) throws IOException{
+        //detele stores first
+        for(String store : getStores(strGeoserverURL, strName, crd)){
+            deleteStore(strGeoserverURL, strName, store, crd);
+        }
+        DeleteMethod del = new DeleteMethod( strGeoserverURL + "workspaces/" + strName );
+        HttpClient htc = new HttpClient();
+        htc.getState().setCredentials( AuthScope.ANY, crd );
+        int iResponse = htc.executeMethod( del );
+        String strBody = del.getResponseBodyAsString( 1500 );
+        del.releaseConnection();
+        if( iResponse != Response.Status.OK.getStatusCode() ) {
+            throw new GeoserverException( iResponse, strBody );
+        }
+    }
+    
+    public static void deleteStore(String strGeoserverURL, String strWorkspace, String strName, Credentials crd) throws IOException{
+        //detele featuretypes first
+        /*for(String ft : getFeaturetypes(strGeoserverURL, strWorkspace, strName, crd)){
+            deleteFeaturetype(strGeoserverURL, strWorkspace, strName, ft, crd);
+        }*/
+    } 
+    
+    
+    public static void deleteFeatureType(String strGeoserverURL, String strWorkspace, String strStore, String strName, Credentials crd) throws IOException{
+        
+    }
+    
+    public static void deleteLayer(String strGeoserverURL, String strWorkspace, String strName, Credentials crd) throws IOException{
+        
     }
 
     public static List<String> listStyles( String strGeoserverURL, Credentials crd )

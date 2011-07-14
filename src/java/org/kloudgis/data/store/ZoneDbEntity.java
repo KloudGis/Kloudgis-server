@@ -1,9 +1,10 @@
 
 package org.kloudgis.data.store;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -18,8 +19,7 @@ import org.hibernate.annotations.NotFoundAction;
 import org.kloudgis.data.pojo.AbstractFeature;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.ZoneFeature;
-import org.kloudgis.gdal.Attribute;
-import org.kloudgis.gdal.Feature;
+import org.kloudgis.org.Feature;
 
 /**
  *
@@ -69,12 +69,12 @@ public class ZoneDbEntity extends AbstractPlaceDbEntity {
 
     @Override
     protected void persistTags( Feature ftr, EntityManager em ) {
-        Collection<Attribute> colAttrs = ftr.getAttributes();
-        for( Attribute attr : colAttrs ) {
+        Map<String,String> colAttrs = ftr.getAttributes();
+        for( String attr : colAttrs.keySet() ) {
             ZoneTagDbEntity tag = new ZoneTagDbEntity();
             tag.setFK( this );
-            tag.setKey( attr.getName() );
-            Object obj = attr.getValue();
+            tag.setKey( attr );
+            Object obj = colAttrs.get(attr);
             tag.setValue( obj == null ? null : obj.toString() );
             tags.add( tag );
             em.persist( tag );

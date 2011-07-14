@@ -3,6 +3,7 @@ package org.kloudgis.data.store;
 
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
+import java.io.Serializable;
 import java.util.HashMap;
 import javax.persistence.Column;
 import javax.persistence.EntityManager;
@@ -12,14 +13,14 @@ import org.hibernate.annotations.Type;
 import org.kloudgis.data.pojo.AbstractPlaceFeature;
 import org.kloudgis.data.pojo.Coordinate;
 import org.kloudgis.data.pojo.PojoUtils;
-import org.kloudgis.gdal.Feature;
+import org.kloudgis.org.Feature;
 
 /**
  *
  * @author sylvain
  */
 @MappedSuperclass
-public abstract class AbstractPlaceDbEntity extends AbstractFeatureDbEntity {
+public abstract class AbstractPlaceDbEntity extends AbstractFeatureDbEntity implements Serializable{
 
     @Column
     private String name;

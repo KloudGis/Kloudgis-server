@@ -6,6 +6,8 @@ package org.kloudgis.admin.bean;
 import java.io.UnsupportedEncodingException;
 import java.net.PasswordAuthentication;
 import java.net.Authenticator;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.kloudgis.LoginFactory;
 import org.apache.commons.httpclient.HttpClient;
@@ -23,6 +25,7 @@ import java.sql.SQLException;
 import java.sql.PreparedStatement;
 import java.sql.DriverManager;
 import java.sql.Connection;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.junit.Test;
 import org.kloudgis.GeometryFactory;
 import org.kloudgis.MapServerFactory;
@@ -61,10 +64,10 @@ public class DatasourceResourceBeanTest {
             Connection conn2 = null;
             try {
                 conn2 = DriverManager.getConnection("jdbc:postgresql://" + strDbURL + "/test_admin", strDbUser, strPassword);
-                PreparedStatement pst = conn2.prepareStatement("truncate datasource;");
+                PreparedStatement pst = conn2.prepareStatement("truncate datasource cascade;");
                 pst.execute();
                 pst.close();
-                pst = conn2.prepareStatement("truncate src_column;");
+                pst = conn2.prepareStatement("truncate ds_column cascade;");
                 pst.execute();
                 pst.close();
                 conn2.close();
@@ -76,7 +79,16 @@ public class DatasourceResourceBeanTest {
         }
         conn.close();
 //        create the db
-        DatabaseFactory.createDB(strDbURL, "test_admin");
+        try {
+            DatabaseFactory.createDB(strDbURL, "test_admin");
+        } catch (Exception e) {
+        }
+        try {
+            //geoserver
+            MapServerFactory.deleteWorkspace(strGeoserverURL + "/", "test_sandbox", new UsernamePasswordCredentials(strGeoUser, strGeoPass));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Test
@@ -187,74 +199,62 @@ public class DatasourceResourceBeanTest {
         Connection conn = DriverManager.getConnection(strAdminDbURL, strDbUser, strPassword);
 
 //        test the shape file insertion
-        PreparedStatement pst = conn.prepareStatement("select lid, denvelopemaxx, denvelopemaxy, denvelopeminx, denvelopeminy, octet_length(\"file\"::bytea),"
-                + " icrs, icolumncount, ifeaturecount, igeomtype, ilayercount, lfilesize, llastmodified, lownerid, strfilename, strgeomname from datasource;");
+        PreparedStatement pst = conn.prepareStatement("select lid, denvelopemaxx, denvelopemaxy, denvelopeminx, denvelopeminy,"
+                + " icrs, icolumncount, ifeaturecount, strgeomtype, strlayerName, lownerid, strfilename from datasource;");
         ResultSet rst = pst.executeQuery();
         assertTrue(rst.next());
-        assertEquals(rst.getDouble(2), 58.5526, 0);
-        assertEquals(rst.getDouble(3), 68.9713, 0);
-        assertEquals(rst.getDouble(4), -21.8522, 0);
-        assertEquals(rst.getDouble(5), 28.1388, 0);
-        assertEquals(rst.getInt(6), 73780);
-        assertEquals(rst.getInt(7), 0);
-        assertEquals(rst.getInt(8), 11);
-        assertEquals(rst.getInt(9), 1267);
-        assertEquals(rst.getInt(10), 1);
-        assertEquals(rst.getInt(11), 1);
-        assertEquals(rst.getLong(12), 35576);
-        assertEquals(rst.getLong(13), 981014400000l);
-        assertEquals(rst.getInt(14), 1);
-        assertEquals(rst.getString(15), "cities.shp");
-        assertEquals(rst.getString(16), "Point");
+        long ds_id = rst.getLong(1);
+        assertEquals(58.5526, rst.getDouble(2), 0);
+        assertEquals(68.9713, rst.getDouble(3), 0);
+        assertEquals(-21.8522, rst.getDouble(4), 0);
+        assertEquals(28.1388, rst.getDouble(5), 0);
+        // assertEquals(0,rst.getInt(6));
+        assertEquals(11, rst.getInt(7));
+        assertEquals(1267, rst.getInt(8));
+        assertEquals("Point", rst.getString(9));
+        assertEquals("cities", rst.getString(10));
+        assertEquals(1, rst.getInt(11));
+        assertEquals("cities.shp", rst.getString(12));
 
         System.out.println("Check cities.shp OK");
 
-        PreparedStatement pst1 = conn.prepareStatement("select * from ds_column where dts_lid=1;");
+        PreparedStatement pst1 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
         ResultSet rst1 = pst1.executeQuery();
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 0);
-        assertEquals(rst1.getString(5), "TYPE");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.IntegerType");
+        assertEquals("TYPE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 0);
-        assertEquals(rst1.getString(5), "NATION");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.IntegerType");
+        assertEquals("NATION", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 60);
-        assertEquals(rst1.getString(5), "CNTRYNAME");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.StringType");
+        assertEquals("CNTRYNAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 0);
-        assertEquals(rst1.getString(5), "LEVEL");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.IntegerType");
+        assertEquals("LEVEL", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 60);
-        assertEquals(rst1.getString(5), "NAME");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.StringType");
+        assertEquals("NAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 10);
-        assertEquals(rst1.getString(5), "NAMEPRE");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.StringType");
+        assertEquals("NAMEPRE", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 10);
-        assertEquals(rst1.getString(5), "CODE");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.StringType");
+        assertEquals("CODE", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 0);
-        assertEquals(rst1.getString(5), "PROVINCE");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.IntegerType");
+        assertEquals("PROVINCE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 60);
-        assertEquals(rst1.getString(5), "PROVNAME");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.StringType");
+        assertEquals("PROVNAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 0);
-        assertEquals(rst1.getString(5), "UNPROV");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.IntegerType");
+        assertEquals("UNPROV", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
         assertTrue(rst1.next());
-        assertEquals(rst1.getInt(3), 60);
-        assertEquals(rst1.getString(5), "CONURB");
-        assertEquals(rst1.getString(6), "org.kloudgis.gdal.schema.StringType");
+        assertEquals("CONURB", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertFalse(rst1.next());
+
         rst1.close();
         pst1.close();
 
@@ -262,225 +262,196 @@ public class DatasourceResourceBeanTest {
 
 //        test the dgn file insertion
         assertTrue(rst.next());
-        assertEquals(rst.getDouble(2), 229754.9006, 0.000001);
-        assertEquals(rst.getDouble(3), 5064226, 0.000001);
-        assertEquals(rst.getDouble(4), 208626.4227, 0.000001);
-        assertEquals(rst.getDouble(5), 5040476.0779, 0.000001);
-        assertEquals(rst.getInt(6), 1297824);
-        assertEquals(rst.getInt(7), -1);
-        assertEquals(rst.getInt(8), 9);
-        assertEquals(rst.getInt(9), 8002);
-        assertEquals(rst.getInt(10), 0);
-        assertEquals(rst.getInt(11), 1);
-        assertEquals(rst.getLong(12), 3180544);
-        assertEquals(rst.getLong(13), 1248178009000l);
-        assertEquals(rst.getInt(14), 1);
-        assertEquals(rst.getString(15), "2325_integration.dgn");
-        assertEquals(rst.getString(16), "Unknown");
-
+        ds_id = rst.getLong(1);
+        assertEquals(229754.9006, rst.getDouble(2), 0.000001);
+        assertEquals(5064226,rst.getDouble(3), 0.000001);
+        assertEquals(208626.4227,rst.getDouble(4), 0.000001);
+        assertEquals(5040476.0779, rst.getDouble(5) , 0.000001);
+        assertEquals(9, rst.getInt(7));
+        assertEquals(8002, rst.getInt(8));
+        assertEquals("Unknown", rst.getString(9));
+        assertEquals("elements", rst.getString(10));
+        assertEquals(1, rst.getInt(11));
+        assertEquals("2325_integration.dgn", rst.getString(12));
+        
         System.out.println("Check 2325_integration.dgn OK");
 
-        PreparedStatement pst2 = conn.prepareStatement("select * from ds_column where dts_lid=2;");
-        ResultSet rst2 = pst2.executeQuery();
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "Type");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "Level");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "GraphicGroup");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "ColorIndex");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "Weight");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "Style");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "EntityNum");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "MSLink");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst2.next());
-        assertEquals(rst2.getString(5), "Text");
-        assertEquals(rst2.getString(6), "org.kloudgis.gdal.schema.StringType");
-        rst2.close();
+        PreparedStatement pst2 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        rst1 = pst2.executeQuery();
+        assertTrue(rst1.next());
+        assertEquals("Type", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Level", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("GraphicGroup", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("ColorIndex", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Weight", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Style", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("EntityNum", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("MSLink", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Text", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertFalse(rst1.next());       
+        rst1.close();
         pst2.close();
 
         System.out.println("Check 2325_integration.dgn Columns OK");
 
 //        test the dxf file insertion
         assertTrue(rst.next());
-        assertEquals(rst.getDouble(2), 230565.659999877, 0.000001);
-        assertEquals(rst.getDouble(3), 5065429.70789984, 0.000001);
-        assertEquals(rst.getDouble(4), 213470.867699484, 0.000001);
-        assertEquals(rst.getDouble(5), 5038624.22039983, 0.000001);
-        assertEquals(rst.getInt(6), 60506);
-        assertEquals(rst.getInt(7), -1);
-        assertEquals(rst.getInt(8), 6);
-        assertEquals(rst.getInt(9), 1712);
-        assertEquals(rst.getInt(10), 0);
-        assertEquals(rst.getInt(11), 1);
-        assertEquals(rst.getLong(12), 474690);
-        assertEquals(rst.getLong(13), 1272982590000l);
-        assertEquals(rst.getInt(14), 1);
-        assertEquals(rst.getString(15), "2325_BORN_REN.dxf");
-        assertEquals(rst.getString(16), "Unknown");
+        ds_id = rst.getLong(1);
+        assertEquals(230565.659999877,rst.getDouble(2), 0.000001);
+        assertEquals(5065429.70789984,rst.getDouble(3), 0.000001);
+        assertEquals(213470.867699484,rst.getDouble(4), 0.000001);
+        assertEquals(5038624.22039983,rst.getDouble(5), 0.000001);
+        assertEquals(6, rst.getInt(7));
+        assertEquals(1712, rst.getInt(8));
+        assertEquals("Unknown", rst.getString(9));
+        assertEquals("entities", rst.getString(10));
+        assertEquals(1, rst.getInt(11));
+        assertEquals("2325_BORN_REN.dxf", rst.getString(12));       
 
         System.out.println("Check 2325_BORN_REN.dxf OK");
 
-        PreparedStatement pst3 = conn.prepareStatement("select * from ds_column where dts_lid=3;");
-        ResultSet rst3 = pst3.executeQuery();
-        assertTrue(rst3.next());
-        assertEquals(rst3.getString(5), "Layer");
-        assertEquals(rst3.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst3.next());
-        assertEquals(rst3.getString(5), "SubClasses");
-        assertEquals(rst3.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst3.next());
-        assertEquals(rst3.getString(5), "ExtendedEntity");
-        assertEquals(rst3.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst3.next());
-        assertEquals(rst3.getString(5), "Linetype");
-        assertEquals(rst3.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst3.next());
-        assertEquals(rst3.getString(5), "EntityHandle");
-        assertEquals(rst3.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst3.next());
-        assertEquals(rst3.getString(5), "Text");
-        assertEquals(rst3.getString(6), "org.kloudgis.gdal.schema.StringType");
-        rst3.close();
+        PreparedStatement pst3 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        rst1 = pst3.executeQuery();
+        assertTrue(rst1.next());
+        assertEquals("Layer", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("SubClasses", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("ExtendedEntity", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Linetype", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("EntityHandle", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Text", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertFalse(rst1.next());
+        rst1.close();
         pst3.close();
 
         System.out.println("Check 2325_BORN_REN.dxf Columns OK");
 
 //        test the gml file insertion
         assertTrue(rst.next());
-        assertEquals(rst.getDouble(2), -52.80807, 0);
-        assertEquals(rst.getDouble(3), 82.43198, 0);
-        assertEquals(rst.getDouble(4), -140.87349, 0);
-        assertEquals(rst.getDouble(5), 42.05346, 0);
-        assertEquals(rst.getInt(6), 32212);
-        assertEquals(rst.getInt(7), -1);
-        assertEquals(rst.getInt(8), 16);
-        assertEquals(rst.getInt(9), 497);
-        assertEquals(rst.getInt(10), 1);
-        assertEquals(rst.getInt(11), 1);
-        assertEquals(rst.getLong(12), 358258);
-        assertEquals(rst.getLong(13), 1301316630000l);
-        assertEquals(rst.getInt(14), 1);
-        assertEquals(rst.getString(15), "places.gml");
-        assertEquals(rst.getString(16), "Point");
+        ds_id = rst.getLong(1);
+        assertEquals(-52.80807,rst.getDouble(2), 0);
+        assertEquals(82.43198,rst.getDouble(3), 0);
+        assertEquals(-140.87349,rst.getDouble(4), 0);
+        assertEquals(42.05346,rst.getDouble(5), 0);
+        assertEquals(16, rst.getInt(7));
+        assertEquals(497, rst.getInt(8));
+        assertEquals("Point", rst.getString(9));
+        assertEquals("placept", rst.getString(10));
+        assertEquals(1, rst.getInt(11));
+        assertEquals("places.gml", rst.getString(12));   
 
         System.out.println("Check places.gml OK");
 
-        PreparedStatement pst4 = conn.prepareStatement("select * from ds_column where dts_lid=4;");
-        ResultSet rst4 = pst4.executeQuery();
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "AREA");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.RealType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "PERIMETER");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.RealType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "PACEL_");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "PACEL_ID");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 25);
-        assertEquals(rst4.getString(5), "NAME");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "REG_CODE");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 6);
-        assertEquals(rst4.getString(5), "NTS50");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "LAT");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "LONG");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "POP91");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "SGC_CODE");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "CAPITAL");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 0);
-        assertEquals(rst4.getString(5), "POP_RANGE");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.IntegerType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 5);
-        assertEquals(rst4.getString(5), "UNIQUE_KEY");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 11);
-        assertEquals(rst4.getString(5), "NAME_E");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst4.next());
-        assertEquals(rst4.getInt(3), 11);
-        assertEquals(rst4.getString(5), "NAME_F");
-        assertEquals(rst4.getString(6), "org.kloudgis.gdal.schema.StringType");
-        rst4.close();
+        PreparedStatement pst4 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        rst1 = pst4.executeQuery();
+        assertTrue(rst1.next());
+        assertEquals("AREA", rst1.getString(1));
+        assertEquals("Real", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("PERIMETER", rst1.getString(1));
+        assertEquals("Real", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("PACEL_", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("PACEL_ID", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("REG_CODE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NTS50", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("LAT", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("LONG", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("POP91", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("SGC_CODE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("CAPITAL", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("POP_RANGE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("UNIQUE_KEY", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NAME_E", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NAME_F", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertFalse(rst1.next());    
+        rst1.close();
         pst4.close();
 
         System.out.println("Check places.gml Columns OK");
 
 //        test the kml file insertion
         assertTrue(rst.next());
-        assertEquals(rst.getDouble(2), -72.5046028211896, 0.00000001);
-        assertEquals(rst.getDouble(3), 45.3592196152746, 0.00000001);
-        assertEquals(rst.getDouble(4), -72.5514406587745, 0.00000001);
-        assertEquals(rst.getDouble(5), 45.3160540739093, 0.00000001);
-        assertEquals(rst.getInt(6), 688154);
-        assertEquals(rst.getInt(7), 0);
-        assertEquals(rst.getInt(8), 2);
-        assertEquals(rst.getInt(9), 2903);
-        assertEquals(rst.getInt(10), -2147483645);
-        assertEquals(rst.getInt(11), 1);
-        assertEquals(rst.getLong(12), 14479348);
-        assertEquals(rst.getLong(13), 1306241742000l);
-        assertEquals(rst.getInt(14), 1);
-        assertEquals(rst.getString(15), "LOTOCCUPE.kml");
-        assertEquals(rst.getString(16), "Unknown");
-
+        ds_id = rst.getLong(1);
+        assertEquals(-72.5046028211896,rst.getDouble(2), 0.000001);
+        assertEquals(45.3592196152746,rst.getDouble(3), 0.000001);
+        assertEquals(-72.5514406587745,rst.getDouble(4), 0.000001);
+        assertEquals(45.3160540739093,rst.getDouble(5), 0.000001);
+        assertEquals(2, rst.getInt(7));
+        assertEquals(2903, rst.getInt(8));
+        assertEquals("3D Polygon", rst.getString(9));
+        assertEquals("Layer #0", rst.getString(10));
+        assertEquals(1, rst.getInt(11));
+        assertEquals("LOTOCCUPE.kml", rst.getString(12));   
+       
         System.out.println("Check LOTOCCUPE.kml OK");
 
-        PreparedStatement pst5 = conn.prepareStatement("select * from ds_column where dts_lid=5;");
-        ResultSet rst5 = pst5.executeQuery();
-        assertTrue(rst5.next());
-        assertEquals(rst5.getInt(3), 0);
-        assertEquals(rst5.getString(5), "Name");
-        assertEquals(rst5.getString(6), "org.kloudgis.gdal.schema.StringType");
-        assertTrue(rst5.next());
-        assertEquals(rst5.getInt(3), 0);
-        assertEquals(rst5.getString(5), "Description");
-        assertEquals(rst5.getString(6), "org.kloudgis.gdal.schema.StringType");
-        rst5.close();
+        PreparedStatement pst5 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        rst1 = pst5.executeQuery();
+        assertTrue(rst1.next());
+        assertEquals("Name", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("Description", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertFalse(rst1.next());
+       
+        rst1.close();
         pst5.close();
         conn.close();
 
@@ -529,19 +500,23 @@ public class DatasourceResourceBeanTest {
 //        add sandbox db
         URL url = new URL(strKloudURL + "/kg_server/protected/admin/sandboxes");
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-        httpCon.setDoOutput(true);
+        OutputStream ost=null;
+        int iRet;
+      /*  httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
-        OutputStream ost = httpCon.getOutputStream();
+        ost = httpCon.getOutputStream();
         ost.write(("{\"connection_url\":\"" + strDbURL + "/test_sandbox\",\"name\":\"test_sandbox\",\"url_geoserver\":\"" + strGeoserverURL + "\"}").getBytes());
         ost.flush();
-        int iRet = httpCon.getResponseCode();
+        iRet = httpCon.getResponseCode();
         httpCon.disconnect();
         ost.close();
         assertEquals(200, iRet);
 
         System.out.println("Create sandbox 'test_sandbox' sucessful");
+      
+      */
         Connection conn = DriverManager.getConnection(strSandboxDbURL, strDbUser, strPassword);
 
         truncate(conn);
@@ -799,16 +774,15 @@ public class DatasourceResourceBeanTest {
     }
 
     private int getTagCount(Connection con, String strTagType, String strTag) throws SQLException {
-        PreparedStatement pst = con.prepareStatement("select value from " + strTagType + " where key='" + strTag + "';");
+        PreparedStatement pst = con.prepareStatement("select count(*) from " + strTagType + " where key='" + strTag + "';");
         ResultSet rst = pst.executeQuery();
-        int i = 0;
-        while (rst.next()) {
-            assertNotNull(rst.getString(1));
-            i++;
+        int ret = 0;
+        if(rst.next()) {
+            ret = rst.getInt(1);
         }
         rst.close();
         pst.close();
-        return i;
+        return ret;
     }
 
     private int getCount(Connection con, String strTable) throws SQLException, ParseException {

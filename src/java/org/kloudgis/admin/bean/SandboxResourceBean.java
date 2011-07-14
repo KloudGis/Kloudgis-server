@@ -274,7 +274,7 @@ public class SandboxResourceBean {
         if( iSize > 0 ) {
             lID = ( ( DatasourceDbEntity )lstRS.get( 0 ) ).getID();
         } else {
-            lID = DatasourceFactory.addDatasource( usr, MapServerFactory.getWebInfPath() + "classes/" + strType + ".shp" ).lID;
+            lID = DatasourceFactory.addDatasource( usr, MapServerFactory.getWebInfPath() + "classes/" + strType + ".shp" ).get(0);
         }
         if( DatasourceFactory.loadData( usr, lSandboxID, lID, new HashMap<String, String>() ).getStatus() != Response.Status.OK.getStatusCode() ) {
             return -1;
