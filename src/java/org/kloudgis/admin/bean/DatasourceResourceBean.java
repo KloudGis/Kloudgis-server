@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.zip.ZipException;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.CookieParam;
 import javax.ws.rs.GET;
@@ -45,12 +46,24 @@ public class DatasourceResourceBean {
 
     @POST
     @Produces({"application/json"})
-    public List<Long> addDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, String strPath) throws WebApplicationException, IOException {
+    public List<Long> addDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, String strPath) throws Exception {
         UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, PersistenceManager.getInstance().getAdminEntityManager());
         if (usr == null) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED.getStatusCode());
         }
-        return DatasourceFactory.addDatasource(usr, strPath);
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        em.getTransaction().begin();
+        List<Long> dsId = null;
+        try {
+            dsId = DatasourceFactory.addDatasource(em, usr, strPath);
+        } catch (Exception e) {
+            em.close();
+            throw e;
+        } 
+        em.getTransaction().commit();
+        em.close();
+        return dsId;
+
     }
 
     @GET
@@ -67,7 +80,7 @@ public class DatasourceResourceBean {
                 throw new WebApplicationException(Response.Status.UNAUTHORIZED.getStatusCode());
             }
             return dts.toPojo();
-        }else{
+        } else {
             throw new EntityNotFoundException("Datasource with id " + lID + " is not found.");
         }
     }

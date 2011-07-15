@@ -140,7 +140,7 @@ public class DatasourceDbEntity implements Serializable {
         return strFileName;
     }
     
-    public File getFile(){
+    public File getDataFile(){
         return file;
     }
 

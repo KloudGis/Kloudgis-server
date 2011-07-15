@@ -26,8 +26,7 @@ public class DatabaseFactory {
     public static final String USER = "kloudgis";//regular user
     public static final String PASSWORD = "kwadmin";//regular password
 
-    public static void createIndexes(EntityManagerFactory emf) {
-        EntityManager em = emf.createEntityManager();
+    public static void createIndexes(EntityManager em) {
         if (em != null) {
             try {
                 em.getTransaction().begin();
@@ -53,12 +52,10 @@ public class DatabaseFactory {
                 em.getTransaction().commit();
             } catch (Exception e) {
             }
-            em.close();
         }
     }
 
-    public static void loadDefaultValues(EntityManagerFactory emf){
-          EntityManager em = emf.createEntityManager();
+    public static void loadDefaultValues(EntityManager em){
         if (em != null) {
             Object count = em.createQuery("select count(*) from " + FeatureTypeDbEntity.class.getSimpleName()).getSingleResult();
             if(count == null || ((Number)count).intValue() == 0){
@@ -109,7 +106,6 @@ public class DatabaseFactory {
                 em.persist(ftClass);
                 em.getTransaction().commit();
             }
-            em.close();
         }
      }
 

@@ -11,6 +11,7 @@ import javax.persistence.EntityManager;
 import org.kloudgis.data.store.AbstractPlaceDbEntity;
 import org.kloudgis.org.Feature;
 import org.kloudgis.org.Streamable;
+import org.kloudgis.persistence.PersistenceManager;
 
 /**
  *
@@ -18,7 +19,7 @@ import org.kloudgis.org.Streamable;
  */
 public class DsStream implements Streamable {
 
-    private StringBuilder stbGeomNotParsed = new StringBuilder();
+    private int  iGeomNotParsed;
     private EntityManager emg;
     private HashMap<String, String> mapAttrs;
     private int iSize = 0;
@@ -31,6 +32,7 @@ public class DsStream implements Streamable {
 
     @Override
     public void streamFeature(Feature fea) {
+        //System.err.println("Process feature: count=" + iSize);
         ArrayList<AbstractPlaceDbEntity> arlEntities = null;
         try {
             arlEntities = DatasourceFactory.getDbEntities(fea.getGeometry());
@@ -38,27 +40,29 @@ public class DsStream implements Streamable {
             //cannot parse
         }
         if (arlEntities != null) {
-            for (AbstractPlaceDbEntity ent : arlEntities) {
+            for (AbstractPlaceDbEntity ent : arlEntities) {              
                 ent.setupFromFeature(fea, emg, mapAttrs);
                 emg.persist(ent);
                 iSize++;
-                if (iSize % 20 == 0) {
+                if (iSize % PersistenceManager.COMMIT_BLOCK == 0) {                 
                     emg.flush();
                     emg.clear();
                 }
             }
         } else {
-            stbGeomNotParsed.append(fea.getGeometry()).append("\n");
+            System.err.println("Geometry invalid:" + fea.getGeometry());
+            iGeomNotParsed++;
         }
     }
 
     @Override
     public void streamCompleted() {
         emg.getTransaction().commit();
+       // System.err.println("Commit completed.");
     }
     
-    public String getGeoNotParsed(){
-        return stbGeomNotParsed.toString();
+    public int getGeoNotParsed(){
+        return iGeomNotParsed;
     }
     
     public int getCount(){

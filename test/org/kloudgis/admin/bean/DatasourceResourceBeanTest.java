@@ -3,11 +3,8 @@
  */
 package org.kloudgis.admin.bean;
 
-import java.io.UnsupportedEncodingException;
 import java.net.PasswordAuthentication;
 import java.net.Authenticator;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.kloudgis.LoginFactory;
 import org.apache.commons.httpclient.HttpClient;
@@ -502,7 +499,7 @@ public class DatasourceResourceBeanTest {
         HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
         OutputStream ost=null;
         int iRet;
-      /*  httpCon.setDoOutput(true);
+        httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
@@ -516,7 +513,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Create sandbox 'test_sandbox' sucessful");
       
-      */
+      
         Connection conn = DriverManager.getConnection(strSandboxDbURL, strDbUser, strPassword);
 
         truncate(conn);
@@ -554,7 +551,7 @@ public class DatasourceResourceBeanTest {
         assertEquals(getTagCount(conn, "zone_tag", "Style"), 4000);
         assertEquals(getTagCount(conn, "zone_tag", "EntityNum"), 4000);
         assertEquals(getTagCount(conn, "zone_tag", "MSLink"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "Text"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "Text"), 4000);        
         System.out.println("Load the DGN sucessful");
 
         truncate(conn);
@@ -584,41 +581,16 @@ public class DatasourceResourceBeanTest {
         assertEquals(getTagCount(conn, "poi_tag", "PROVNAME"), 1267);
         assertEquals(getTagCount(conn, "poi_tag", "UNPROV"), 1267);
         assertEquals(getTagCount(conn, "poi_tag", "CONURB"), 1267);
+        double[] extent = getExtent(conn, "poi");
+        assertEquals(-21.8522, extent[0], 0);
+        assertEquals(28.1388, extent[1], 0);
+        assertEquals(58.5526, extent[2], 0);
+        assertEquals(68.9713, extent[3], 0);
+        
+        
         assertEquals(getCount(conn, "path"), 0);
         assertEquals(getCount(conn, "zone"), 0);
         System.out.println("Load the SHP successful");
-
-        truncate(conn);
-        System.out.println("About to load the DXF");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dxf") + "?sandbox=1");
-        httpCon = (HttpURLConnection) url.openConnection();
-        httpCon.setDoOutput(true);
-        httpCon.setRequestMethod("POST");
-        httpCon.setRequestProperty("Content-type", "application/json");
-        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
-        ost = httpCon.getOutputStream();
-        ost.write(("{}").getBytes());
-        ost.flush();
-        iRet = httpCon.getResponseCode();
-        httpCon.disconnect();
-        ost.close();
-        assertEquals(200, iRet);
-        assertEquals(getCount(conn, "poi"), 899);
-        assertEquals(getTagCount(conn, "poi_tag", "Layer"), 899);
-        assertEquals(getTagCount(conn, "poi_tag", "SubClasses"), 899);
-        assertEquals(getTagCount(conn, "poi_tag", "ExtendedEntity"), 899);
-        assertEquals(getTagCount(conn, "poi_tag", "Linetype"), 899);
-        assertEquals(getTagCount(conn, "poi_tag", "EntityHandle"), 899);
-        assertEquals(getTagCount(conn, "poi_tag", "Text"), 899);
-        assertEquals(getCount(conn, "path"), 813);
-        assertEquals(getTagCount(conn, "path_tag", "Layer"), 813);
-        assertEquals(getTagCount(conn, "path_tag", "SubClasses"), 813);
-        assertEquals(getTagCount(conn, "path_tag", "ExtendedEntity"), 813);
-        assertEquals(getTagCount(conn, "path_tag", "Linetype"), 813);
-        assertEquals(getTagCount(conn, "path_tag", "EntityHandle"), 813);
-        assertEquals(getTagCount(conn, "path_tag", "Text"), 813);
-        assertEquals(getCount(conn, "zone"), 0);
-        System.out.println("Load the DXF sucessful");
 
         truncate(conn);
         System.out.println("About to load the GML");
@@ -655,6 +627,38 @@ public class DatasourceResourceBeanTest {
         assertEquals(getCount(conn, "path"), 0);
         assertEquals(getCount(conn, "zone"), 0);
         System.out.println("Load GML sucessuful");
+        
+        truncate(conn);
+        System.out.println("About to load the DXF");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dxf") + "?sandbox=1");
+        httpCon = (HttpURLConnection) url.openConnection();
+        httpCon.setDoOutput(true);
+        httpCon.setRequestMethod("POST");
+        httpCon.setRequestProperty("Content-type", "application/json");
+        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
+        ost = httpCon.getOutputStream();
+        ost.write(("{}").getBytes());
+        ost.flush();
+        iRet = httpCon.getResponseCode();
+        httpCon.disconnect();
+        ost.close();
+        assertEquals(200, iRet);
+        assertEquals(getCount(conn, "poi"), 899);
+        assertEquals(getTagCount(conn, "poi_tag", "Layer"), 899);
+        assertEquals(getTagCount(conn, "poi_tag", "SubClasses"), 899);
+        assertEquals(getTagCount(conn, "poi_tag", "ExtendedEntity"), 899);
+        assertEquals(getTagCount(conn, "poi_tag", "Linetype"), 899);
+        assertEquals(getTagCount(conn, "poi_tag", "EntityHandle"), 899);
+        assertEquals(getTagCount(conn, "poi_tag", "Text"), 899);
+        assertEquals(getCount(conn, "path"), 813);
+        assertEquals(getTagCount(conn, "path_tag", "Layer"), 813);
+        assertEquals(getTagCount(conn, "path_tag", "SubClasses"), 813);
+        assertEquals(getTagCount(conn, "path_tag", "ExtendedEntity"), 813);
+        assertEquals(getTagCount(conn, "path_tag", "Linetype"), 813);
+        assertEquals(getTagCount(conn, "path_tag", "EntityHandle"), 813);
+        assertEquals(getTagCount(conn, "path_tag", "Text"), 813);
+        assertEquals(getCount(conn, "zone"), 0);
+        System.out.println("Load the DXF sucessful");      
 
         truncate(conn);
         System.out.println("About to load the KML");
@@ -783,6 +787,28 @@ public class DatasourceResourceBeanTest {
         rst.close();
         pst.close();
         return ret;
+    }
+    
+    private double[] getExtent(Connection con, String table) throws SQLException{
+        PreparedStatement pst = con.prepareStatement("select extent(geom) from " + table + ";");
+        ResultSet rst = pst.executeQuery();
+        String ret = "";
+        double [] env = new double[4];
+        if(rst.next()) {
+            ret = rst.getString(1);
+            int iFirstBracket = ret.indexOf("(");
+            int iFirstSpace = ret.indexOf(" ");
+            int iFirstComma = ret.indexOf(",");
+            int iLastSpace = ret.lastIndexOf(" ");
+            int iLastBracket = ret.lastIndexOf(")");
+            env[0] = Double.valueOf(ret.substring(iFirstBracket + 1, iFirstSpace));
+            env[1] = Double.valueOf(ret.substring(iFirstSpace + 1, iFirstComma));
+            env[2] = Double.valueOf(ret.substring(iFirstComma + 1, iLastSpace));
+            env[3] = Double.valueOf(ret.substring(iLastSpace + 1, iLastBracket));
+        }
+        rst.close();
+        pst.close();
+        return env;
     }
 
     private int getCount(Connection con, String strTable) throws SQLException, ParseException {

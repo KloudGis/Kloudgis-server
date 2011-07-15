@@ -29,6 +29,7 @@ public class PersistenceManager {
     private static final String DEFAULT_PU = "sandboxPU";
     private static String ADMIN_PU = "adminPU";
     private static final PersistenceManager singleton = new PersistenceManager();
+    public static int COMMIT_BLOCK = 30;
     private EntityManagerFactory adminFactory;
     //TODO: Add a validation thread to kill emf if not used for a while
     private LinkedHashMap<String, FactoryWrapper> hashSandboxesFactory = new LinkedHashMap<String, FactoryWrapper>();

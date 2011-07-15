@@ -48,7 +48,7 @@ public class DatasourceFactory {
 
     public static Response loadData(UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs)
             throws ZipException, IOException, ParseException {
-        System.out.println("+++Loading data to sandboxid=" + lSandBoxID + " from sourcesid=" + lSourceID);
+        System.err.println("+++Loading data to sandboxid=" + lSandBoxID + " from sourcesid=" + lSourceID);
         if (lSandBoxID == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(
                     new Message("Sandbox ID cannot be null", MessageCode.SEVERE)).build();
@@ -63,18 +63,22 @@ public class DatasourceFactory {
         }
         DatasourceDbEntity dbDatasource = getDatasource(lSourceID);
         int iCommitted = 0;
-        System.err.println("datasource found:" + dbDatasource.getID());
         if (dbDatasource != null && dbDatasource.getOwnerID() != null) {
-            String geoNotParsed = "";
+            int geoNotParsed = 0;
             if (dbDatasource.getOwnerID().equals(usr.getId())) {
                 EntityManager emg = PersistenceManager.getInstance().getEntityManagerBySandboxId(lSandBoxID);
                 if (emg != null) {
-                    System.err.println("=> About to parse file: " + dbDatasource.getFile());
+                    System.err.println("=> About to parse file: " + dbDatasource.getDataFile());
                     OgrReader reader = new OgrReader();
                     DsStream stream = new DsStream(emg, mapAttrs);
-                    reader.readFeatures(unzip(dbDatasource.getFile().getAbsolutePath(), dbDatasource.getFileName()), stream, dbDatasource.getLayer());
+                    reader.readFeatures(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()), stream, dbDatasource.getLayer());
                     geoNotParsed = stream.getGeoNotParsed();
                     iCommitted = stream.getCount();
+                    //to be sure
+                    if(emg.getTransaction().isActive()){
+                        emg.getTransaction().commit();
+                    }
+                    emg.close();
                 } else {
                     return Response.status(Response.Status.NOT_FOUND).entity(
                             new Message("Entity manager not found for sandbox id: " + lSandBoxID, MessageCode.SEVERE)).build();
@@ -82,8 +86,8 @@ public class DatasourceFactory {
             } else {
                 return Response.status(Response.Status.UNAUTHORIZED).build();
             }
-            if (geoNotParsed.length() > 0) {
-                Response.ok().entity(new Message("Could not parse the following geometries: " + geoNotParsed, MessageCode.WARNING)).build();
+            if (geoNotParsed > 0) {
+                Response.ok().entity(new Message("Could not parse the following number geometries: " + geoNotParsed, MessageCode.WARNING)).build();
             }
         } else {
             return Response.status(Response.Status.NOT_FOUND).entity(
@@ -99,13 +103,11 @@ public class DatasourceFactory {
         return ent;
     }
 
-    public static List<Long> addDatasource(UserDbEntity usr, String strPath) throws WebApplicationException, IOException {
+    public static List<Long> addDatasource(EntityManager emg, UserDbEntity usr, String strPath) throws WebApplicationException, IOException {
         if (strPath != null) {
             File file = new File(strPath);
             if (file.exists()) {
-                EntityManager emg = PersistenceManager.getInstance().getAdminEntityManager();
                 ArrayList<DatasourceDbEntity> arrlDse = persistDatasourceEntity(usr, file, emg);
-                emg.close();
                 if (arrlDse != null && arrlDse.size() > 0) {
                     List<Long> arrlID = new ArrayList();
                     for(DatasourceDbEntity ds : arrlDse){
@@ -128,7 +130,6 @@ public class DatasourceFactory {
         File zip = zip(file);
         ArrayList<DatasourceDbEntity> arrlDs = new ArrayList();
         for (LayerInfo layer : info.getLayers()) {
-            em.getTransaction().begin();
             DatasourceDbEntity dse = new DatasourceDbEntity();
             dse.setFileName(info.getName());
             Map<String, String> scm = layer.getSchema();
@@ -148,9 +149,7 @@ public class DatasourceFactory {
             em.persist(dse);
             arrlDs.add(dse);
             persistColumnsEntities(layer, em, dse);
-            em.getTransaction().commit();
         }
-        zip.delete();
         return arrlDs;
     }
 
@@ -160,7 +159,6 @@ public class DatasourceFactory {
             for (String att : scm.keySet()) {
                 SourceColumnsDbEntity cle = new SourceColumnsDbEntity();
                 cle.setName(att);
-                String type = scm.get(att);
                 cle.setType(scm.get(att));
                 cle.setDatasource(dse);
                 em.persist(cle);
