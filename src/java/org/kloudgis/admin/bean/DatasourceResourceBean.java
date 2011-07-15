@@ -4,11 +4,9 @@
 package org.kloudgis.admin.bean;
 
 import org.kloudgis.admin.pojo.Datasource;
-import com.vividsolutions.jts.io.ParseException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.zip.ZipException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.ws.rs.CookieParam;
@@ -36,10 +34,12 @@ public class DatasourceResourceBean {
     @Produces({"application/json"})
     public Response loadData(@CookieParam(value = "security-Kloudgis.org") String strAuthToken,
             @QueryParam("sandbox") Long lSandboxID, @PathParam("source") Long lSourceID,
-            HashMap<String, String> mapAttrs) throws ZipException, IOException, ParseException {
-        UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, PersistenceManager.getInstance().getAdminEntityManager());
+            HashMap<String, String> mapAttrs) throws IOException {
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, em);
+        em.close();
         if (SandboxUtils.isMember(usr, lSandboxID)) {
-            return DatasourceFactory.loadData(usr, lSandboxID, lSourceID, mapAttrs);
+                return DatasourceFactory.loadData(usr, lSandboxID, lSourceID, mapAttrs);
         }
         return Response.status(Response.Status.UNAUTHORIZED).build();
     }
@@ -47,16 +47,18 @@ public class DatasourceResourceBean {
     @POST
     @Produces({"application/json"})
     public List<Long> addDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, String strPath) throws Exception {
-        UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, PersistenceManager.getInstance().getAdminEntityManager());
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, em);      
         if (usr == null) {
+            em.close();
             throw new WebApplicationException(Response.Status.UNAUTHORIZED.getStatusCode());
         }
-        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         em.getTransaction().begin();
         List<Long> dsId = null;
         try {
             dsId = DatasourceFactory.addDatasource(em, usr, strPath);
         } catch (Exception e) {
+            em.getTransaction().rollback();
             em.close();
             throw e;
         } 
@@ -70,7 +72,9 @@ public class DatasourceResourceBean {
     @Path("{id}")
     @Produces({"application/json"})
     public Datasource getDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, @PathParam("id") Long lID) {
-        UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, PersistenceManager.getInstance().getAdminEntityManager());
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, em);
+        em.close();
         if (usr == null) {
             throw new WebApplicationException(Response.Status.UNAUTHORIZED.getStatusCode());
         }

@@ -46,8 +46,8 @@ import org.kloudgis.persistence.PersistenceManager;
 
 public class DatasourceFactory {
 
-    public static Response loadData(UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs)
-            throws ZipException, IOException, ParseException {
+    public static Response loadData(UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs) throws IOException
+             {
         System.err.println("+++Loading data to sandboxid=" + lSandBoxID + " from sourcesid=" + lSourceID);
         if (lSandBoxID == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -71,7 +71,12 @@ public class DatasourceFactory {
                     System.err.println("=> About to parse file: " + dbDatasource.getDataFile());
                     OgrReader reader = new OgrReader();
                     DsStream stream = new DsStream(emg, mapAttrs);
+                    try{
                     reader.readFeatures(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()), stream, dbDatasource.getLayer());
+                    }catch(Exception e){
+                        emg.close();
+                        throw new IOException(e);
+                    }
                     geoNotParsed = stream.getGeoNotParsed();
                     iCommitted = stream.getCount();
                     //to be sure

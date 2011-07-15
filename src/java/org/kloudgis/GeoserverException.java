@@ -3,22 +3,12 @@
  */
 package org.kloudgis;
 
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Response;
+import java.io.IOException;
 
-public class GeoserverException extends WebApplicationException {
+public class GeoserverException extends IOException {
 
-    private int iResponseCode;
-    private String strResponse;
 
     public GeoserverException( int iResponseCode, String strResponse ) {
-        super(Response.Status.fromStatusCode(iResponseCode));
-        this.iResponseCode = iResponseCode;
-        this.strResponse = strResponse;
-    }
-
-    @Override
-    public String toString() {
-        return "http code: " + iResponseCode + "==>" + strResponse;
+        super(iResponseCode + ": " + strResponse);
     }
 }

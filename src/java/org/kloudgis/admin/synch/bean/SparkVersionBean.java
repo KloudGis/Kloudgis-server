@@ -119,6 +119,7 @@ public class SparkVersionBean {
             iCpt++;
         }
         tx.commit();
+        em.close();
         return Response.ok(iCpt + "").build();
     }
     
@@ -136,6 +137,7 @@ public class SparkVersionBean {
             iCpt++;
         }
         tx.commit();
+        em.close();
         return Response.ok(iCpt + "").build();
     }
 }

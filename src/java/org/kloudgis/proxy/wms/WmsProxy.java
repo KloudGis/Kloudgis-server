@@ -74,7 +74,6 @@ public class WmsProxy extends HttpServlet {
                     //thow an exception if not valid
                     EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
                     UserDbEntity user = new AuthorizationManager().getUserFromAuthToken(auth, em);
-
                     if (user != null) {
                         String sandbox = getHttpParam(KG_SANDBOX, request);
                         if (sandbox != null && sandbox.length() > 0) {

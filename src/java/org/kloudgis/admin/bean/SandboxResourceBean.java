@@ -262,6 +262,8 @@ public class SandboxResourceBean {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            rsp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+                            new Message("Unexepected Error:" + e.getMessage(), MessageCode.SEVERE)).build();
             if (hem != null && hem.isOpen()) {
                 if (hem.getTransaction().isActive()) {
                     hem.getTransaction().rollback();
@@ -275,7 +277,7 @@ public class SandboxResourceBean {
                 emgSandbox.close();
             }
         }
-        System.out.println("Add sandbox completed.  Return " + rsp);
+        System.out.println("Add sandbox completed.  Return " + rsp != null ? rsp.getStatus() : null);
         return rsp;
     }
 

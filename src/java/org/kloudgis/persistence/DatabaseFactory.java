@@ -33,31 +33,35 @@ public class DatabaseFactory {
                 em.createNativeQuery("CREATE INDEX note_gist_ix ON note USING gist(geom)").executeUpdate();
                 em.getTransaction().commit();
             } catch (Exception e) {
+                em.getTransaction().rollback();
             }
             try {
                 em.getTransaction().begin();
                 em.createNativeQuery("CREATE INDEX poi_gist_ix ON poi USING gist(geom)").executeUpdate();
                 em.getTransaction().commit();
             } catch (Exception e) {
+                em.getTransaction().rollback();
             }
             try {
                 em.getTransaction().begin();
                 em.createNativeQuery("CREATE INDEX path_gist_ix ON path USING gist(geom)").executeUpdate();
                 em.getTransaction().commit();
             } catch (Exception e) {
+                em.getTransaction().rollback();
             }
             try {
                 em.getTransaction().begin();
                 em.createNativeQuery("CREATE INDEX zone_gist_ix ON zone USING gist(geom)").executeUpdate();
                 em.getTransaction().commit();
             } catch (Exception e) {
+                em.getTransaction().rollback();
             }
         }
     }
 
     public static void loadDefaultValues(EntityManager em){
         if (em != null) {
-            Object count = em.createQuery("select count(*) from " + FeatureTypeDbEntity.class.getSimpleName()).getSingleResult();
+            Object count = em.createQuery("select count(*) from FeatureTypeDbEntity").getSingleResult();
             if(count == null || ((Number)count).intValue() == 0){
                 em.getTransaction().begin();
                 //POI

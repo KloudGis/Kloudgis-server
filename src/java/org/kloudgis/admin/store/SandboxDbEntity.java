@@ -103,9 +103,6 @@ public class SandboxDbEntity implements Serializable {
     }
 
     public void setGeoserverURL( String strURL ) {
-        if( strURL != null && !strURL.endsWith( "/" ) ) {
-            strURL += "/";
-        }
         geoserver_url = strURL;
     }
 
