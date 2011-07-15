@@ -20,7 +20,6 @@ import org.kloudgis.admin.store.SandboxDbEntity;
 import org.kloudgis.admin.store.UserDbEntity;
 
 /**
- * SA: **** Temporary : To be replaced by dynamic PU
  *
  */
 public class PersistenceManager {

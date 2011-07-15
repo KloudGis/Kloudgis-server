@@ -14,7 +14,8 @@ import org.kloudgis.org.Streamable;
 import org.kloudgis.persistence.PersistenceManager;
 
 /**
- *
+ *  Stream to receive feature from the ogr_reader
+ *  The feature are streamed one by one
  * @author jeanfelixg
  */
 public class DsStream implements Streamable {

@@ -1,7 +1,7 @@
 /*
  * @author corneliu
  */
-package org.kloudgis;
+package org.kloudgis.mapserver;
 
 import java.io.IOException;
 

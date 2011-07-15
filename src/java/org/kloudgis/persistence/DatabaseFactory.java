@@ -8,7 +8,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.ws.rs.core.Response;
 import org.kloudgis.MessageCode;
 import org.kloudgis.admin.pojo.Message;
@@ -59,7 +58,7 @@ public class DatabaseFactory {
         }
     }
 
-    public static void loadDefaultValues(EntityManager em){
+    public static void loadModel(EntityManager em){
         if (em != null) {
             Object count = em.createQuery("select count(*) from FeatureTypeDbEntity").getSingleResult();
             if(count == null || ((Number)count).intValue() == 0){

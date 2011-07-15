@@ -24,7 +24,7 @@ import java.sql.Connection;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
 import org.junit.Test;
 import org.kloudgis.GeometryFactory;
-import org.kloudgis.MapServerFactory;
+import org.kloudgis.mapserver.MapServerFactory;
 import static org.junit.Assert.*;
 
 public class DatasourceResourceBeanTest {

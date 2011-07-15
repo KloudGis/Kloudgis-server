@@ -29,7 +29,6 @@ import java.util.zip.ZipOutputStream;
 import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
-import org.kloudgis.admin.pojo.Datasource;
 import org.kloudgis.admin.store.DatasourceDbEntity;
 import org.kloudgis.admin.store.SourceColumnsDbEntity;
 import org.kloudgis.admin.pojo.Message;
@@ -46,6 +45,15 @@ import org.kloudgis.persistence.PersistenceManager;
 
 public class DatasourceFactory {
 
+    /**
+     * Load a datasource in to a sandbox.
+     * @param usr           the logged user
+     * @param lSandBoxID    the target sandbox
+     * @param lSourceID     the source 
+     * @param mapAttrs      mapping for static field (optional)
+     * @return Http Response
+     * @throws IOException 
+     */
     public static Response loadData(UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs) throws IOException
              {
         System.err.println("+++Loading data to sandboxid=" + lSandBoxID + " from sourcesid=" + lSourceID);
@@ -72,7 +80,7 @@ public class DatasourceFactory {
                     OgrReader reader = new OgrReader();
                     DsStream stream = new DsStream(emg, mapAttrs);
                     try{
-                    reader.readFeatures(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()), stream, dbDatasource.getLayer());
+                        reader.readFeatures(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()), stream, dbDatasource.getLayer());
                     }catch(Exception e){
                         emg.close();
                         throw new IOException(e);
@@ -101,6 +109,11 @@ public class DatasourceFactory {
         return Response.ok().entity(new Message("Number of features successfully committed: " + iCommitted, MessageCode.INFO)).build();
     }
 
+    /**
+     * Get a datasource by its Id
+     * @param lID the datasource id
+     * @return 
+     */
     public static DatasourceDbEntity getDatasource(Long lID) {
         EntityManager emg = PersistenceManager.getInstance().getAdminEntityManager();
         DatasourceDbEntity ent = (DatasourceDbEntity) emg.find(DatasourceDbEntity.class, lID);
@@ -108,6 +121,15 @@ public class DatasourceFactory {
         return ent;
     }
 
+    /**
+     * Add a file to the datasource table
+     * @param emg       entity manage for ADMIN
+     * @param usr       the logged user
+     * @param strPath   the path to the file to load
+     * @return the list of datasource id created
+     * @throws WebApplicationException
+     * @throws IOException 
+     */
     public static List<Long> addDatasource(EntityManager emg, UserDbEntity usr, String strPath) throws WebApplicationException, IOException {
         if (strPath != null) {
             File file = new File(strPath);
@@ -310,7 +332,7 @@ public class DatasourceFactory {
         return arlEnt;
     }
 
-    public static String unzip(String strPath, String strFileName) throws ZipException, IOException {
+    private static String unzip(String strPath, String strFileName) throws ZipException, IOException {
         String strFolderPath = strPath + "_folder/";
         new File(strFolderPath).mkdirs();
         ZipFile zpf = new ZipFile(strPath);

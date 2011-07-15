@@ -13,6 +13,12 @@ import org.kloudgis.persistence.PersistenceManager;
 
 public class SandboxUtils {
 
+    /**
+     * get the member from a target sandbox.
+     * @param usr       the user to find in the member list
+     * @param lSandboxId    the target sandbox id
+     * @return 
+     */
     public static Member getMember( UserDbEntity usr, long lSandboxId ) {
         if( usr != null ) {
             EntityManager emSand = PersistenceManager.getInstance().getEntityManagerBySandboxId( lSandboxId );

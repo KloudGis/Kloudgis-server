@@ -14,6 +14,13 @@ import org.kloudgis.persistence.PersistenceManager;
 
 public class LoginFactory {
 
+    /**
+     * Add a new user in the list
+     * @param user_try      the parameters for the new user
+     * @param locale        language  (fr, en, ...)
+     * @param strRole       the role to set the user (admin, user, ...)   
+     * @return result message
+     */
     public static Message register(SignupUser user_try, String locale, String strRole) {
         if (user_try == null || user_try.user == null || !user_try.user.contains("@")) {
             Message message = new Message();
@@ -53,7 +60,7 @@ public class LoginFactory {
                 em.getTransaction().commit();
                 em.close();
                 Message message = new Message();
-                message.message = "sucess";
+                message.message = "success";
                 if (locale != null && locale.equals("fr")) {
                     message.message_loc = "Succès";
                 } else {
@@ -64,6 +71,11 @@ public class LoginFactory {
         }
     }
 
+    /**
+     * Test if a email is unique
+     * @param email
+     * @return True if not yet used
+     */
     public static boolean isUnique(String email) {
         EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         Query query = em.createQuery("from UserDbEntity where email=:em", UserDbEntity.class);
@@ -73,18 +85,30 @@ public class LoginFactory {
         return lstU.isEmpty();
     }
 
+    /**
+     * encrypt the password with a salt
+     * @param hashed_password   password already hashed
+     * @param salt              the user salt 
+     * @return encrypted password
+     */
     public static String encryptPassword(String hashed_password, String salt) {
         String string_to_hash = hashed_password + "@Kloudgis.org#" + salt;
         return hashString(string_to_hash, "SHA-256");
     }
 
-    public static char randChar() {
+    private static char randChar() {
         int rnd = (int) (Math.random() * 52); // or use Random or whatever
         char base = (rnd < 26) ? 'A' : 'a';
         return (char) (base + rnd % 26);
 
     }
 
+    /**
+     * Hash a string with the provided algorithm
+     * @param  message  the string to hash
+     * @param algo      the algo to use (SHA-256, ...)
+     * @return  the string hashed
+     */
     public static String hashString(String message, String algo) {
         try {
             MessageDigest md = MessageDigest.getInstance(algo);

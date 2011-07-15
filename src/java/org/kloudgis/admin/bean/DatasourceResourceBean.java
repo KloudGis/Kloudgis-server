@@ -29,6 +29,15 @@ import org.kloudgis.persistence.PersistenceManager;
 @Produces({"application/json"})
 public class DatasourceResourceBean {
 
+    /**
+     * Load a datasoure in a sandbox
+     * @param strAuthToken  the auth token (security)
+     * @param lSandboxID    the target sandbox
+     * @param lSourceID     the source to load
+     * @param mapAttrs      optional mapping for static field
+     * @return
+     * @throws IOException 
+     */
     @POST
     @Path("/load/{source}")
     @Produces({"application/json"})
@@ -44,6 +53,13 @@ public class DatasourceResourceBean {
         return Response.status(Response.Status.UNAUTHORIZED).build();
     }
 
+    /**
+     * Add a datasource from a local file
+     * @param strAuthToken      the auth token (security)
+     * @param strPath           path to the local file
+     * @return the datasource ids created
+     * @throws Exception 
+     */
     @POST
     @Produces({"application/json"})
     public List<Long> addDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, String strPath) throws Exception {
@@ -68,6 +84,12 @@ public class DatasourceResourceBean {
 
     }
 
+    /**
+     * Get a datasource by id
+     * @param strAuthToken  the auth token (security)
+     * @param lID           tge datasource id
+     * @return 
+     */
     @GET
     @Path("{id}")
     @Produces({"application/json"})

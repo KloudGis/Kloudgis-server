@@ -35,8 +35,8 @@ import org.hibernate.criterion.Restrictions;
 import org.hibernate.ejb.HibernateEntityManager;
 import org.kloudgis.AuthorizationManager;
 import org.kloudgis.DatasourceFactory;
-import org.kloudgis.GeoserverException;
-import org.kloudgis.MapServerFactory;
+import org.kloudgis.mapserver.GeoserverException;
+import org.kloudgis.mapserver.MapServerFactory;
 import org.kloudgis.MessageCode;
 import org.kloudgis.admin.pojo.Feed;
 import org.kloudgis.admin.pojo.Sandbox;
@@ -63,6 +63,11 @@ import org.xml.sax.SAXException;
 @Produces({"application/json"})
 public class SandboxResourceBean {
 
+    /**
+     * Get all the sandboxes.
+     * @param auth_token
+     * @return 
+     */
     @GET
     public Response getSandboxes(@CookieParam(value = "security-Kloudgis.org") String auth_token) {
         HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
@@ -81,6 +86,13 @@ public class SandboxResourceBean {
         }
     }
 
+    /**
+     * Bind a user to this sandbox
+     * @param auth_token
+     * @param sandboxId
+     * @param usr
+     * @return 
+     */
     @POST
     @Path("{sandboxId}/users")
     public Response addUser(@CookieParam(value = "security-Kloudgis.org") String auth_token, @PathParam("sandboxId") Long sandboxId, User usr) {
@@ -100,7 +112,15 @@ public class SandboxResourceBean {
             return Response.status(Response.Status.UNAUTHORIZED).build();
         }
     }
-
+    
+    
+    /**
+     * Add a feed to this sandbox
+     * @param auth_token
+     * @param sandboxId
+     * @param feed
+     * @return 
+     */
     @POST
     @Path("{sandboxId}/feeds")
     public Response addFeed(@CookieParam(value = "security-Kloudgis.org") String auth_token, @PathParam("sandboxId") Long sandboxId, Feed feed) {
@@ -122,6 +142,14 @@ public class SandboxResourceBean {
         }
     }
 
+    /**
+     * Get all the feeds from this sandbox
+     * @param auth_token
+     * @param start
+     * @param length
+     * @param count
+     * @return 
+     */
     @GET
     @Path("feeds")
     public Response getFeeds(@CookieParam(value = "security-Kloudgis.org") String auth_token, @DefaultValue("0") @QueryParam("start") Integer start,
@@ -155,6 +183,12 @@ public class SandboxResourceBean {
     }
 // start of corneliu's stuff
 
+    /**
+     * Add a new sandbox 
+     * @param strAuthToken auth token (security)
+     * @param sbx   the sandbox properties
+     * @return response code
+     */
     @POST
     public Response addSandbox(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, Sandbox sbx) {
         if (sbx == null || sbx.connection_url == null || sbx.name == null || sbx.url_geoserver == null) {
@@ -193,7 +227,7 @@ public class SandboxResourceBean {
                             new Message("Error creating sandbox.", MessageCode.SEVERE)).build();
                 }
                 DatabaseFactory.createIndexes(emgSandbox);
-                DatabaseFactory.loadDefaultValues(emgSandbox);
+                DatabaseFactory.loadModel(emgSandbox);
                 emgSandbox.getTransaction().begin();
                 //add everything the sandbox needs
                 addMember(emgSandbox, usr);
@@ -261,7 +295,6 @@ public class SandboxResourceBean {
                 }
             }
         } catch (Exception e) {
-            e.printStackTrace();
             rsp = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
                             new Message("Unexepected Error:" + e.getMessage(), MessageCode.SEVERE)).build();
             if (hem != null && hem.isOpen()) {
