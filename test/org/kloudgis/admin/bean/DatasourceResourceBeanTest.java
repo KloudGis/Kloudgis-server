@@ -113,13 +113,36 @@ public class DatasourceResourceBeanTest {
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
         ost = httpCon.getOutputStream();
-        ost.write((strPath + "/cities.shp").getBytes());
+        String path = strPath + "/cities.shp";
+        //no crs provided: auto-detect
+        String json = "{\"path\":\"" + path  +"\"}";
+        ost.write(json.getBytes());
         ost.flush();
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
         ost.close();
         assertEquals(200, iRet);
         System.out.println("add cities.shp sucessful");
+        
+        
+        System.out.println("About to add cities900913.shp");
+        url = new URL(strKloudURL + "/kg_server/protected/sources");
+        httpCon = (HttpURLConnection) url.openConnection();
+        httpCon.setDoOutput(true);
+        httpCon.setRequestMethod("POST");
+        httpCon.setRequestProperty("Content-type", "application/json");
+        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
+        ost = httpCon.getOutputStream();
+        path = strPath + "/cities_900913.shp";
+        //no crs provided: auto-detect
+        json = "{\"path\":\"" + path  +"\"}";
+        ost.write(json.getBytes());
+        ost.flush();
+        iRet = httpCon.getResponseCode();
+        httpCon.disconnect();
+        ost.close();
+        assertEquals(200, iRet);
+        System.out.println("add cities_900913.shp sucessful");
 
         System.out.println("About to add 2325_integration.dgn");
 //        insert dgn file
@@ -129,7 +152,9 @@ public class DatasourceResourceBeanTest {
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
         ost = httpCon.getOutputStream();
-        ost.write((strPath + "/2325_integration.dgn").getBytes());
+        path = strPath + "/2325_integration.dgn";
+        json = "{\"path\":\"" + path  +"\",\"crs\":\"4326\"}";
+        ost.write(json.getBytes());
         ost.flush();
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
@@ -146,7 +171,9 @@ public class DatasourceResourceBeanTest {
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
         ost = httpCon.getOutputStream();
-        ost.write((strPath + "/2325_BORN_REN.dxf").getBytes());
+        path = strPath + "/2325_BORN_REN.dxf";
+        json = "{\"path\":\"" + path  +"\",\"crs\":\"4326\"}";
+        ost.write(json.getBytes());
         ost.flush();
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
@@ -162,7 +189,9 @@ public class DatasourceResourceBeanTest {
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
         ost = httpCon.getOutputStream();
-        ost.write((strPath + "/places.gml").getBytes());
+        path = strPath + "/places.gml";
+        json = "{\"path\":\"" + path  +"\",\"crs\":\"4326\"}";
+        ost.write(json.getBytes());
         ost.flush();
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
@@ -178,7 +207,9 @@ public class DatasourceResourceBeanTest {
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
         ost = httpCon.getOutputStream();
-        ost.write((strPath + "/LOTOCCUPE.kml").getBytes());
+        path = strPath + "/LOTOCCUPE.kml";
+        json = "{\"path\":\"" + path  +"\",\"crs\":\"4326\"}";
+        ost.write(json.getBytes());
         ost.flush();
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
@@ -247,10 +278,68 @@ public class DatasourceResourceBeanTest {
         assertEquals("String", rst1.getString(2));
         assertFalse(rst1.next());
 
+        System.out.println("Check cities.shp columns OK");
+        rst1.close();
+        pst1.close();
+        
+        assertTrue(rst.next());
+        ds_id = rst.getLong(1);
+        assertEquals(6518045.616622, rst.getDouble(2), 0);
+        assertEquals(10741877.292520, rst.getDouble(3), 0);
+        assertEquals(-2432575.776713, rst.getDouble(4), 0);
+        assertEquals(3266484.591261, rst.getDouble(5), 0);
+        // assertEquals(0,rst.getInt(6));
+        assertEquals(11, rst.getInt(7));
+        assertEquals(1267, rst.getInt(8));
+        assertEquals("Point", rst.getString(9));
+        assertEquals("cities_900913", rst.getString(10));
+        assertEquals(1, rst.getInt(11));
+        assertEquals("cities_900913.shp", rst.getString(12));
+
+        System.out.println("Check cities900913.shp OK");
+
+        pst1 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        rst1 = pst1.executeQuery();
+        assertTrue(rst1.next());
+        assertEquals("TYPE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NATION", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("CNTRYNAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("LEVEL", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("NAMEPRE", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("CODE", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("PROVINCE", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("PROVNAME", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("UNPROV", rst1.getString(1));
+        assertEquals("Integer", rst1.getString(2));
+        assertTrue(rst1.next());
+        assertEquals("CONURB", rst1.getString(1));
+        assertEquals("String", rst1.getString(2));
+        assertFalse(rst1.next());
+
         rst1.close();
         pst1.close();
 
-        System.out.println("Check cities.shp columns OK");
+
+        System.out.println("Check cities_900913.shp columns OK");
 
 //        test the dgn file insertion
         assertTrue(rst.next());
@@ -455,7 +544,9 @@ public class DatasourceResourceBeanTest {
         httpCon.setRequestProperty("Content-type", "application/json");
         httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
         ost = httpCon.getOutputStream();
-        ost.write((strPath + "/phantom.shp").getBytes());
+        path = strPath + "/phantom.shp";
+        json = "{\"path\":\"" + path  +"\",\"crs\":\"4326\"}";
+        ost.write(json.getBytes());
         ost.flush();
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
@@ -512,46 +603,8 @@ public class DatasourceResourceBeanTest {
         Connection conn = DriverManager.getConnection(strSandboxDbURL, strDbUser, strPassword);
 
         truncate(conn);
-        System.out.println("About to load the DGN");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dgn") + "?sandbox=1");
-        httpCon = (HttpURLConnection) url.openConnection();
-        httpCon.setDoOutput(true);
-        httpCon.setRequestMethod("POST");
-        httpCon.setRequestProperty("Content-type", "application/json");
-        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
-        ost = httpCon.getOutputStream();
-        ost.write(("{}").getBytes());
-        ost.flush();
-        iRet = httpCon.getResponseCode();
-        httpCon.disconnect();
-        ost.close();
-        assertEquals(200, iRet);
-        assertEquals(getCount(conn, "poi"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "Type"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "Level"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "GraphicGroup"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "ColorIndex"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "Weight"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "Style"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "EntityNum"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "MSLink"), 4002);
-        assertEquals(getTagCount(conn, "poi_tag", "Text"), 4002);
-        assertEquals(getCount(conn, "path"), 0);
-        assertEquals(getCount(conn, "zone"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "Type"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "Level"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "GraphicGroup"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "ColorIndex"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "Weight"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "Style"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "EntityNum"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "MSLink"), 4000);
-        assertEquals(getTagCount(conn, "zone_tag", "Text"), 4000);
-        System.out.println("Load the DGN sucessful");
-
-        truncate(conn);
         System.out.println("About to load the SHP");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("shp") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("cities.shp") + "?sandbox=1");
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -581,11 +634,46 @@ public class DatasourceResourceBeanTest {
         assertEquals(28.1388, extent[1], 0);
         assertEquals(58.5526, extent[2], 0);
         assertEquals(68.9713, extent[3], 0);
-
-
         assertEquals(getCount(conn, "path"), 0);
         assertEquals(getCount(conn, "zone"), 0);
         System.out.println("Load the SHP successful");
+        
+        truncate(conn);
+        System.out.println("About to load the SHP 900913");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("cities_900913.shp") + "?sandbox=1");
+        httpCon = (HttpURLConnection) url.openConnection();
+        httpCon.setDoOutput(true);
+        httpCon.setRequestMethod("POST");
+        httpCon.setRequestProperty("Content-type", "application/json");
+        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
+        ost = httpCon.getOutputStream();
+        ost.write(("{}").getBytes());
+        ost.flush();
+        iRet = httpCon.getResponseCode();
+        httpCon.disconnect();
+        ost.close();
+        assertEquals(iRet, 200);
+        assertEquals(getCount(conn, "poi"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "TYPE"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "NATION"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "CNTRYNAME"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "LEVEL"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "NAME"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "NAMEPRE"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "CODE"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "PROVINCE"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "PROVNAME"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "UNPROV"), 1267);
+        assertEquals(getTagCount(conn, "poi_tag", "CONURB"), 1267);
+        extent = getExtent(conn, "poi");
+        //extent in 4326 now (converted) But Precision loss.
+        assertEquals(-21.8522, extent[0], 0.5);
+        assertEquals(28.1388, extent[1], 0.5);
+        assertEquals(58.5526, extent[2], 0.5);
+        assertEquals(68.9713, extent[3], 0.5);
+        assertEquals(getCount(conn, "path"), 0);
+        assertEquals(getCount(conn, "zone"), 0);
+        System.out.println("Load the SHP 900913 successful");
 
         truncate(conn);
         System.out.println("About to load the GML");
@@ -677,7 +765,44 @@ public class DatasourceResourceBeanTest {
         assertEquals(getTagCount(conn, "zone_tag", "Description"), 2903);
 
         System.out.println("Load the KML sucessful");
-//        deleteWorkspaceAndDB( conn );
+        
+        truncate(conn);
+        System.out.println("About to load the DGN");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dgn") + "?sandbox=1");
+        httpCon = (HttpURLConnection) url.openConnection();
+        httpCon.setDoOutput(true);
+        httpCon.setRequestMethod("POST");
+        httpCon.setRequestProperty("Content-type", "application/json");
+        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
+        ost = httpCon.getOutputStream();
+        ost.write(("{}").getBytes());
+        ost.flush();
+        iRet = httpCon.getResponseCode();
+        httpCon.disconnect();
+        ost.close();
+        assertEquals(200, iRet);
+        assertEquals(getCount(conn, "poi"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "Type"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "Level"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "GraphicGroup"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "ColorIndex"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "Weight"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "Style"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "EntityNum"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "MSLink"), 4002);
+        assertEquals(getTagCount(conn, "poi_tag", "Text"), 4002);
+        assertEquals(getCount(conn, "path"), 0);
+        assertEquals(getCount(conn, "zone"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "Type"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "Level"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "GraphicGroup"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "ColorIndex"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "Weight"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "Style"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "EntityNum"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "MSLink"), 4000);
+        assertEquals(getTagCount(conn, "zone_tag", "Text"), 4000);
+        System.out.println("Load the DGN sucessful");
 
         System.out.println("About to load the -1");
         url = new URL(strKloudURL + "/kg_server/protected/sources/load/-1?sandbox=1");
@@ -759,7 +884,7 @@ public class DatasourceResourceBeanTest {
 
     private int getID(String strExt) throws SQLException {
         Connection con = DriverManager.getConnection(strAdminDbURL, strDbUser, strPassword);
-        PreparedStatement pst = con.prepareStatement("select lid from datasource where strfilename like'%." + strExt + "';");
+        PreparedStatement pst = con.prepareStatement("select lid from datasource where strfilename like'%" + strExt + "';");
         ResultSet rst = pst.executeQuery();
         int i = -1;
         while (rst.next()) {

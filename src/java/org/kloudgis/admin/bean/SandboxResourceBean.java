@@ -38,6 +38,7 @@ import org.kloudgis.DatasourceFactory;
 import org.kloudgis.mapserver.GeoserverException;
 import org.kloudgis.mapserver.MapServerFactory;
 import org.kloudgis.MessageCode;
+import org.kloudgis.admin.pojo.DatasourceInfo;
 import org.kloudgis.admin.pojo.Feed;
 import org.kloudgis.admin.pojo.Sandbox;
 import org.kloudgis.admin.pojo.User;
@@ -336,6 +337,7 @@ public class SandboxResourceBean {
         return men;
     }
 
+    //default data
     private long addSource(UserDbEntity usr, HibernateEntityManager hem,  String strType) throws ZipException, IOException, ParseException {
         Query qry = hem.createQuery("from DatasourceDbEntity where strFileName='" + strType + ".shp'");
         List<Object> lstRS = qry.getResultList();
@@ -344,7 +346,10 @@ public class SandboxResourceBean {
         if (iSize > 0) {
             lID = ((DatasourceDbEntity) lstRS.get(0)).getID();
         } else {
-            lID = DatasourceFactory.addDatasource(hem, usr, MapServerFactory.getWebInfPath() + "classes/" + strType + ".shp").get(0);
+            DatasourceInfo info = new DatasourceInfo();
+            info.path = MapServerFactory.getWebInfPath() + "classes/" + strType + ".shp";
+            info.crs = 4326;
+            lID = DatasourceFactory.addDatasource(hem, usr, info).get(0);
         }       
         return lID;
     }

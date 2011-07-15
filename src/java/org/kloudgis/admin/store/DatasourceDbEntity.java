@@ -92,7 +92,7 @@ public class DatasourceDbEntity implements Serializable {
         this.strGeomType = strGeomType;
     }
 
-    public void setCRS( int iCRS ) {
+    public void setCRS( Integer iCRS ) {
         this.iCRS = iCRS;
     }
 
@@ -158,6 +158,10 @@ public class DatasourceDbEntity implements Serializable {
 
     public String getLayer() {
         return strLayerName;
+    }
+
+    public Integer getCRS() {
+        return iCRS;
     }
 
   

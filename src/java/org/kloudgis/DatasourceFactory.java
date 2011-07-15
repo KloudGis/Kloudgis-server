@@ -29,6 +29,7 @@ import java.util.zip.ZipOutputStream;
 import javax.persistence.EntityManager;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import org.kloudgis.admin.pojo.DatasourceInfo;
 import org.kloudgis.admin.store.DatasourceDbEntity;
 import org.kloudgis.admin.store.SourceColumnsDbEntity;
 import org.kloudgis.admin.pojo.Message;
@@ -41,6 +42,7 @@ import org.kloudgis.org.Envelope;
 import org.kloudgis.org.FileInfo;
 import org.kloudgis.org.LayerInfo;
 import org.kloudgis.org.OgrReader;
+import org.kloudgis.org.runtime.Ogr2ogr;
 import org.kloudgis.persistence.PersistenceManager;
 
 public class DatasourceFactory {
@@ -54,8 +56,7 @@ public class DatasourceFactory {
      * @return Http Response
      * @throws IOException 
      */
-    public static Response loadData(UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs) throws IOException
-             {
+    public static Response loadData(UserDbEntity usr, Long lSandBoxID, Long lSourceID, HashMap<String, String> mapAttrs) throws IOException {
         System.err.println("+++Loading data to sandboxid=" + lSandBoxID + " from sourcesid=" + lSourceID);
         if (lSandBoxID == null) {
             return Response.status(Response.Status.BAD_REQUEST).entity(
@@ -76,19 +77,35 @@ public class DatasourceFactory {
             if (dbDatasource.getOwnerID().equals(usr.getId())) {
                 EntityManager emg = PersistenceManager.getInstance().getEntityManagerBySandboxId(lSandBoxID);
                 if (emg != null) {
-                    System.err.println("=> About to parse file: " + dbDatasource.getDataFile());
+                    File fRead = new File(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()));
+                    //convert to lat long if necessary
+                    if (dbDatasource.getCRS() == null || dbDatasource.getCRS().intValue() != 4326) {
+                        String strCRS = null;
+                        Integer iCrs = dbDatasource.getCRS();
+                        if (iCrs != null) {
+                            strCRS = "EPSG:" + iCrs;
+                        }
+                        try {
+                            fRead = new Ogr2ogr().convertTo(fRead, "EPSG:4326", strCRS);
+                        } catch (IOException e) {
+                            System.out.println("Could'nt convert file:" + e.getMessage());
+                            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
+                            new Message("Could'nt convert", MessageCode.SEVERE)).build();
+                        }
+                    }
+                    System.err.println("=> About to parse file: " + fRead.getAbsolutePath());
                     OgrReader reader = new OgrReader();
                     DsStream stream = new DsStream(emg, mapAttrs);
-                    try{
-                        reader.readFeatures(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()), stream, dbDatasource.getLayer());
-                    }catch(Exception e){
+                    try {
+                        reader.readFeatures(fRead.getAbsolutePath(), stream, dbDatasource.getLayer());
+                    } catch (Exception e) {
                         emg.close();
                         throw new IOException(e);
                     }
                     geoNotParsed = stream.getGeoNotParsed();
                     iCommitted = stream.getCount();
                     //to be sure
-                    if(emg.getTransaction().isActive()){
+                    if (emg.getTransaction().isActive()) {
                         emg.getTransaction().commit();
                     }
                     emg.close();
@@ -130,29 +147,29 @@ public class DatasourceFactory {
      * @throws WebApplicationException
      * @throws IOException 
      */
-    public static List<Long> addDatasource(EntityManager emg, UserDbEntity usr, String strPath) throws WebApplicationException, IOException {
-        if (strPath != null) {
-            File file = new File(strPath);
+    public static List<Long> addDatasource(EntityManager emg, UserDbEntity usr, DatasourceInfo info) throws WebApplicationException, IOException {
+        if (info != null && info.path != null) {
+            File file = new File(info.path);
             if (file.exists()) {
-                ArrayList<DatasourceDbEntity> arrlDse = persistDatasourceEntity(usr, file, emg);
+                ArrayList<DatasourceDbEntity> arrlDse = persistDatasourceEntity(usr, file, info.crs, emg);
                 if (arrlDse != null && arrlDse.size() > 0) {
                     List<Long> arrlID = new ArrayList();
-                    for(DatasourceDbEntity ds : arrlDse){
+                    for (DatasourceDbEntity ds : arrlDse) {
                         arrlID.add(ds.getID());
                     }
                     return arrlID;
                 } else {
-                    throw new WebApplicationException(new Exception("Could not add the datasource: " + strPath));
+                    throw new WebApplicationException(new Exception("Could not add the datasource: " + info.path));
                 }
             } else {
-                throw new WebApplicationException(new IllegalArgumentException("File not found for path: " + strPath));
+                throw new WebApplicationException(new IllegalArgumentException("File not found for path: " + info.path));
             }
         } else {
             throw new WebApplicationException(new IllegalArgumentException("The path can't be null."));
         }
     }
 
-    private static ArrayList<DatasourceDbEntity> persistDatasourceEntity(UserDbEntity usr, File file, EntityManager em) throws IOException {
+    private static ArrayList<DatasourceDbEntity> persistDatasourceEntity(UserDbEntity usr, File file, Integer iCRS, EntityManager em) throws IOException {
         FileInfo info = new OgrReader().readMetaData(file.getAbsolutePath());
         File zip = zip(file);
         ArrayList<DatasourceDbEntity> arrlDs = new ArrayList();
@@ -165,6 +182,7 @@ public class DatasourceFactory {
             dse.setGeomType(layer.getGeomeryType());
             dse.setLayerName(layer.getLayerName());
             dse.setOwnerID(usr.getId());
+            dse.setCRS(iCRS);
             Envelope env = layer.getExtent();
             if (env != null) {
                 dse.setMinX(env.getLowX());

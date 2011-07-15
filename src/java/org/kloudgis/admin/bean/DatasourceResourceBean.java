@@ -21,6 +21,7 @@ import javax.ws.rs.core.Response;
 import org.kloudgis.AuthorizationManager;
 import org.kloudgis.DatasourceFactory;
 import org.kloudgis.SandboxUtils;
+import org.kloudgis.admin.pojo.DatasourceInfo;
 import org.kloudgis.admin.store.DatasourceDbEntity;
 import org.kloudgis.admin.store.UserDbEntity;
 import org.kloudgis.persistence.PersistenceManager;
@@ -62,7 +63,7 @@ public class DatasourceResourceBean {
      */
     @POST
     @Produces({"application/json"})
-    public List<Long> addDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, String strPath) throws Exception {
+    public List<Long> addDatasource(@CookieParam(value = "security-Kloudgis.org") String strAuthToken, DatasourceInfo info) throws Exception {
         EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity usr = new AuthorizationManager().getUserFromAuthToken(strAuthToken, em);      
         if (usr == null) {
@@ -72,7 +73,7 @@ public class DatasourceResourceBean {
         em.getTransaction().begin();
         List<Long> dsId = null;
         try {
-            dsId = DatasourceFactory.addDatasource(em, usr, strPath);
+            dsId = DatasourceFactory.addDatasource(em, usr, info);
         } catch (Exception e) {
             em.getTransaction().rollback();
             em.close();
