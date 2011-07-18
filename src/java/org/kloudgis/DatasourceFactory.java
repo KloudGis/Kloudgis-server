@@ -41,8 +41,8 @@ import org.kloudgis.data.store.ZoneDbEntity;
 import org.kloudgis.org.Envelope;
 import org.kloudgis.org.FileInfo;
 import org.kloudgis.org.LayerInfo;
-import org.kloudgis.org.OgrReader;
 import org.kloudgis.org.runtime.Ogr2ogr;
+import org.kloudgis.org.runtime.OgrInfo;
 import org.kloudgis.persistence.PersistenceManager;
 
 public class DatasourceFactory {
@@ -94,10 +94,9 @@ public class DatasourceFactory {
                         }
                     }
                     System.err.println("=> About to parse file: " + fRead.getAbsolutePath());
-                    OgrReader reader = new OgrReader();
                     DsStream stream = new DsStream(emg, mapAttrs);
                     try {
-                        reader.readFeatures(fRead.getAbsolutePath(), stream, dbDatasource.getLayer());
+                        new OgrInfo().readFeatures(fRead, stream, dbDatasource.getLayer());
                     } catch (Exception e) {
                         emg.close();
                         throw new IOException(e);
@@ -170,7 +169,7 @@ public class DatasourceFactory {
     }
 
     private static ArrayList<DatasourceDbEntity> persistDatasourceEntity(UserDbEntity usr, File file, Integer iCRS, EntityManager em) throws IOException {
-        FileInfo info = new OgrReader().readMetaData(file.getAbsolutePath());
+        FileInfo info = new OgrInfo().info(file);
         File zip = zip(file);
         ArrayList<DatasourceDbEntity> arrlDs = new ArrayList();
         for (LayerInfo layer : info.getLayers()) {
