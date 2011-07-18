@@ -77,7 +77,13 @@ public class DatasourceFactory {
             if (dbDatasource.getOwnerID().equals(usr.getId())) {
                 EntityManager emg = PersistenceManager.getInstance().getEntityManagerBySandboxId(lSandBoxID);
                 if (emg != null) {
-                    File fRead = new File(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()));
+                    File fRead = null;
+                    try {
+                        fRead = new File(unzip(dbDatasource.getDataFile().getAbsolutePath(), dbDatasource.getFileName()));
+                    } catch (Exception e) {
+                        emg.close();
+                        throw new IOException(e);
+                    }
                     //convert to lat long if necessary
                     if (dbDatasource.getCRS() == null || dbDatasource.getCRS().intValue() != 4326) {
                         String strCRS = null;
@@ -90,11 +96,11 @@ public class DatasourceFactory {
                         } catch (IOException e) {
                             System.out.println("Could'nt convert file:" + e.getMessage());
                             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(
-                            new Message("Could'nt convert", MessageCode.SEVERE)).build();
+                                    new Message("Could'nt convert", MessageCode.SEVERE)).build();
                         }
                     }
                     System.err.println("=> About to parse file: " + fRead.getAbsolutePath());
-                    DsStream stream = new DsStream(emg, mapAttrs);
+                    DsStream stream = new DsStream(emg, mapAttrs, lSandBoxID);
                     try {
                         new OgrInfo().readFeatures(fRead, stream, dbDatasource.getLayer());
                     } catch (Exception e) {
@@ -146,7 +152,7 @@ public class DatasourceFactory {
      * @throws WebApplicationException
      * @throws IOException 
      */
-    public static List<Long> addDatasource(EntityManager emg, UserDbEntity usr, DatasourceInfo info) throws WebApplicationException, IOException {
+    public static List<Long> addDatasource(EntityManager emg, UserDbEntity usr, DatasourceInfo info) throws IOException {
         if (info != null && info.path != null) {
             File file = new File(info.path);
             if (file.exists()) {
@@ -158,10 +164,10 @@ public class DatasourceFactory {
                     }
                     return arrlID;
                 } else {
-                    throw new WebApplicationException(new Exception("Could not add the datasource: " + info.path));
+                    throw new IOException(new Exception("Could not add the datasource: " + info.path));
                 }
             } else {
-                throw new WebApplicationException(new IllegalArgumentException("File not found for path: " + info.path));
+                throw new IOException(new IllegalArgumentException("File not found for path: " + info.path));
             }
         } else {
             throw new WebApplicationException(new IllegalArgumentException("The path can't be null."));
@@ -189,6 +195,7 @@ public class DatasourceFactory {
                 dse.setMaxX(env.getHighX());
                 dse.setMaxY(env.getHighY());
             }
+            //TODO Jeff: put the file in a separe table to not have to duplicate the file for each layer ?
             dse.setDataFile(zip);
             em.persist(dse);
             arrlDs.add(dse);

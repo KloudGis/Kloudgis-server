@@ -20,7 +20,7 @@ import org.hibernate.annotations.Index;
 import org.hibernate.annotations.Type;
 
 @Entity
-@Table( name = "datasource" )
+@Table( name = "datasources" )
 public class DatasourceDbEntity implements Serializable {
 
     @SequenceGenerator(name = "ds_seq_gen", sequenceName = "datasource_fid_seq")

@@ -10,9 +10,9 @@ import java.util.List;
  *
  * @author sylvain
  */
-public class FetchResult {
+public class FetchResult <T> {
 
-    public List features;
+    public List<T> features;
     public Long count;
 
     public FetchResult() {

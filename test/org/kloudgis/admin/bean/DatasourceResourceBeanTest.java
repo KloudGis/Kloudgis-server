@@ -3,6 +3,7 @@
  */
 package org.kloudgis.admin.bean;
 
+import org.kloudgis.admin.pojo.Sandbox;
 import org.kloudgis.persistence.DatabaseFactory;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.kloudgis.LoginFactory;
@@ -22,22 +23,14 @@ import java.sql.PreparedStatement;
 import java.sql.DriverManager;
 import java.sql.Connection;
 import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.kloudgis.GeometryFactory;
 import org.kloudgis.mapserver.MapServerFactory;
 import static org.junit.Assert.*;
+import static org.kloudgis.admin.bean.TestConstant.*;
 
 public class DatasourceResourceBeanTest {
-
-    private final String strDbURL = "localhost:5432";
-    private final String strAdminDbURL = "jdbc:postgresql://" + strDbURL + "/test_admin";
-    private final String strSandboxDbURL = "jdbc:postgresql://" + strDbURL + "/test_sandbox";
-    private final String strGeoserverURL = "http://192.168.12.36:8080/geoserver210";
-    private final String strDbUser = "kloudgis";
-    private final String strPassword = "kwadmin";
-    private final String strKloudURL = "http://localhost:8080";
-    private final String strGeoUser = "admin";
-    private final String strGeoPass = "geoserver";
 
     public void dropCreate() throws ClassNotFoundException, SQLException {
         System.out.println("addDatasource");
@@ -56,10 +49,13 @@ public class DatasourceResourceBeanTest {
         Connection conn2 = null;
         try {
             conn2 = DriverManager.getConnection("jdbc:postgresql://" + strDbURL + "/test_admin", strDbUser, strPassword);
-            PreparedStatement pst = conn2.prepareStatement("truncate datasource cascade;");
+            PreparedStatement pst = conn2.prepareStatement("truncate datasources cascade;");
             pst.execute();
             pst.close();
-            pst = conn2.prepareStatement("truncate ds_column cascade;");
+            pst = conn2.prepareStatement("truncate ds_columns cascade;");
+            pst.execute();
+            pst.close();
+            pst = conn2.prepareStatement("truncate sandboxes cascade;");
             pst.execute();
             pst.close();
             conn2.close();
@@ -89,14 +85,14 @@ public class DatasourceResourceBeanTest {
             e.printStackTrace();
         }
 
-        PostMethod pstm = new PostMethod(strKloudURL + "/kg_server/public/login");
+        PostMethod postLogin = new PostMethod(strKloudURL + "/kg_server/public/login");
         String strPswd = LoginFactory.hashString("kwadmin", "SHA-256");
-        pstm.setRequestEntity(new StringRequestEntity("{\"user\":\"admin@kloudgis.com\",\"pwd\":\"" + strPswd + "\"}", "application/json", "UTF-8"));
+        postLogin.setRequestEntity(new StringRequestEntity("{\"user\":\"admin@kloudgis.com\",\"pwd\":\"" + strPswd + "\"}", "application/json", "UTF-8"));
         HttpClient htcLogin = new HttpClient();
-        assertEquals(htcLogin.executeMethod(pstm), 200);
-        String strBody = pstm.getResponseBodyAsString(1000);
+        assertEquals(200, htcLogin.executeMethod(postLogin));
+        String strBody = postLogin.getResponseBodyAsString(1000);
         String strAuth = strBody.substring(strBody.indexOf(":") + 2, strBody.lastIndexOf("\""));
-        pstm.releaseConnection();
+        postLogin.releaseConnection();
         System.out.println("Login completed");
         
 //        get the relative path to the place where the data files for this test are
@@ -223,7 +219,7 @@ public class DatasourceResourceBeanTest {
 
 //        test the shape file insertion
         PreparedStatement pst = conn.prepareStatement("select lid, denvelopemaxx, denvelopemaxy, denvelopeminx, denvelopeminy,"
-                + " icrs, icolumncount, ifeaturecount, strgeomtype, strlayerName, lownerid, strfilename from datasource;");
+                + " icrs, icolumncount, ifeaturecount, strgeomtype, strlayerName, lownerid, strfilename from datasources;");
         ResultSet rst = pst.executeQuery();
         assertTrue(rst.next());
         long ds_id = rst.getLong(1);
@@ -241,7 +237,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Check cities.shp OK");
 
-        PreparedStatement pst1 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        PreparedStatement pst1 = conn.prepareStatement("select strname, strtype from ds_columns where dts_lid=" + ds_id + ";");
         ResultSet rst1 = pst1.executeQuery();
         assertTrue(rst1.next());
         assertEquals("TYPE", rst1.getString(1));
@@ -298,7 +294,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Check cities900913.shp OK");
 
-        pst1 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        pst1 = conn.prepareStatement("select strname, strtype from ds_columns where dts_lid=" + ds_id + ";");
         rst1 = pst1.executeQuery();
         assertTrue(rst1.next());
         assertEquals("TYPE", rst1.getString(1));
@@ -357,7 +353,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Check 2325_integration.dgn OK");
 
-        PreparedStatement pst2 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        PreparedStatement pst2 = conn.prepareStatement("select strname, strtype from ds_columns where dts_lid=" + ds_id + ";");
         rst1 = pst2.executeQuery();
         assertTrue(rst1.next());
         assertEquals("Type", rst1.getString(1));
@@ -408,7 +404,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Check 2325_BORN_REN.dxf OK");
 
-        PreparedStatement pst3 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        PreparedStatement pst3 = conn.prepareStatement("select strname, strtype from ds_columns where dts_lid=" + ds_id + ";");
         rst1 = pst3.executeQuery();
         assertTrue(rst1.next());
         assertEquals("Layer", rst1.getString(1));
@@ -450,7 +446,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Check places.gml OK");
 
-        PreparedStatement pst4 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        PreparedStatement pst4 = conn.prepareStatement("select strname, strtype from ds_columns where dts_lid=" + ds_id + ";");
         rst1 = pst4.executeQuery();
         assertTrue(rst1.next());
         assertEquals("AREA", rst1.getString(1));
@@ -522,7 +518,7 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("Check LOTOCCUPE.kml OK");
 
-        PreparedStatement pst5 = conn.prepareStatement("select strname, strtype from ds_column where dts_lid=" + ds_id + ";");
+        PreparedStatement pst5 = conn.prepareStatement("select strname, strtype from ds_columns where dts_lid=" + ds_id + ";");
         rst1 = pst5.executeQuery();
         assertTrue(rst1.next());
         assertEquals("Name", rst1.getString(1));
@@ -581,30 +577,33 @@ public class DatasourceResourceBeanTest {
 
         System.out.println("About to create a sandbox 'test_sandbox'");
 //        add sandbox db
-        URL url = new URL(strKloudURL + "/kg_server/protected/admin/sandboxes");
-        HttpURLConnection httpCon = (HttpURLConnection) url.openConnection();
-        OutputStream ost = null;
+        
         int iRet;
-        httpCon.setDoOutput(true);
-        httpCon.setRequestMethod("POST");
-        httpCon.setRequestProperty("Content-type", "application/json");
-        httpCon.setRequestProperty("Cookie", "security-Kloudgis.org=" + strAuth);
-        ost = httpCon.getOutputStream();
-        ost.write(("{\"connection_url\":\"" + strDbURL + "/test_sandbox\",\"name\":\"test_sandbox\",\"url_geoserver\":\"" + strGeoserverURL + "\"}").getBytes());
-        ost.flush();
-        iRet = httpCon.getResponseCode();
-        httpCon.disconnect();
-        ost.close();
+        HttpClient httpClient = new HttpClient();
+        PostMethod post = new PostMethod(strKloudURL + "/kg_server/protected/admin/sandboxes");
+        post.addRequestHeader("Cookie", "security-Kloudgis.org=" + strAuth);
+        ObjectMapper mapper = new ObjectMapper();
+        Sandbox outSandbox = new Sandbox();
+        outSandbox.connection_url = strDbURL;
+        outSandbox.name = "test_sandbox";
+        outSandbox.url_geoserver = strGeoserverURL;
+        String json = mapper.writeValueAsString(outSandbox);
+        post.setRequestEntity(new StringRequestEntity(json, "application/json", "UTF-8"));
+        iRet = httpClient.executeMethod(post);
         assertEquals(200, iRet);
-
+        Sandbox sand = mapper.readValue(post.getResponseBodyAsStream(), Sandbox.class);
+        long sId = sand.guid;
         System.out.println("Create sandbox 'test_sandbox' sucessful");
 
 
         Connection conn = DriverManager.getConnection(strSandboxDbURL, strDbUser, strPassword);
-
+        
+        URL url;
+        HttpURLConnection httpCon;
+        OutputStream ost = null;
         truncate(conn);
         System.out.println("About to load the SHP");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("cities.shp") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("cities.shp") + "?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -616,7 +615,7 @@ public class DatasourceResourceBeanTest {
         iRet = httpCon.getResponseCode();
         httpCon.disconnect();
         ost.close();
-        assertEquals(iRet, 200);
+        assertEquals(200,iRet);
         assertEquals(getCount(conn, "poi"), 1267);
         assertEquals(getTagCount(conn, "poi_tag", "TYPE"), 1267);
         assertEquals(getTagCount(conn, "poi_tag", "NATION"), 1267);
@@ -640,7 +639,7 @@ public class DatasourceResourceBeanTest {
         
         truncate(conn);
         System.out.println("About to load the SHP 900913");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("cities_900913.shp") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("cities_900913.shp") + "?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -677,7 +676,7 @@ public class DatasourceResourceBeanTest {
 
         truncate(conn);
         System.out.println("About to load the GML");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("gml") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("gml") + "?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -713,7 +712,7 @@ public class DatasourceResourceBeanTest {
 
         truncate(conn);
         System.out.println("About to load the DXF");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dxf") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dxf") + "?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -745,7 +744,7 @@ public class DatasourceResourceBeanTest {
 
         truncate(conn);
         System.out.println("About to load the KML");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("kml") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("kml") + "?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -768,7 +767,7 @@ public class DatasourceResourceBeanTest {
         
         truncate(conn);
         System.out.println("About to load the DGN");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dgn") + "?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/" + getID("dgn") + "?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -805,7 +804,7 @@ public class DatasourceResourceBeanTest {
         System.out.println("Load the DGN sucessful");
 
         System.out.println("About to load the -1");
-        url = new URL(strKloudURL + "/kg_server/protected/sources/load/-1?sandbox=1");
+        url = new URL(strKloudURL + "/kg_server/protected/sources/load/-1?sandbox=" + sId);
         httpCon = (HttpURLConnection) url.openConnection();
         httpCon.setDoOutput(true);
         httpCon.setRequestMethod("POST");
@@ -857,7 +856,7 @@ public class DatasourceResourceBeanTest {
         HttpClient htcLogout = new HttpClient();
         assertEquals(200, htcLogout.executeMethod(gtm));
         gtm.releaseConnection();
-        System.out.println("Logout OK");
+        System.out.println("Logout OK");       
     }
 
     private void truncate(Connection conn) throws SQLException {
@@ -884,7 +883,7 @@ public class DatasourceResourceBeanTest {
 
     private int getID(String strExt) throws SQLException {
         Connection con = DriverManager.getConnection(strAdminDbURL, strDbUser, strPassword);
-        PreparedStatement pst = con.prepareStatement("select lid from datasource where strfilename like'%" + strExt + "';");
+        PreparedStatement pst = con.prepareStatement("select lid from datasources where strfilename like'%" + strExt + "';");
         ResultSet rst = pst.executeQuery();
         int i = -1;
         while (rst.next()) {

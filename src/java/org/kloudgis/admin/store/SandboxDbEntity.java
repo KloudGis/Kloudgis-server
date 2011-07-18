@@ -19,6 +19,7 @@ import com.vividsolutions.jts.geom.Geometry;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
+import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -28,6 +29,9 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
@@ -73,14 +77,20 @@ public class SandboxDbEntity implements Serializable {
     //projection to display coordinates.  "ESPG:4326"
     @Column(length = 30)
     private String display_projection;
-    @ManyToOne(fetch= FetchType.LAZY, optional=true)
+    @ManyToOne(fetch= FetchType.LAZY, optional=true,cascade= CascadeType.REMOVE)
     private BaseLayerModeDbEntity base_layer_mode;
     @Column(length = 250)
     private String geoserver_url;
-
     //feeds
     @OneToMany(mappedBy="sandbox", cascade={CascadeType.PERSIST, CascadeType.REMOVE})
     private Set<FeedDbEntity> feeds;
+    //binded user
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(name="sandbox_users",
+            joinColumns=@JoinColumn(name="sandbox_id"),
+            inverseJoinColumns=@JoinColumn(name="user_id")
+        )
+    private Set<UserDbEntity> binded_users = new HashSet();
 
     public Long getId(){
         return id;
@@ -125,6 +135,10 @@ public class SandboxDbEntity implements Serializable {
     public Set<FeedDbEntity> getFeed() {
         return feeds;
     }
+    
+    public String getName(){
+        return name;
+    }
 
     public void addFeed(FeedDbEntity feedDb) {
         feedDb.setSandbox(this);
@@ -148,5 +162,13 @@ public class SandboxDbEntity implements Serializable {
         pojo.connection_url = connection_url;
         pojo.baseLayerMode = base_layer_mode == null ? null :base_layer_mode.getID();
         return pojo;
+    }
+
+    public void bindUser(UserDbEntity user) {
+        binded_users.add(user);
+    }
+
+    public void unBindUser(UserDbEntity user) {
+        binded_users.remove(user);
     }
 }

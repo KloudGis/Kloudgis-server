@@ -7,12 +7,14 @@ package org.kloudgis.admin.store;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Query;
@@ -56,8 +58,11 @@ public class UserDbEntity implements Serializable {
     private String password_salt;
     @Column(columnDefinition = "TEXT")
     private String auth_token;
-    @ManyToMany
-    @JoinTable(name = "user_sandbox")
+    @ManyToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH})
+    @JoinTable(name="sandbox_users",
+            joinColumns=@JoinColumn(name="user_id"),
+            inverseJoinColumns=@JoinColumn(name="sandbox_id")
+        )
     private Set<SandboxDbEntity> sandboxes;
 
     public void setSalt(String s) {
@@ -254,14 +259,6 @@ public class UserDbEntity implements Serializable {
 
     public Set<SandboxDbEntity> getSandboxes() {
         return sandboxes;
-    }
-    
-    public void addSandbox(SandboxDbEntity sand){
-        sandboxes.add(sand);
-    }
-    
-    public void removeSandbox(SandboxDbEntity sand){
-        sandboxes.remove(sand);
     }
    
 }

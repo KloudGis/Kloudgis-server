@@ -8,7 +8,6 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import javax.persistence.EntityManager;
-import javax.ws.rs.core.Response;
 import org.kloudgis.MessageCode;
 import org.kloudgis.admin.pojo.Message;
 import org.kloudgis.data.featuretype.NoteFeatureType;
@@ -22,8 +21,12 @@ import org.kloudgis.data.store.ZoneDbEntity;
 
 public class DatabaseFactory {
 
-    public static final String USER = "kloudgis";//regular user
-    public static final String PASSWORD = "kwadmin";//regular password
+    public static final String USER_PU = "kloudgis";//regular user
+    public static final String PASSWORD_PU = "kwadmin";//regular password
+    public static final String USER_OUT = "kg_out";//regular user
+    public static final String PASSWORD_OUT = "kwadmin";//regular password
+    public static final String USER_GEO = "kg_geoserver";//regular user
+    public static final String PASSWORD_GEO = "kwadmin";//regular password
 
     public static void createIndexes(EntityManager em) {
         if (em != null) {
@@ -58,10 +61,10 @@ public class DatabaseFactory {
         }
     }
 
-    public static void loadModel(EntityManager em){
+    public static void loadModel(EntityManager em) {
         if (em != null) {
             Object count = em.createQuery("select count(*) from FeatureTypeDbEntity").getSingleResult();
-            if(count == null || ((Number)count).intValue() == 0){
+            if (count == null || ((Number) count).intValue() == 0) {
                 em.getTransaction().begin();
                 //POI
                 FeatureTypeDbEntity ft = new FeatureTypeDbEntity();
@@ -110,19 +113,64 @@ public class DatabaseFactory {
                 em.getTransaction().commit();
             }
         }
-     }
+    }
 
-    public static Response createDB( String strURL, String strName ) throws ClassNotFoundException, SQLException {
-        Class.forName( "org.postgresql.Driver" );
-        Connection con = DriverManager.getConnection( "jdbc:postgresql://" + strURL + "/postgres", USER, PASSWORD );
-        if( con != null ) {
-            PreparedStatement pst = con.prepareStatement( "CREATE DATABASE " + strName + " template=postgis;" );
-            pst.execute();
-            pst.close();
-            con.close();
-        } else {
-            return Response.serverError().entity( new Message( "Could not create database: " + strName, MessageCode.SEVERE ) ).build();
+    public static Message createDB(String strURL, String strName) throws SQLException {
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
         }
-        return Response.ok().build();
+        Connection con = null;
+        try {
+            con = DriverManager.getConnection("jdbc:postgresql://" + strURL + "/postgres", USER_OUT, PASSWORD_OUT);
+            if (con != null) {
+                PreparedStatement pst = con.prepareStatement("CREATE DATABASE " + strName + " template=postgis;");
+                pst.execute();
+                pst.close();
+                con.close();
+            } else {
+                return new Message("No connection. Could not create database: " + strName, MessageCode.SEVERE);
+            }
+        } catch (SQLException ex) {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException ex1) {
+                }
+            }
+            throw ex;
+        }
+        return null;
+    }
+
+    public static Message dropDb(String strURL, String strName) throws SQLException {
+
+        try {
+            Class.forName("org.postgresql.Driver");
+        } catch (ClassNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        Connection con = null;
+        try {
+            con = DriverManager.getConnection("jdbc:postgresql://" + strURL + "/postgres", USER_OUT, PASSWORD_OUT);
+            if (con != null) {
+                PreparedStatement pst = con.prepareStatement("DROP DATABASE " + strName + " ;");
+                pst.execute();
+                pst.close();
+                con.close();
+            } else {
+                return new Message("No connection. Could not drop database: " + strName, MessageCode.SEVERE);
+            }
+        } catch (SQLException ex) {
+            if (con != null) {
+                try {
+                    con.close();
+                } catch (SQLException ex1) {
+                }
+            }
+            throw ex;
+        }
+        return null;
     }
 }

@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.Persistence;
 import org.hibernate.Criteria;
 import org.hibernate.criterion.Projections;
@@ -27,51 +28,49 @@ public class PersistenceManager {
     public static final boolean DEBUG = true;
     private static final String DEFAULT_PU = "sandboxPU";
     private static String ADMIN_PU = "adminPU";
-    private static final PersistenceManager singleton = new PersistenceManager();
+    private static PersistenceManager instance;
     public static int COMMIT_BLOCK = 30;
     private EntityManagerFactory adminFactory;
-    //TODO: Add a validation thread to kill emf if not used for a while
-    private LinkedHashMap<String, FactoryWrapper> hashSandboxesFactory = new LinkedHashMap<String, FactoryWrapper>();
+    protected LinkedHashMap<Long, FactoryWrapper> hashSandboxesFactory = new LinkedHashMap<Long, FactoryWrapper>();
+    private CheckEmfSandboxThread validThread;
 
     private PersistenceManager() {
     }
 
     public static PersistenceManager getInstance() {
-        return singleton;
+        if (instance == null) {
+            instance = new PersistenceManager();
+        }
+        return instance;
     }
 
     public HibernateEntityManager getAdminEntityManager() {
-        return getEntityManager(ADMIN_PU);
-    }
-
-    public HibernateEntityManager getEntityManager(String namePU) {
-        return (HibernateEntityManager) getEntityManagerFactory(namePU).createEntityManager();
-    }
-
-    private EntityManagerFactory getEntityManagerFactory(String namePU) {
-        if (namePU.equals(ADMIN_PU)) {
-            if (adminFactory != null) {
-                return adminFactory;
-            } else {
-                adminFactory = createEntityManagerFactory( ADMIN_PU );
-                HibernateEntityManager emAdmin = ( HibernateEntityManager )adminFactory.createEntityManager();
-                Criteria crit = emAdmin.getSession().createCriteria( UserDbEntity.class );
-                Long lCount = ( ( Number ) crit.setProjection( Projections.rowCount() ).uniqueResult() ).longValue();
-                if( lCount.longValue() == 0 ) {
-                    SignupUser usr = new SignupUser();
-                    usr.user = "admin@kloudgis.com";
-                    usr.pwd = LoginFactory.hashString( "kwadmin", "SHA-256" );
-                    LoginFactory.register( usr, "en", UserDbEntity.ROLE_ADM );
-                }
-                return adminFactory;
+        if (adminFactory != null) {
+            return (HibernateEntityManager) adminFactory.createEntityManager();
+        } else {
+            adminFactory = createEntityManagerFactory(ADMIN_PU);
+            HibernateEntityManager emAdmin = (HibernateEntityManager) adminFactory.createEntityManager();
+            Criteria crit = emAdmin.getSession().createCriteria(UserDbEntity.class);
+            Long lCount = ((Number) crit.setProjection(Projections.rowCount()).uniqueResult()).longValue();
+            if (lCount.longValue() == 0) {
+                SignupUser usr = new SignupUser();
+                usr.user = "admin@kloudgis.com";
+                usr.pwd = LoginFactory.hashString("kwadmin", "SHA-256");
+                LoginFactory.register(usr, "en", UserDbEntity.ROLE_ADM);
             }
+            return (HibernateEntityManager) adminFactory.createEntityManager();
         }
-        return null;
+    }
+
+    public void startEmfValidation() {
+        validThread = new CheckEmfSandboxThread();
+        validThread.start();
     }
 
     public void closeEntityManagerFactories() {
         if (adminFactory != null) {
             adminFactory.close();
+            adminFactory = null;
         }
         for (FactoryWrapper wrap : hashSandboxesFactory.values()) {
             if (wrap.getEmf() != null) {
@@ -79,6 +78,8 @@ public class PersistenceManager {
             }
         }
         hashSandboxesFactory.clear();
+        validThread.stopChecking();
+        validThread = null;
     }
 
     protected EntityManagerFactory createEntityManagerFactory(String namePU) {
@@ -86,7 +87,7 @@ public class PersistenceManager {
         return emf;
     }
 
-    private EntityManagerFactory getSandboxEntityManagerFactory(String key, String url) {
+    private EntityManagerFactory getSandboxEntityManagerFactory(Long key, String url) {
         if (hashSandboxesFactory.get(key) == null) {
             return createSandboxManagerFactory(key, url);
         }
@@ -94,42 +95,49 @@ public class PersistenceManager {
         return hashSandboxesFactory.get(key).getEmf();
     }
 
-    protected synchronized EntityManagerFactory createSandboxManagerFactory(String key, String url) {
+    public void markAccess(Long key) {
+        if (hashSandboxesFactory.get(key) != null) {
+            hashSandboxesFactory.get(key).markAccess();
+        }
+    }
+
+    protected synchronized EntityManagerFactory createSandboxManagerFactory(Long key, String url) {
         System.out.println("create emf for " + url);
         Map prop = new HashMap();
         prop.put("hibernate.connection.url", "jdbc:postgresql_postGIS://" + url);
-        prop.put("hibernate.connection.username", DatabaseFactory.USER);
-        prop.put("hibernate.connection.password", DatabaseFactory.PASSWORD);
+        prop.put("hibernate.connection.username", DatabaseFactory.USER_PU);
+        prop.put("hibernate.connection.password", DatabaseFactory.PASSWORD_PU);
         EntityManagerFactory emf = Persistence.createEntityManagerFactory(DEFAULT_PU, prop);
         if (emf != null) {
             //do not duplicate
-            if(hashSandboxesFactory.get(key) != null){
-               emf.close();
-               return hashSandboxesFactory.get(key).getEmf();
-            }else{
-                hashSandboxesFactory.put(key, new FactoryWrapper(emf));
+            if (hashSandboxesFactory.get(key) != null) {
+                hashSandboxesFactory.get(key).getEmf().close();
             }
+            hashSandboxesFactory.put(key, new FactoryWrapper(emf));
         }
         return emf;
     }
 
     public EntityManager getEntityManagerBySandboxId(Long projectId) {
-        EntityManager emAdmin = getEntityManager(ADMIN_PU);
-        SandboxDbEntity sandbox = emAdmin.find(SandboxDbEntity.class, projectId);
-        if (sandbox != null) {
-            String key = sandbox.getUniqueKey();
-            String url = sandbox.getConnectionUrl();
-            if (key != null && key.length() > 0 && url != null && url.length() > 0) {
-                EntityManagerFactory emf = getSandboxEntityManagerFactory(key, url);
-                if (emf != null) {
-                    EntityManager em = emf.createEntityManager();
-                    if (em != null) {
-                        return em;
+        EntityManager emAdmin = getAdminEntityManager();
+        try {
+            SandboxDbEntity sandbox = emAdmin.find(SandboxDbEntity.class, projectId);
+            emAdmin.close();
+            if (sandbox != null) {
+                Long key = sandbox.getId();
+                String url = sandbox.getConnectionUrl() + "/" + sandbox.getName();
+                if (key != null && url != null && url.length() > 0) {
+                    EntityManagerFactory emf = getSandboxEntityManagerFactory(key, url);
+                    if (emf != null) {
+                        EntityManager em = emf.createEntityManager();
+                        if (em != null) {
+                            return em;
+                        }
                     }
                 }
-            } else {
-                throw new NotFoundException("Missing project key or url");
             }
+        } catch (EntityNotFoundException e) {
+            System.out.println("sandbox not found:" + projectId);
         }
         return null;
     }

@@ -24,10 +24,12 @@ public class DsStream implements Streamable {
     private EntityManager emg;
     private HashMap<String, String> mapAttrs;
     private int iSize = 0;
+    private Long sandbox;
 
-    public DsStream(EntityManager emg, HashMap<String, String> mapAttrs) {
+    public DsStream(EntityManager emg, HashMap<String, String> mapAttrs, Long sandbox) {
         this.emg = emg;
         this.mapAttrs = mapAttrs;
+        this.sandbox = sandbox;      
         emg.getTransaction().begin();
     }
 
@@ -48,6 +50,7 @@ public class DsStream implements Streamable {
                 if (iSize % PersistenceManager.COMMIT_BLOCK == 0) {                 
                     emg.flush();
                     emg.clear();
+                    PersistenceManager.getInstance().markAccess(sandbox);
                 }
             }
         } else {

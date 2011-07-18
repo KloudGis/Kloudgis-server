@@ -16,22 +16,22 @@ public class FactoryWrapper {
     
     private EntityManagerFactory emf;
     
-    private Date last_access;
+    private long last_access;
     
     public FactoryWrapper(EntityManagerFactory emf){
         this.emf = emf;
-        last_access = Calendar.getInstance().getTime();
+        last_access = Calendar.getInstance().getTimeInMillis();
     }
     
     public EntityManagerFactory getEmf(){
         return this.emf;
     }
     
-    public Date getLastAccess(){
+    public long getLastAccess(){
         return last_access;
     }
     
     public void markAccess(){
-        this.last_access = Calendar.getInstance().getTime();
+        this.last_access = Calendar.getInstance().getTimeInMillis();
     }
 }

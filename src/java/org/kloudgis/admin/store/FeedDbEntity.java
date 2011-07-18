@@ -73,4 +73,8 @@ public class FeedDbEntity implements Serializable {
     public void setSandbox(SandboxDbEntity sand) {
         this.sandbox = sand;
     }
+    
+    public Long getID(){
+        return id;
+    }
 }

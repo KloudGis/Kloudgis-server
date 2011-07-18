@@ -15,7 +15,7 @@ import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
 @Entity
-@Table( name = "ds_column" )
+@Table( name = "ds_columns" )
 public class SourceColumnsDbEntity implements Serializable {
 
     @SequenceGenerator(name = "cols_seq_gen", sequenceName = "columns_fid_seq")

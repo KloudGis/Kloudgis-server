@@ -125,7 +125,7 @@ public class LoginResourceBean {
      * @return user logged in
      */
     @Path("logged_user")
-    @POST
+    @GET
     @Produces({"application/json"})
     public User loggedUser(@CookieParam(value = "security-Kloudgis.org") String auth_token) {
         EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();

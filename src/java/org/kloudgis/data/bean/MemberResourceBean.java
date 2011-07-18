@@ -62,7 +62,7 @@ public class MemberResourceBean {
             SandboxDbEntity sandbox = em.find(SandboxDbEntity.class, sandboxId);          
             UserDbEntity userDb = em.find(UserDbEntity.class, usr.user);
             //add a link in the admin PU
-            userDb.addSandbox(sandbox);
+            sandbox.bindUser(userDb);
             em.getTransaction().commit();
             em.close();
             //add a member in the sandbox PU

@@ -56,12 +56,12 @@ public abstract class MapServerFactory {
         }
     }
 
-    public static void addStore(String strGeoserverURL, String strHost, String strPort, String strName, Credentials crd)
+    public static void addStore(String strGeoserverURL, String strHost, String strPort, String workspace, String datastore, Credentials crd)
             throws MalformedURLException, IOException, GeoserverException {
-        PostMethod pst = new PostMethod(strGeoserverURL + "/rest/workspaces/" + strName + "/datastores");
-        pst.setRequestEntity(new StringRequestEntity("<dataStore><name>" + strName + "</name><enabled>true</enabled><connectionParameters><host>"
-                + strHost + "</host><port>" + strPort + "</port><database>" + strName + "</database><user>" + DatabaseFactory.USER
-                + "</user><passwd>" + DatabaseFactory.PASSWORD + "</passwd><dbtype>postgis</dbtype><namespace>" + strName
+        PostMethod pst = new PostMethod(strGeoserverURL + "/rest/workspaces/" + workspace + "/datastores");
+        pst.setRequestEntity(new StringRequestEntity("<dataStore><name>" + datastore + "</name><enabled>true</enabled><connectionParameters><host>"
+                + strHost + "</host><port>" + strPort + "</port><database>" + datastore + "</database><user>" + DatabaseFactory.USER_GEO
+                + "</user><passwd>" + DatabaseFactory.PASSWORD_GEO + "</passwd><dbtype>postgis</dbtype><namespace>" + workspace
                 + "</namespace></connectionParameters></dataStore>", "application/xml", "UTF-8"));
         HttpClient htc = new HttpClient();
         htc.getState().setCredentials(AuthScope.ANY, crd);
