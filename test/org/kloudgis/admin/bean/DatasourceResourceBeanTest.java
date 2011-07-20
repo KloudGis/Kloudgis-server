@@ -34,6 +34,12 @@ public class DatasourceResourceBeanTest {
 
     public void dropCreate() throws ClassNotFoundException, SQLException {
         System.out.println("addDatasource");
+        try {
+            //geoserver
+            MapServerFactory.deleteWorkspace(strGeoserverURL, "test_sandbox", new UsernamePasswordCredentials(strGeoUser, strGeoPass));
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
         //        get native postgres connection for testing
         Class.forName("org.postgresql.Driver");
@@ -68,12 +74,7 @@ public class DatasourceResourceBeanTest {
             DatabaseFactory.createDB(strDbURL, "test_admin");
         } catch (Exception e) {
         }
-        try {
-            //geoserver
-            MapServerFactory.deleteWorkspace(strGeoserverURL, "test_sandbox", new UsernamePasswordCredentials(strGeoUser, strGeoPass));
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        
     }
 
     @Test
