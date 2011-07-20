@@ -231,7 +231,7 @@ public class DatasourceResourceBeanTest {
         // assertEquals(0,rst.getInt(6));
         assertEquals(11, rst.getInt(7));
         assertEquals(1267, rst.getInt(8));
-        assertEquals("Point", rst.getString(9));
+        assertEquals("point", rst.getString(9));
         assertEquals("cities", rst.getString(10));
         assertEquals(1, rst.getInt(11));
         assertEquals("cities.shp", rst.getString(12));
@@ -288,7 +288,7 @@ public class DatasourceResourceBeanTest {
         // assertEquals(0,rst.getInt(6));
         assertEquals(11, rst.getInt(7));
         assertEquals(1267, rst.getInt(8));
-        assertEquals("Point", rst.getString(9));
+        assertEquals("point", rst.getString(9));
         assertEquals("cities_900913", rst.getString(10));
         assertEquals(1, rst.getInt(11));
         assertEquals("cities_900913.shp", rst.getString(12));
@@ -440,7 +440,7 @@ public class DatasourceResourceBeanTest {
         assertEquals(42.05346, rst.getDouble(5), 0);
         assertEquals(16, rst.getInt(7));
         assertEquals(497, rst.getInt(8));
-        assertEquals("Point", rst.getString(9));
+        assertEquals("point", rst.getString(9));
         assertEquals("placept", rst.getString(10));
         assertEquals(1, rst.getInt(11));
         assertEquals("places.gml", rst.getString(12));
@@ -512,7 +512,7 @@ public class DatasourceResourceBeanTest {
         assertEquals(45.3160540739093, rst.getDouble(5), 0.000001);
         assertEquals(2, rst.getInt(7));
         assertEquals(2903, rst.getInt(8));
-        assertEquals("3D Polygon", rst.getString(9));
+        assertEquals("polygon", rst.getString(9));
         assertEquals("Layer #0", rst.getString(10));
         assertEquals(1, rst.getInt(11));
         assertEquals("LOTOCCUPE.kml", rst.getString(12));
