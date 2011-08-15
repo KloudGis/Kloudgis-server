@@ -31,8 +31,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.kloudgis.AuthorizationManager;
 import org.kloudgis.LoginFactory;
+import org.kloudgis.MessageCode;
 import org.kloudgis.admin.pojo.Credential;
 import org.kloudgis.admin.pojo.LoginResponse;
+import org.kloudgis.admin.pojo.Message;
 import org.kloudgis.admin.pojo.SignupUser;
 import org.kloudgis.admin.pojo.User;
 import org.kloudgis.admin.store.UserDbEntity;
@@ -117,8 +119,8 @@ public class LoginResourceBean {
     @GET
     @Produces({"application/json"})
     public Response pingServer() {
-        return Response.ok("Ping").build();
-    }
+        return Response.ok(new Message("ping", MessageCode.INFO)).build();
+    }  
 
     /**
      * Get the logged user properties
