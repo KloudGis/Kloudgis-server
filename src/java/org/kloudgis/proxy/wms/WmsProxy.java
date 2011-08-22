@@ -45,7 +45,7 @@ public class WmsProxy extends HttpServlet {
     //query params
     public static final String KG_SANDBOX = "kg_sandbox";
     //session attributes
-    public static final String KG_TIMEOUT = "kg_timeout";
+    public static final String KG_TIMEOUT = "!kg_timeout!";
     public static final String KG_GEOSERVER = "kg_geoserver";
     
 

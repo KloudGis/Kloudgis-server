@@ -7,12 +7,12 @@ public class Message {
 
     public String message;
     public String message_loc;
-    public byte bType;
+    public Integer type;
 
     public Message() {}
 
-    public Message( String strMessage, byte bType ) {
+    public Message( String strMessage, Integer bType ) {
         message = strMessage;
-        this.bType = bType;
+        this.type = bType;
     }
 }

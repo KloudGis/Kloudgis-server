@@ -14,7 +14,9 @@
  */
 package org.kloudgis.admin.bean;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,8 +33,11 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import org.kloudgis.AuthorizationManager;
 import org.kloudgis.LoginFactory;
+import org.kloudgis.MessageCode;
+import org.kloudgis.SandboxUtils;
 import org.kloudgis.admin.pojo.Credential;
 import org.kloudgis.admin.pojo.LoginResponse;
+import org.kloudgis.admin.pojo.Message;
 import org.kloudgis.admin.pojo.SignupUser;
 import org.kloudgis.admin.pojo.User;
 import org.kloudgis.admin.store.UserDbEntity;
@@ -116,8 +121,31 @@ public class LoginResourceBean {
     @Path("ping")
     @GET
     @Produces({"application/json"})
-    public Response pingServer() {
-        return Response.ok("Ping").build();
+    public Response pingServer() {   
+        return Response.ok(new Message("ping", MessageCode.INFO)).build();
+    } 
+    
+    /**
+     * Get the logged user properties
+     * @return user logged in
+     */
+    @Path("notification_check")
+    @GET
+    @Produces({"application/json"})
+    public String notifySecurity(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sandbox") Long sandboxId) {
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        UserDbEntity u = new AuthorizationManager().getUserFromAuthToken(auth_token, em);
+        boolean bGranted = false;
+        if (u != null) {
+            bGranted = SandboxUtils.isMember(u, sandboxId);
+        }
+        em.close();
+        //TODO: remove 911 flag
+        if(bGranted || auth_token != null && auth_token.equals("911")){
+            return "Notification-Access-Granted";
+        }else{
+            return "Notification-Refused";
+        }
     }
 
     /**

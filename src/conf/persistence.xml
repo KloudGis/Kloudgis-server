@@ -16,7 +16,7 @@
       <property name="hibernate.connection.username" value="kloudgis"/>
       <property name="hibernate.connection.password" value="kwadmin"/>
       <property name="hibernate.connection.driver_class" value="org.postgis.DriverWrapper"/>
-      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://192.168.12.36:5432/test_admin"/>
+      <property name="hibernate.connection.url" value="jdbc:postgresql_postGIS://localhost:5432/kg_admin"/>
       <property name="hibernate.dialect" value="org.hibernatespatial.postgis.PostgisDialect"/>
       <property name="hibernate.c3p0.min_size" value="0"/>
       <property name="hibernate.c3p0.max_size" value="5"/>
