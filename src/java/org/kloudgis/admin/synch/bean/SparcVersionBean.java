@@ -36,15 +36,15 @@ import org.kloudgis.pojo.FileVersion;
  *
  * @author jeanfelixg
  */
-@Path("/protected/synch/spark")
+@Path("/protected/synch/sparc")
 @Produces({"application/json"})
-public class SparkVersionBean {
+public class SparcVersionBean {
 
     @GET
     @Path("files_date")
     public Response getLatestFilesDate() {
         HibernateEntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
-        Query query = em.getSession().createSQLQuery("select v.id, v.file_path, v.file_time from spark_version v LEFT JOIN spark_version v2 on (v.status = 1 AND v.file_path = v2.file_path AND v.file_time < v2.file_time) WHERE v2.id is null");
+        Query query = em.getSession().createSQLQuery("select v.id, v.file_path, v.file_time from sparc_version v LEFT JOIN sparc_version v2 on (v.status = 1 AND v.file_path = v2.file_path AND v.file_time < v2.file_time) WHERE v2.id is null");
         List<Object[]> files = query.list();
         ArrayList<FileVersion> arrlPojo = new ArrayList();
         for (Object[] oFile : files) {
