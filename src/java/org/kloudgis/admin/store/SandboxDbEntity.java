@@ -53,16 +53,16 @@ public class SandboxDbEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "sandbox_seq_gen")
     private Long id;
-    @Index(name="name_index")
+    @Index(name="s_name_index")
     @Column(length = 100)
     private String name;
-    @Index(name="owner_index")
+    @Index(name="s_owner_index")
     @Column(length = 100)
     private String owner;
-    @Index(name="date_creation_index")
+    @Index(name="s_date_creation_index")
     @Column
     private Timestamp date_creation;
-    @Index(name="key_index")
+    @Index(name="s_key_index")
     @Column(length = 250)
     private String unique_key;
     @Column(length = 250)
