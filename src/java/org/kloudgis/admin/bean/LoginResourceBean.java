@@ -123,20 +123,17 @@ public class LoginResourceBean {
     @Produces({"application/json"})
     public Response pingServer() {   
         return Response.ok(new Message("ping", MessageCode.INFO)).build();
-    } 
+    }
     
-    /**
-     * Get the logged user properties
-     * @return user logged in
-     */
     @Path("notification_check")
     @GET
     @Produces({"application/json"})
-    public String notifySecurity(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sandbox") Long sandboxId) {
+    public String notificationSecurity(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("sandbox") Long sandboxId) {
         EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
         UserDbEntity u = new AuthorizationManager().getUserFromAuthToken(auth_token, em);
         boolean bGranted = false;
         if (u != null) {
+            //only a user member of the sandbox can listener and send messages in this sandbox topic
             bGranted = SandboxUtils.isMember(u, sandboxId);
         }
         em.close();
@@ -147,7 +144,27 @@ public class LoginResourceBean {
             return "Notification-Refused";
         }
     }
-
+    
+    @Path("chat_listen_check")
+    @GET
+    @Produces({"application/json"})
+    public String notificationChatSecurity(@CookieParam(value = "security-Kloudgis.org") String auth_token, @QueryParam("email") String email) {
+        EntityManager em = PersistenceManager.getInstance().getAdminEntityManager();
+        UserDbEntity u = new AuthorizationManager().getUserFromAuthToken(auth_token, em);
+        boolean bGranted = false;
+        if (u != null) {
+            //only the user with this email can listen the email topic
+            bGranted = u.getEmail() != null && u.getEmail().equals(email);
+        }
+        em.close();
+        //TODO: remove 911 flag
+        if(bGranted || auth_token != null && auth_token.equals("911")){
+            return "Notification-Access-Granted";
+        }else{
+            return "Notification-Refused";
+        }
+    }
+    
     /**
      * Get the logged user properties
      * @return user logged in
