@@ -92,6 +92,8 @@ public class LoginResourceBean {
         if (session != null) {
             session.invalidate();
         }
+        //TODO destroy the auth token from the DB(value in the cookie).
+        
         return Response.ok().build();
     }
 
